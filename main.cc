@@ -19,22 +19,54 @@ int main(int argc, char *argv[]) {
         MPI_Finalize();
         return 1;
     }
-    int uid_client = 0;
-    int uid_server = 1;
 
-    if (rank == uid_client)
+    int half = size/2;
+
+    /* severs will be process with uid from [0;half[
+     * again why not? ┐(‘～` )┌ ??
+     */
+
+    if (rank < half)
     {
-        std::cerr << "CLIENT STARTED : uid=" << uid_client << std::endl;
-        auto client = Client(uid_client);
-        client.send(uid_server);
+        std::cerr << "SERVER STARTED uid=" << rank << std::endl;
+        auto server = Server(rank, half);
+        int next = (rank + 1)%
+        if (rank == 0)
+        {
+            server.send_leader(rank + 1);
+            server.send_leader(half - 1);
+
+            server.received_leader(rank + 1);
+            server.received_leader(half - 1);
+        } else if (rank == half - 1)
+        {
+            server.send_leader(rank - 1);
+            server.send_leader(0);
+
+            server.received_leader(rank - 1);
+            server.received_leader(0);
+        } else
+        {
+            server.send_leader(rank + 1);
+            server.send_leader(rank - 1);
+
+            server.received_leader(rank + 1);
+            server.received_leader(rank - 1);
+        }
+
+        std::cout << "I am " << server.uid << " My leader is " << server.leader << std::endl;
+    }
+    /* clients will be process with uid from [half;size[
+     * because why not? ┐(‘～` )┌ ??
+     */
+    if (rank >= half)
+    {
+        std::cerr << "CLIENT STARTED : uid=" << rank << std::endl;
+        auto client = Client(rank);
+        client.send(get_leader_uid(0));
     }
 
-    if (rank == uid_server)
-    {
-        std::cerr << "SERVER STARTED uid=" << uid_server << std::endl;
-        auto server = Server(uid_server);
-        server.receive(uid_client);
-    }
+
     MPI_Finalize();
 
     return 0;
