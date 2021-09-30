@@ -1,6 +1,4 @@
 #include <mpi.h>
-#include <unistd.h>
-#include <stdio.h>
 #include <iostream>
 
 #include "client.hh"
@@ -20,7 +18,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    int half = size/2;
+    int half = size / 2;
 
     /* severs will be process with uid from [0;half[
      * again why not? ┐(‘～` )┌ ??
@@ -30,29 +28,16 @@ int main(int argc, char *argv[]) {
     {
         std::cerr << "SERVER STARTED uid=" << rank << std::endl;
         auto server = Server(rank, half);
-        int next = (rank + 1)%
-        if (rank == 0)
-        {
-            server.send_leader(rank + 1);
-            server.send_leader(half - 1);
+        int next = (rank + 1) % half;
+        std::cerr << "Next: " << next << std::endl;
+        int prev = (rank - 1 < 0)? 0 : (rank - 1) % half;
+        std::cerr << "Prev: " << prev << std::endl;
 
-            server.received_leader(rank + 1);
-            server.received_leader(half - 1);
-        } else if (rank == half - 1)
-        {
-            server.send_leader(rank - 1);
-            server.send_leader(0);
+        server.send_leader(next);
+        server.send_leader(prev);
 
-            server.received_leader(rank - 1);
-            server.received_leader(0);
-        } else
-        {
-            server.send_leader(rank + 1);
-            server.send_leader(rank - 1);
-
-            server.received_leader(rank + 1);
-            server.received_leader(rank - 1);
-        }
+        server.received_leader(next);
+        server.received_leader(prev);
 
         std::cout << "I am " << server.uid << " My leader is " << server.leader << std::endl;
     }
