@@ -1,9 +1,25 @@
 #include <mpi.h>
 #include <iostream>
 #include <map>
+#include <chrono>
+#include <thread>
+#include <functional>
 
 #include "client.hh"
 #include "server.hh"
+
+void timer_start(std::function<void(void)> func, unsigned int interval)
+{
+    std::thread([func, interval]()
+    {
+        while (true)
+        {
+            auto x = std::chrono::steady_clock::now() + std::chrono::milliseconds(interval);
+            func();
+            std::this_thread::sleep_until(x);
+        }
+    }).detach();
+}
 
 int main(int argc, char *argv[]) {
     int rank, size;
@@ -37,6 +53,9 @@ int main(int argc, char *argv[]) {
 
         std::cerr << "I am " << servers[rank].get_uid() << " My leader is "
                   << servers[rank].get_leader() << std::endl;
+
+        timer_start((servers[rank].leader_election()), 1000);
+        while (true);
     }
     /* clients will be process with uid from [half;size[
      * because why not? ┐(‘～` )┌ ??
