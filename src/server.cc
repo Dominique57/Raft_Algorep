@@ -36,6 +36,7 @@ void Server::send_leader(int dst_uid)
 
 int Server::received_leader(int src_uid)
 {
+//    std::cerr << uid_ << " waiting for message from " << src_uid << std::endl;
     MPI_Status status;
     int count;
     MPI_Get_count(&status, MPI_INT, &count);
@@ -49,18 +50,18 @@ int Server::received_leader(int src_uid)
              &status);
     if (status.MPI_ERROR == MPI_SUCCESS)
     {
-        std::cerr << "Server n*" << uid_ << " received " << message << " from " << src_uid << std::endl;
+//        std::cerr << "Server n*" << uid_ << " received " << message << " from " << src_uid << std::endl;
         return message;
     }
-    std::cerr << "No message received" << std::endl;
+//    std::cerr << "No message received" << std::endl;
     return leader_;
 }
 
 
-bool Server::end_condition(int neighbor)
+bool Server::end_condition(int src_uid)
 {
     // We receive the message from our neighbor
-    int message = received_leader(neighbor);
+    int message = received_leader(src_uid);
 
     // If we receive the same message as the leader we already have
     // Then we broadcast the leader
@@ -87,9 +88,7 @@ void Server::leader_election()
     if (end_condition(next_) || end_condition(prev_))
         return;
 
-    if (leader_ > uid_) {
-        leader_election();
-    }
+    leader_election();
 }
 
 
