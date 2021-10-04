@@ -1,5 +1,6 @@
 #include <mpi.h>
 #include <iostream>
+#include <map>
 
 #include "client.hh"
 #include "server.hh"
@@ -19,6 +20,7 @@ int main(int argc, char *argv[]) {
     }
 
     int half = size / 2;
+    std::map<int, Server> servers;
 
     /* severs will be process with uid from [0;half[
      * again why not? ┐(‘～` )┌ ??
@@ -26,24 +28,24 @@ int main(int argc, char *argv[]) {
 
     if (rank < half)
     {
-//        std::cerr << "SERVER STARTED uid=" << rank << std::endl;
-        auto server = Server(rank,
+        std::cerr << "SERVER STARTED uid=" << rank << std::endl;
+        servers[rank] = Server(rank,
                              (rank + 1) % half,
                              (rank - 1 < 0) ? half - 1 : (rank - 1) % half);
 
-        server.leader_election();
+        servers[rank].leader_election();
 
-        std::cerr << "I am " << server.get_uid() << " My leader is "
-                  << server.get_leader() << std::endl;
+        std::cerr << "I am " << servers[rank].get_uid() << " My leader is "
+                  << servers[rank].get_leader() << std::endl;
     }
     /* clients will be process with uid from [half;size[
      * because why not? ┐(‘～` )┌ ??
      */
     if (rank >= half)
     {
-//        std::cerr << "CLIENT STARTED : uid=" << rank << std::endl;
+        std::cerr << "CLIENT STARTED : uid=" << rank << std::endl;
         auto client = Client(rank);
-//        client.send(get_leader_uid(0));
+        client.send(get_leader_uid(0));
     }
 
 
