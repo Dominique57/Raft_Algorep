@@ -29,9 +29,7 @@ int main(int argc, char *argv[]) {
         std::cerr << "SERVER STARTED uid=" << rank << std::endl;
         auto server = Server(rank, half);
         int next = (rank + 1) % half;
-        std::cerr << "Next: " << next << std::endl;
-        int prev = (rank - 1 < 0)? 0 : (rank - 1) % half;
-        std::cerr << "Prev: " << prev << std::endl;
+        int prev = (rank - 1 < 0) ? 0 : (rank - 1) % half;
 
         server.send_leader(next);
         server.send_leader(prev);
@@ -39,7 +37,8 @@ int main(int argc, char *argv[]) {
         server.received_leader(next);
         server.received_leader(prev);
 
-        std::cout << "I am " << server.uid << " My leader is " << server.leader << std::endl;
+        std::cout << "I am " << server.uid << " My leader is "
+                  << server.leader << std::endl;
     }
     /* clients will be process with uid from [half;size[
      * because why not? ┐(‘～` )┌ ??

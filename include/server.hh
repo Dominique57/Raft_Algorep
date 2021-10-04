@@ -24,7 +24,7 @@ public:
      */
     void send_leader(int dst_uid);
 
-    void received_leader(int src_uid);
+    bool received_leader(int src_uid);
 
     int leader;
     int uid;

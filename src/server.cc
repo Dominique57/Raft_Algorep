@@ -33,7 +33,7 @@ void Server::send_leader(int dst_uid)
               MPI_COMM_WORLD);
 }
 
-void Server::received_leader(int src_uid)
+bool Server::received_leader(int src_uid)
 {
     MPI_Status status;
     int count;
@@ -46,12 +46,15 @@ void Server::received_leader(int src_uid)
              0,
              MPI_COMM_WORLD,
              &status);
-    std::cout << "from "<< uid <<  " \"received\" from : "<< src_uid<< std::endl;
     if (status.MPI_ERROR == MPI_SUCCESS)
     {
-        if (uid < message)
+        if (uid == message)
+            return true;
+        if (uid < message) {
             leader = message;
+        }
     }
+    return false;
 }
 
 int get_leader_uid(int nb_server)
