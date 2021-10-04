@@ -8,9 +8,11 @@
 class Server
 {
 public:
-    Server(int uid, int nb_messages)
-            : uid(uid),
-            leader(uid)
+    Server(int uid, int next, int prev)
+            : uid_(uid),
+            leader_(uid),
+            next_(next),
+            prev_(prev)
     {}
 
     /**
@@ -24,12 +26,34 @@ public:
      */
     void send_leader(int dst_uid);
 
-    bool received_leader(int src_uid);
+    void received_leader(int src_uid);
 
-    int leader;
-    int uid;
+    void leader_election();
+
+    int get_leader() {
+        return leader_;
+    }
+
+    int get_uid() {
+        return uid_;
+    }
+
+    int get_next() {
+        return next_;
+    }
+
+    int get_prev() {
+        return prev_;
+    }
+
 private:
     std::vector<int> messages;
+
+    int leader_;
+    int uid_;
+
+    int prev_;
+    int next_;
 };
 
 /**
