@@ -26,14 +26,14 @@ int main(int argc, char *argv[]) {
 
     if (rank < half)
     {
-        std::cerr << "SERVER STARTED uid=" << rank << std::endl;
+//        std::cerr << "SERVER STARTED uid=" << rank << std::endl;
         auto server = Server(rank,
                              (rank + 1) % half,
                              (rank - 1 < 0) ? half - 1 : (rank - 1) % half);
 
         server.leader_election();
 
-        std::cout << "I am " << server.get_uid() << " My leader is "
+        std::cerr << "I am " << server.get_uid() << " My leader is "
                   << server.get_leader() << std::endl;
     }
     /* clients will be process with uid from [half;size[
@@ -41,9 +41,9 @@ int main(int argc, char *argv[]) {
      */
     if (rank >= half)
     {
-        std::cerr << "CLIENT STARTED : uid=" << rank << std::endl;
+//        std::cerr << "CLIENT STARTED : uid=" << rank << std::endl;
         auto client = Client(rank);
-        client.send(get_leader_uid(0));
+//        client.send(get_leader_uid(0));
     }
 
 

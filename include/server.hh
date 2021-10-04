@@ -26,7 +26,7 @@ public:
      */
     void send_leader(int dst_uid);
 
-    void received_leader(int src_uid);
+    int received_leader(int src_uid);
 
     void leader_election();
 
@@ -48,6 +48,7 @@ public:
 
 private:
     std::vector<int> messages;
+    bool end_condition(int neighbors);
 
     int leader_;
     int uid_;
