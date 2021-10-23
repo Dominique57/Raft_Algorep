@@ -28,4 +28,5 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 target_link_libraries(${PROJECT_NAME} LINK_PUBLIC
     ${MPI_C_LIBRARIES}
+        -pthread
 )

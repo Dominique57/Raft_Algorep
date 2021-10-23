@@ -8,6 +8,8 @@
 class Server
 {
 public:
+    Server() {};
+
     Server(int uid, int next, int prev)
             : uid_(uid),
             leader_(uid),

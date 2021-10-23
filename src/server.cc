@@ -68,8 +68,10 @@ bool Server::end_condition(int src_uid)
     // And stops the election
     if (message == leader_)
     {
-        send_leader(next_);
-        send_leader(prev_);
+        if (src_uid == prev_)
+            send_leader(next_);
+        if (src_uid == next_)
+            send_leader(prev_);
         return true;
     }
 
