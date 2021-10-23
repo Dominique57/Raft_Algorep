@@ -1,15 +1,27 @@
 cmake_minimum_required(VERSION 3.16)
 project(algoreppppp)
 
-find_package(MPI REQUIRED)
-add_definitions(-DOMPI_SKIP_MPICXX)
+include(FetchContent)
+FetchContent_Declare(spdlog
+    URL https://github.com/gabime/spdlog/archive/v1.9.2.tar.gz
+)
+FetchContent_MakeAvailable(spdlog)
 
+add_definitions(-DOMPI_SKIP_MPICXX)
+find_package(MPI REQUIRED)
+
+
+add_custom_target(
+    run.sh
+    COMMAND sh ${CMAKE_SOURCE_DIR}/run.sh
+    DEPENDS ${PROJECT_NAME}
+)
 
 add_executable(${PROJECT_NAME}
     main.cc
-    src/client.cc include/client.hh
-    src/server.cc include/server.hh
+    src/runners/node.cc src/runners/node.hh
 )
+
 target_compile_features(${PROJECT_NAME} PRIVATE
     cxx_std_17
 )
@@ -23,10 +35,10 @@ target_compile_options(${PROJECT_NAME} PRIVATE
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
     include/
-    ${MPI_C_INCLUDE_PATH}
+    ${MPI_CXX_INCLUDE_PATH}
 )
 
 target_link_libraries(${PROJECT_NAME} LINK_PUBLIC
-    ${MPI_C_LIBRARIES}
-        -pthread
+    ${MPI_CXX_LIBRARIES}
+    spdlog::spdlog
 )
