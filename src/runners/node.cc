@@ -2,22 +2,23 @@
 
 #include "node.hh"
 
-void Node::receive_message() const
-{
+#include <spdlog/spdlog.h>
+
+void Node::receive_message() const {
     char buffer[1025] = {0};
     MPI_Status status;
-    MPI_Recv(buffer, 1024, MPI_UNSIGNED_CHAR, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
+//    MPI_Recv(buffer, 1024, MPI_UNSIGNED_CHAR, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
     auto recievedSmthing = MPI_Recv_Timeout(buffer, 1024, MPI_UNSIGNED_CHAR, MPI_ANY_SOURCE, 0,
                                             MPI_COMM_WORLD, &status, 100);
     if (recievedSmthing) {
-        std::cout << "[RECV] (" << rank_ << ") from " << status.MPI_SOURCE << ": `" << buffer << '`' << std::endl;
+        std::cout << "[RECV] (" << rank_ << ") from " << status.MPI_SOURCE << ": `" << buffer << '`'
+                  << std::endl;
     } else {
         std::cout << "Received nothing !" << std::endl;
     }
 }
 
-void Node::send_message() const
-{
+void Node::send_message() const {
     int timeToWait = std::rand() % 1000 + 500;
     usleep(timeToWait * 1000);
 
@@ -31,8 +32,7 @@ void Node::send_message() const
 bool
 Node::MPI_Recv_Timeout(void *data, int count, MPI_Datatype datatype, int source,
                        int tag, MPI_Comm communicator, MPI_Status *status,
-                       unsigned long timeout)
-{
+                       unsigned long timeout) {
     MPI_Request request;
     MPI_Irecv(data, count, datatype, source, tag, communicator, &request);
 
@@ -41,12 +41,12 @@ Node::MPI_Recv_Timeout(void *data, int count, MPI_Datatype datatype, int source,
 
     while (true) {
         auto end = std::chrono::steady_clock::now();
-        auto count = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+        auto countTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
         MPI_Test(&request, &hasMessage, status);
         if (hasMessage)
             break;
 
-        if (timeout < count) {
+        if (timeout < countTime) {
             MPI_Cancel(&request);
             break;
         }
