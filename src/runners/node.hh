@@ -13,9 +13,9 @@ class Node {
 public:
     explicit Node(unsigned int rank) : rank_(rank) {}
 
-    void send_message();
+    void send_message() const;
 
-    void receive_message();
+    void receive_message() const;
 
 protected:
     unsigned rank_;

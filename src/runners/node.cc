@@ -2,7 +2,7 @@
 
 #include "node.hh"
 
-void Node::receive_message()
+void Node::receive_message() const
 {
     char buffer[1025] = {0};
     MPI_Status status;
@@ -10,13 +10,13 @@ void Node::receive_message()
     auto recievedSmthing = MPI_Recv_Timeout(buffer, 1024, MPI_UNSIGNED_CHAR, MPI_ANY_SOURCE, 0,
                                             MPI_COMM_WORLD, &status, 100);
     if (recievedSmthing) {
-        std::cout << "[RECV] from " << status.MPI_SOURCE << ": `" << buffer << '`' << std::endl;
+        std::cout << "[RECV] (" << rank_ << ") from " << status.MPI_SOURCE << ": `" << buffer << '`' << std::endl;
     } else {
         std::cout << "Received nothing !" << std::endl;
     }
 }
 
-void Node::send_message()
+void Node::send_message() const
 {
     int timeToWait = std::rand() % 1000 + 500;
     usleep(timeToWait * 1000);
