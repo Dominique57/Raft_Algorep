@@ -54,8 +54,8 @@ int main(int argc, char *argv[]) {
         std::cerr << "I am " << servers[rank].get_uid() << " My leader is "
                   << servers[rank].get_leader() << std::endl;
 
-        timer_start((servers[rank].leader_election()), 1000);
-        while (true);
+//        timer_start((servers[rank].leader_election()), 1000);
+//        while (true);
     }
     /* clients will be process with uid from [half;size[
      * because why not? ┐(‘～` )┌ ??
