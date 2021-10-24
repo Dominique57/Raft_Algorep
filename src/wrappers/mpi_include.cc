@@ -10,8 +10,8 @@
 namespace MPI {
 
     void Send_Rpc(const Rpc::Rpc &rpc, int dest, int tag, MPI_Comm comm) {
-        const json serializeRpc = rpc.serialize();
-        const std::string &message = serializeRpc.dump();
+        // FIXME: check MPI_ISend + MPI_Request_free
+        const std::string &message = rpc.serialize().dump();
         MPI_Send(message.c_str(), (int) message.size(), MPI_CHAR, dest, tag, comm);
     }
 
@@ -56,7 +56,8 @@ namespace MPI {
         return std::make_unique<Rpc::RpcResponse>(res, status.MPI_SOURCE);
     }
 
-    std::unique_ptr<Rpc::RpcResponse> Recv_Rpc_Timeout(int src, long timeout, int tag, MPI_Comm comm) {
+    std::unique_ptr<Rpc::RpcResponse>
+    Recv_Rpc_Timeout(int src, long timeout, int tag, MPI_Comm comm) {
         auto start = std::chrono::steady_clock::now();
         while (true) {
             auto end = std::chrono::steady_clock::now();

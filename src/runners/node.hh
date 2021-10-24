@@ -19,8 +19,13 @@ public:
 
 public:
     Node()
-        : state(STATE::FOLLOWER)
-    {}
+            : state(STATE::FOLLOWER) {}
+
+    void update_follower();
+
+    void update_leader();
+
+    void update_candidate();
 
     void start();
 

@@ -10,6 +10,9 @@ namespace Rpc {
         Message(std::string message)
                 : Rpc(TYPE::MESSAGE), message(std::move(message)) {}
 
+        Message(const char *msg)
+                : Message(std::string(msg)) {}
+
         Message(const json &json)
                 : Message(json["data"]["value"].get<std::string>()) {}
 

@@ -8,8 +8,7 @@ namespace Rpc {
     class RpcResponse {
     public:
         RpcResponse(std::unique_ptr<Rpc> &rpc, int senderId)
-            : rpc(std::move(rpc)), senderId(senderId)
-        {}
+                : rpc(std::move(rpc)), senderId(senderId) {}
 
         std::unique_ptr<Rpc> rpc;
         int senderId;
