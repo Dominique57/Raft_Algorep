@@ -2,6 +2,11 @@
 
 #include "rpc.hh"
 
-json Rpc::serialize() const {
-    return json::object({{"value", message_ }});
+namespace Rpc {
+    json Rpc::serialize() const {
+        json j;
+        j["type"] = type_;
+        j["data"] = serialize_self();
+        return j;
+    }
 }

@@ -4,16 +4,35 @@
 
 #include <wrappers/nlhomann_include.hh>
 
-class Rpc {
-public:
-    Rpc(const std::string& message)
-            : message_(message)
-    {}
-    Rpc(const json& json)
-            : message_(json["value"].get<std::string>())
-    {}
+namespace Rpc {
+    enum class TYPE {
+        MESSAGE = 0,
+    };
+    static const char *type_names[] = {
+            "MESSAGE",
+    };
 
-    json serialize() const;
+    inline const char *getTypeName(Rpc::TYPE type) {
+        static const char *unknownName = "Unknown Type";
+        auto typeIndex = static_cast<unsigned int>(type);
 
-    std::string message_;
-};
+        if (typeIndex >= sizeof(type_names) / sizeof(type_names[0]))
+            return unknownName;
+        return type_names[typeIndex];
+    }
+
+    class Rpc {
+    public:
+        Rpc(TYPE type)
+                : type_(type) {}
+
+        json serialize() const;
+
+        TYPE Type() const { return type_; }
+
+    protected:
+        virtual json serialize_self() const = 0;
+
+        TYPE type_;
+    };
+}

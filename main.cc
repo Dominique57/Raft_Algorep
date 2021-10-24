@@ -4,6 +4,7 @@
 #include <spdlog/spdlog.h>
 #include <cstdlib>
 #include <wrappers/mpi_include.hh>
+#include <rpc/message.hh>
 
 #include "mpi.h"
 #include "src/runners/node.hh"
@@ -39,13 +40,18 @@ int main(int argc, char *argv[]) {
         while (true) {
             try {
                 auto msg = MPI::Recv_Rpc(MPI_ANY_SOURCE);
-                spdlog::info("Received message: {}", msg.message_);
+                if (msg->Type() == Rpc::TYPE::MESSAGE) {
+                    auto value = static_cast<Rpc::Message*>(msg.get());
+                    spdlog::info("Received message: {}", value->message);
+                } else {
+                    spdlog::warn("Forgot to handle case here !");
+                }
             } catch (const std::logic_error &) {
                 usleep(100 * 1000);
             }
         }
     } else {
-        auto rpc = Rpc(std::string("Hello"));
+        auto rpc = Rpc::Message(std::string("Hello"));
         MPI::Send_Rpc(rpc, 0);
     }
     return 0;

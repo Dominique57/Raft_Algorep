@@ -4,11 +4,13 @@
 
 #include <chrono>
 #include <unistd.h>
+#include <spdlog/spdlog.h>
+#include <rpc/message.hh>
 
 namespace MPI {
     bool MPI_Recv_Timeout(void *data, int count, MPI_Datatype datatype, int source,
                           int tag, MPI_Comm communicator, MPI_Status *status,
-                          unsigned long timeout) {
+                          long timeout) {
         MPI_Request request;
         MPI_Irecv(data, count, datatype, source, tag, communicator, &request);
 
@@ -44,13 +46,13 @@ namespace MPI {
         return messageLen;
     }
 
-    void Send_Rpc(const Rpc &rpc, int dest, int tag, MPI_Comm comm) {
+    void Send_Rpc(const Rpc::Rpc &rpc, int dest, int tag, MPI_Comm comm) {
         const json serializeRpc = rpc.serialize();
         const std::string &message = serializeRpc.dump();
         MPI_Send(message.c_str(), (int) message.size(), MPI_CHAR, dest, tag, comm);
     }
 
-    Rpc Recv_Rpc(int src, int tag, MPI_Comm comm) {
+    std::unique_ptr<Rpc::Rpc> Recv_Rpc(int src, int tag, MPI_Comm comm) {
         size_t messageLen = AnyMessageWaiting(src, tag, comm);
         if (messageLen <= 0)
             throw std::logic_error("FIXME: TODO: Not implemented !");
@@ -61,6 +63,14 @@ namespace MPI {
 
         std::string recvMessage(buffer.data());
         json recvJson = json::parse(recvMessage);
-        return Rpc(recvJson);
+
+        auto recvType = recvJson["type"].get<Rpc::TYPE>();
+        switch (recvType) {
+            case Rpc::TYPE::MESSAGE:
+                return std::make_unique<Rpc::Message>(recvJson);
+        }
+        auto errMsg = std::string("Unhandled message type: ") + Rpc::getTypeName(recvType);
+        spdlog::error(errMsg);
+        throw std::runtime_error(errMsg);
     }
 }

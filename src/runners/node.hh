@@ -12,8 +12,7 @@
 class Node {
 public:
     explicit Node(unsigned int rank)
-            : rank_(rank)
-    {}
+            : rank_(rank) {}
 
     void send_message() const;
 
