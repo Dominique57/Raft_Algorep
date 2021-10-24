@@ -3,6 +3,7 @@
 #include <thread>
 #include <spdlog/spdlog.h>
 #include <cstdlib>
+#include <wrappers/mpi_include.hh>
 
 #include "mpi.h"
 #include "src/runners/node.hh"
@@ -36,12 +37,16 @@ int main(int argc, char *argv[]) {
     Node node = Node(rank);
     if (rank == 0) {
         while (true) {
-            node.receive_message();
+            try {
+                auto msg = MPI::Recv_Rpc(MPI_ANY_SOURCE);
+                spdlog::info("Received message: {}", msg.message_);
+            } catch (const std::logic_error &) {
+                usleep(100 * 1000);
+            }
         }
     } else {
-        for (int i = 0; i < 4; ++i) {
-            node.send_message();
-        }
+        auto rpc = Rpc(std::string("Hello"));
+        MPI::Send_Rpc(rpc, 0);
     }
     return 0;
 }
