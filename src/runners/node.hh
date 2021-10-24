@@ -7,21 +7,23 @@
 #include <ctime>
 #include <chrono>
 
-#include "mpi.h"
+#include <wrappers/mpi_include.hh>
 
 class Node {
 public:
-    explicit Node(unsigned int rank)
-            : rank_(rank) {}
+    enum class STATE {
+        FOLLOWER = 0,
+        LEADER,
+        CANDIDATE,
+    };
 
-    void send_message() const;
+public:
+    Node()
+        : state(STATE::FOLLOWER)
+    {}
 
-    void receive_message() const;
+    void start();
 
 protected:
-    unsigned rank_;
-
-    static bool
-    MPI_Recv_Timeout(void *data, int count, MPI_Datatype datatype, int source, int tag,
-                     MPI_Comm communicator, MPI_Status *status, unsigned long timeout);
+    STATE state;
 };
