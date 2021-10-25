@@ -49,7 +49,7 @@ namespace MPI {
         auto res = std::unique_ptr<Rpc::Rpc>();
         switch (recvType) {
             case Rpc::TYPE::MESSAGE:
-                res = std::make_unique<Rpc::Message>(recvJson);
+                res = std::make_unique<Rpc::Message>(recvJson["data"]);
                 break;
         }
         if (res == nullptr) {
