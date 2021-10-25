@@ -7,6 +7,7 @@
 #include <spdlog/spdlog.h>
 #include <rpc/message.hh>
 #include <rpc/requestVote.hh>
+#include <rpc/appendEntries.hh>
 
 namespace MPI {
 
@@ -57,6 +58,12 @@ namespace MPI {
                 break;
             case Rpc::TYPE::REQUEST_VOTE_RESPONSE:
                 res = std::make_unique<Rpc::RequestVoteResponse>(recvJson["data"]);
+                break;
+            case Rpc::TYPE::APPEND_ENTRIES:
+                res = std::make_unique<Rpc::AppendEntries>(recvJson["data"]);
+                break;
+            case Rpc::TYPE::APPEND_ENTRIES_RESPONSE:
+                res = std::make_unique<Rpc::AppendEntriesResponse>(recvJson["data"]);
                 break;
         }
         if (res == nullptr) {

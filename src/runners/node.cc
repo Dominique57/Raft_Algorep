@@ -6,6 +6,7 @@
 #include <config/globalConfig.hh>
 #include <rpc/message.hh>
 #include <rpc/requestVote.hh>
+#include <rpc/appendEntries.hh>
 
 bool Node::update_follower(std::unique_ptr<Rpc::RpcResponse> &rpc, FollowerCycleState &cycleState) {
     spdlog::info("Follower: Received {} from {}", Rpc::getTypeName(rpc->rpc->Type()), rpc->senderId);
@@ -36,7 +37,7 @@ void Node::pre_update(local_state_t &variant, int &timer) {
     } else if (state == STATE::LEADER) {
         variant = LeaderCycleState();
         timer = 100; // FIXME
-        auto rpc = Rpc::Message("HEARTBEAT");
+        auto rpc = Rpc::AppendEntries(0, GlobalConfig::rank); // FIXME: use real term
         for (auto dst = 0; dst < GlobalConfig::size; ++dst)
             if (dst != GlobalConfig::rank)
                 MPI::Send_Rpc(rpc, dst);
