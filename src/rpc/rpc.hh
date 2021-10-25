@@ -11,6 +11,8 @@ namespace Rpc {
         MESSAGE = 0,
         REQUEST_VOTE,
         REQUEST_VOTE_RESPONSE,
+        APPEND_ENTRIES,
+        APPEND_ENTRIES_RESPONSE,
     };
 
     /// Rpc type names (used to convert enum to text)
@@ -18,6 +20,8 @@ namespace Rpc {
         "MESSAGE",
         "REQUEST_VOTE",
         "REQUEST_VOTE_RESPONSE",
+        "APPEND_ENTRIES",
+        "APPEND_ENTRIES_RESPONSE",
     };
 
     /** Converts an Rpc::Type enum to text
