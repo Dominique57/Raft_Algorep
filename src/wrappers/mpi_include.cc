@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <spdlog/spdlog.h>
 #include <rpc/message.hh>
+#include <rpc/requestVote.hh>
 
 namespace MPI {
 
@@ -50,6 +51,12 @@ namespace MPI {
         switch (recvType) {
             case Rpc::TYPE::MESSAGE:
                 res = std::make_unique<Rpc::Message>(recvJson["data"]);
+                break;
+            case Rpc::TYPE::REQUEST_VOTE:
+                res = std::make_unique<Rpc::RequestVote>(recvJson["data"]);
+                break;
+            case Rpc::TYPE::REQUEST_VOTE_RESPONSE:
+                res = std::make_unique<Rpc::RequestVoteResponse>(recvJson["data"]);
                 break;
         }
         if (res == nullptr) {
