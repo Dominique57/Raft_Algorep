@@ -40,6 +40,7 @@ add_executable(${PROJECT_NAME}
     src/rpc/rpcResponse.cc src/rpc/rpcResponse.hh
 
     src/config/globalConfig.cc src/config/globalConfig.hh
+    src/rpc/appendEntries.cc src/rpc/appendEntries.hh
 )
 
 target_compile_features(${PROJECT_NAME} PRIVATE
