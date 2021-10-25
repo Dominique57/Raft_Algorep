@@ -8,6 +8,7 @@
 #include <chrono>
 
 #include <wrappers/mpi_include.hh>
+#include <variant>
 
 class Node {
 public:
@@ -17,15 +18,30 @@ public:
         CANDIDATE,
     };
 
+    struct FollowerCycleState {
+    };
+    struct LeaderCycleState {
+    };
+    struct CandidateCycleState {
+        int voteCount = 0;
+    };
+    using local_state_t = std::variant<FollowerCycleState, LeaderCycleState, CandidateCycleState>;
+
 public:
     Node()
             : state(STATE::FOLLOWER) {}
 
-    void update_follower();
+    bool update_follower(std::unique_ptr<Rpc::RpcResponse> &rpc, FollowerCycleState &cycleState);
 
-    void update_leader();
+    bool update_leader(std::unique_ptr<Rpc::RpcResponse> &rpc, LeaderCycleState &cycleState);
 
-    void update_candidate();
+    bool update_candidate(std::unique_ptr<Rpc::RpcResponse> &rpc, CandidateCycleState &cycleState);
+
+    void pre_update(local_state_t &variant, int &timer);
+
+    void post_update(bool hasTimedOut);
+
+    void update();
 
     void start();
 

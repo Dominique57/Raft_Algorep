@@ -37,26 +37,6 @@ int main(int argc, char *argv[]) {
     spdlog::set_pattern(pattern);
 
     Node node = Node();
-    if (rank == 0) {
-        node.start();
-//        while (true) {
-//            auto rpcReponse = MPI::Recv_Rpc(MPI_ANY_SOURCE);
-//            if (rpcReponse == nullptr) {
-//                usleep(100 * 1000);
-//                continue;
-//            }
-//            auto& msg = rpcReponse->rpc;
-//            if (msg->Type() == Rpc::TYPE::MESSAGE) {
-//                auto value = static_cast<Rpc::Message*>(msg.get());
-//                spdlog::info("Received message: {}", value->message);
-//            } else {
-//                spdlog::warn("Forgot to handle case here !");
-//            }
-//        }
-    } else {
-        node.start();
-//        auto rpc = Rpc::Message(std::string("Hello"));
-//        MPI::Send_Rpc(rpc, 0);
-    }
+    node.start();
     return 0;
 }
