@@ -8,9 +8,11 @@ namespace Rpc {
     /// Rpc representing a request to vote for a given node (id)
     class RequestVote : public Rpc {
     public:
+        /// Constructor
         RequestVote(int term, int candidateId)
             : Rpc(TYPE::REQUEST_VOTE), term(term), candidateId(candidateId) {}
 
+        /// Constructor
         RequestVote(const json &json)
             : RequestVote(json["term"].get<int>(), json["candidateId"].get<int>()) {}
 
