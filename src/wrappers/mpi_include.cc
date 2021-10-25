@@ -10,7 +10,7 @@
 namespace MPI {
 
     void Send_Rpc(const Rpc::Rpc &rpc, int dest, int tag, MPI_Comm comm) {
-        // FIXME: check MPI_ISend + MPI_Request_free
+        // FIXME: check MPI_ISend + MPI_Reque3st_free
         const std::string &message = rpc.serialize().dump();
         MPI_Send(message.c_str(), (int) message.size(), MPI_CHAR, dest, tag, comm);
     }
