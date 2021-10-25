@@ -1,14 +1,11 @@
 #include <iostream>
-#include <map>
 #include <thread>
 #include <spdlog/spdlog.h>
 #include <cstdlib>
-#include <wrappers/mpi_include.hh>
-#include <rpc/message.hh>
-#include <config/globalConfig.hh>
 
+#include <config/globalConfig.hh>
+#include <runners/node.hh>
 #include "mpi.h"
-#include "src/runners/node.hh"
 
 void executeAtAexit() {
     MPI_Finalize();
