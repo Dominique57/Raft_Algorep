@@ -1,4 +1,5 @@
 .idea
 .vim
+docs
 cmake-build-release
 cmake-build-debug
