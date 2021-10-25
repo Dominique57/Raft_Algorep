@@ -10,9 +10,14 @@
 namespace MPI {
 
     void Send_Rpc(const Rpc::Rpc &rpc, int dest, int tag, MPI_Comm comm) {
-        // FIXME: check MPI_ISend + MPI_Reque3st_free
         const std::string &message = rpc.serialize().dump();
-        MPI_Send(message.c_str(), (int) message.size(), MPI_CHAR, dest, tag, comm);
+        MPI_Request request;
+        MPI_Isend(message.c_str(), (int) message.size(), MPI_CHAR, dest, tag, comm, &request);
+
+        auto res = MPI_Request_free(&request);
+        if (res != MPI_SUCCESS) {
+            spdlog::error("Failed to free request: {}", res);
+        }
     }
 
     size_t AnyMessageWaiting(int source, int tag, MPI_Comm comm) {
