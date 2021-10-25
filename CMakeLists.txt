@@ -35,6 +35,8 @@ add_executable(${PROJECT_NAME}
 
     src/rpc/rpc.cc src/rpc/rpc.hh
     src/rpc/message.cc src/rpc/message.hh
+    src/rpc/requestVote.cc src/rpc/requestVote.hh
+
     src/rpc/rpcResponse.cc src/rpc/rpcResponse.hh
 
     src/config/globalConfig.cc src/config/globalConfig.hh

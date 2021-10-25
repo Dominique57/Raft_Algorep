@@ -5,6 +5,7 @@
 #include <spdlog/spdlog.h>
 #include <config/globalConfig.hh>
 #include <rpc/message.hh>
+#include <rpc/requestVote.hh>
 
 bool Node::update_follower(std::unique_ptr<Rpc::RpcResponse> &rpc, FollowerCycleState &cycleState) {
     spdlog::info("Follower: Received {} from {}", Rpc::getTypeName(rpc->rpc->Type()), rpc->senderId);
@@ -42,7 +43,7 @@ void Node::pre_update(local_state_t &variant, int &timer) {
     } else if (state == STATE::CANDIDATE) {
         timer = 200; // FIXME
         variant = CandidateCycleState{.voteCount = 1};
-        auto rpc = Rpc::Message("VOTE4ME");
+        auto rpc = Rpc::RequestVote(0, GlobalConfig::rank); // FIXME: use real term
         for (auto dst = 0; dst < GlobalConfig::size; ++dst)
             if (dst != GlobalConfig::rank)
                 MPI::Send_Rpc(rpc, dst);

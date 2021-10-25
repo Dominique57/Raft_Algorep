@@ -9,11 +9,15 @@ namespace Rpc {
     /// Rpc type (different possible object-messages)
     enum class TYPE {
         MESSAGE = 0,
+        REQUEST_VOTE,
+        REQUEST_VOTE_RESPONSE,
     };
 
     /// Rpc type names (used to convert enum to text)
     static const char *type_names[] = {
         "MESSAGE",
+        "REQUEST_VOTE",
+        "REQUEST_VOTE_RESPONSE",
     };
 
     /** Converts an Rpc::Type enum to text

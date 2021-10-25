@@ -19,7 +19,7 @@ namespace Rpc {
 
         /// Constructor
         Message(const json &json)
-                : Message(json["data"]["value"].get<std::string>()) {}
+                : Message(json["value"].get<std::string>()) {}
 
         json serialize_self() const override {
             return json::object({{"value", message}});
