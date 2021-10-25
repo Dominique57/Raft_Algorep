@@ -3,54 +3,92 @@
 #include "node.hh"
 
 #include <spdlog/spdlog.h>
+#include <config/globalConfig.hh>
+#include <rpc/message.hh>
 
-void Node::receive_message() const {
-    char buffer[1025] = {0};
-    MPI_Status status;
-//    MPI_Recv(buffer, 1024, MPI_UNSIGNED_CHAR, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
-    auto recievedSmthing = MPI_Recv_Timeout(buffer, 1024, MPI_UNSIGNED_CHAR, MPI_ANY_SOURCE, 0,
-                                            MPI_COMM_WORLD, &status, 100);
-    if (recievedSmthing) {
-        std::cout << "[RECV] (" << rank_ << ") from " << status.MPI_SOURCE << ": `" << buffer << '`'
-                  << std::endl;
+void Node::update_follower() {
+    int timeToWait = (std::rand() % 150) + 150;
+    auto rpcResponse = MPI::Recv_Rpc_Timeout(MPI_ANY_SOURCE, timeToWait);
+    if (rpcResponse != nullptr) {
+        // Received a message
+        spdlog::info("Received {} from {}", Rpc::getTypeName(rpcResponse->rpc->Type()),
+                     rpcResponse->senderId);
+        MPI::Send_Rpc(Rpc::Message("Reply"), rpcResponse->senderId);
     } else {
-        std::cout << "Received nothing !" << std::endl;
+        // Timeout
+        spdlog::info("Time out after {} ms", timeToWait);
+        state = STATE::CANDIDATE;
     }
 }
 
-void Node::send_message() const {
-    int timeToWait = std::rand() % 1000 + 500;
-    usleep(timeToWait * 1000);
-
-    std::stringstream buffer{};
-    buffer << "Node: " << rank_ << " sent a message !";
-    std::string msg = buffer.str();
-    MPI_Send(msg.c_str(), msg.size(), MPI_UNSIGNED_CHAR, 0, 0, MPI_COMM_WORLD);
-    std::cout << "[SEND] (" << rank_ << "): " << msg << std::endl;
-}
-
-bool
-Node::MPI_Recv_Timeout(void *data, int count, MPI_Datatype datatype, int source,
-                       int tag, MPI_Comm communicator, MPI_Status *status,
-                       unsigned long timeout) {
-    MPI_Request request;
-    MPI_Irecv(data, count, datatype, source, tag, communicator, &request);
-
-    int hasMessage = false;
+void Node::update_leader() {
+    // set timer curr et end(curr + 100ms)
     auto start = std::chrono::steady_clock::now();
 
-    while (true) {
-        auto end = std::chrono::steady_clock::now();
-        auto countTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-        MPI_Test(&request, &hasMessage, status);
-        if (hasMessage)
-            break;
-
-        if (timeout < countTime) {
-            MPI_Cancel(&request);
-            break;
-        }
-        usleep(100);
+    // ping everyone
+    for (auto dst = 0; dst < GlobalConfig::size; ++dst) {
+        if (dst == GlobalConfig::rank)
+            continue;
+        MPI::Send_Rpc(Rpc::Message("HEARTBEAT"), dst); // FIXME: use real heartbeat rpc
     }
-    return hasMessage;
+
+    std::unique_ptr<Rpc::RpcResponse> rpcResponse = nullptr;
+    do {
+        auto cur = std::chrono::steady_clock::now();
+        long countTime = std::chrono::duration_cast<std::chrono::milliseconds>(cur - start).count();
+        long timeToWait = 100 - countTime; // FIXME: magic number (leader timeout)
+        rpcResponse = MPI::Recv_Rpc_Timeout(MPI_ANY_SOURCE, timeToWait);
+        if (rpcResponse != nullptr) {
+            // Received a message
+            spdlog::info("Leader: Received {} from {}", Rpc::getTypeName(rpcResponse->rpc->Type()),
+                         rpcResponse->senderId);
+        }
+    } while (rpcResponse != nullptr);
+}
+
+void Node::update_candidate() {
+    // set timer curr et end(curr + 100ms)
+    auto start = std::chrono::steady_clock::now();
+
+    // ping everyone
+    for (auto dst = 0; dst < GlobalConfig::size; ++dst) {
+        if (dst == GlobalConfig::rank)
+            continue;
+        MPI::Send_Rpc(Rpc::Message("VOTE4ME"), dst); // FIXME: use voteRequest rpc
+    }
+
+    std::unique_ptr<Rpc::RpcResponse> rpcResponse = nullptr;
+    long voteCount = 0;
+    do {
+        auto cur = std::chrono::steady_clock::now();
+        long countTime = std::chrono::duration_cast<std::chrono::milliseconds>(cur - start).count();
+        long timeToWait = 200 - countTime; // FIXME: magic number (candidate timeout)
+        rpcResponse = MPI::Recv_Rpc_Timeout(MPI_ANY_SOURCE, timeToWait);
+        if (rpcResponse != nullptr) {
+            // Received a message
+            spdlog::info("Candidate: Received {} from {}", Rpc::getTypeName(rpcResponse->rpc->Type()),
+                         rpcResponse->senderId);
+            voteCount += 1;
+            if (voteCount > GlobalConfig::size / 2) {
+                state = STATE::LEADER;
+                spdlog::info("Candidate: elected leader !");
+                return;
+            }
+        }
+    } while (rpcResponse != nullptr);
+    spdlog::info("Candidate: failed election !");
+}
+
+void Node::start() {
+    while (true) {
+        if (state == STATE::FOLLOWER) {
+            update_follower();
+        } else if (state == STATE::LEADER) {
+            update_leader();
+        } else if (state == STATE::CANDIDATE) {
+            update_candidate();
+        } else {
+            throw std::logic_error("NODE>UPDATE> invalid state !");
+        }
+    }
 }

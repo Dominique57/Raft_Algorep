@@ -22,12 +22,12 @@ find_package(MPI REQUIRED)
 
 add_custom_target(
     run.sh
-    COMMAND sh ${CMAKE_SOURCE_DIR}/run.sh
+    COMMAND sh ${CMAKE_SOURCE_DIR}/res/run.sh ${CMAKE_SOURCE_DIR}/res
     DEPENDS ${PROJECT_NAME}
 )
 
 add_executable(${PROJECT_NAME}
-    main.cc
+    src/main.cc
     src/runners/node.cc src/runners/node.hh
 
     src/wrappers/mpi_include.cc src/wrappers/mpi_include.hh
@@ -35,6 +35,9 @@ add_executable(${PROJECT_NAME}
 
     src/rpc/rpc.cc src/rpc/rpc.hh
     src/rpc/message.cc src/rpc/message.hh
+    src/rpc/rpcResponse.cc src/rpc/rpcResponse.hh
+
+    src/config/globalConfig.cc src/config/globalConfig.hh
 )
 
 target_compile_features(${PROJECT_NAME} PRIVATE
@@ -45,7 +48,6 @@ target_compile_options(${PROJECT_NAME} PRIVATE
     "-Wextra"
     $<$<CONFIG:Release>:-Werror -Ofast -flto -march=native>
     $<$<CONFIG:Debug>:-O0 -ggdb>
-#    "-pedantic"
 )
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_SOURCE_DIR}/src

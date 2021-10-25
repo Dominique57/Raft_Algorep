@@ -1,0 +1,36 @@
+# Project
+DOXYFILE_ENCODING      = UTF-8
+PROJECT_NAME           = "RAFT - algoreppppp"
+PROJECT_NUMBER         =
+PROJECT_BRIEF          =
+OUTPUT_DIRECTORY       = "docs/"
+OUTPUT_LANGUAGE        = English
+
+# Input file(s)
+INPUT                  = "src/" "main.cc"
+FILE_PATTERNS          = *.c \
+                         *.cc \
+                         *.h \
+                         *.hh \
+                         *.hxx
+RECURSIVE              = YES
+
+# Generation
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+HTML_FILE_EXTENSION    = .html
+HTML_EXTRA_STYLESHEET  = res/docs/style.css
+EXTRACT_ALL            = YES
+GENERATE_LATEX         = NO
+
+# Documentation behaviour
+REPEAT_BRIEF           = NO
+
+# Code Documentation
+INLINE_INHERITED_MEMB  = NO
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_PRIV_VIRTUAL   = YES
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_CLASSES  = YES
+EXTRACT_LOCAL_METHODS  = YES

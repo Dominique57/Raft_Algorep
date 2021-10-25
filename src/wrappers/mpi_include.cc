@@ -8,30 +8,11 @@
 #include <rpc/message.hh>
 
 namespace MPI {
-    bool MPI_Recv_Timeout(void *data, int count, MPI_Datatype datatype, int source,
-                          int tag, MPI_Comm communicator, MPI_Status *status,
-                          long timeout) {
-        MPI_Request request;
-        MPI_Irecv(data, count, datatype, source, tag, communicator, &request);
 
-        int hasMessage = false;
-        auto start = std::chrono::steady_clock::now();
-
-        while (true) {
-            auto end = std::chrono::steady_clock::now();
-            auto countTime = std::chrono::duration_cast<std::chrono::milliseconds>(
-                    end - start).count();
-            MPI_Test(&request, &hasMessage, status);
-            if (hasMessage)
-                break;
-
-            if (timeout < countTime) {
-                MPI_Cancel(&request);
-                break;
-            }
-            usleep(100);
-        }
-        return hasMessage;
+    void Send_Rpc(const Rpc::Rpc &rpc, int dest, int tag, MPI_Comm comm) {
+        // FIXME: check MPI_ISend + MPI_Request_free
+        const std::string &message = rpc.serialize().dump();
+        MPI_Send(message.c_str(), (int) message.size(), MPI_CHAR, dest, tag, comm);
     }
 
     size_t AnyMessageWaiting(int source, int tag, MPI_Comm comm) {
@@ -46,31 +27,53 @@ namespace MPI {
         return messageLen;
     }
 
-    void Send_Rpc(const Rpc::Rpc &rpc, int dest, int tag, MPI_Comm comm) {
-        const json serializeRpc = rpc.serialize();
-        const std::string &message = serializeRpc.dump();
-        MPI_Send(message.c_str(), (int) message.size(), MPI_CHAR, dest, tag, comm);
-    }
-
-    std::unique_ptr<Rpc::Rpc> Recv_Rpc(int src, int tag, MPI_Comm comm) {
+    std::unique_ptr<Rpc::RpcResponse> Recv_Rpc(int src, int tag, MPI_Comm comm) {
         size_t messageLen = AnyMessageWaiting(src, tag, comm);
         if (messageLen <= 0)
-            throw std::logic_error("FIXME: TODO: Not implemented !");
+            return nullptr;
 
         std::vector<char> buffer(messageLen + 1);
-        MPI_Recv(buffer.data(), (int) messageLen, MPI_CHAR, src, tag, comm, MPI_STATUSES_IGNORE);
+        MPI_Status status;
+        MPI_Recv(buffer.data(), (int) messageLen, MPI_CHAR, src, tag, comm, &status);
         buffer[messageLen] = '\0';
 
         std::string recvMessage(buffer.data());
         json recvJson = json::parse(recvMessage);
 
         auto recvType = recvJson["type"].get<Rpc::TYPE>();
+        auto res = std::unique_ptr<Rpc::Rpc>();
         switch (recvType) {
             case Rpc::TYPE::MESSAGE:
-                return std::make_unique<Rpc::Message>(recvJson);
+                res = std::make_unique<Rpc::Message>(recvJson);
+                break;
         }
-        auto errMsg = std::string("Unhandled message type: ") + Rpc::getTypeName(recvType);
-        spdlog::error(errMsg);
-        throw std::runtime_error(errMsg);
+        if (res == nullptr) {
+            auto errMsg = std::string("Unhandled message type: ") + Rpc::getTypeName(recvType);
+            spdlog::error(errMsg);
+            throw std::runtime_error(errMsg);
+        }
+
+        return std::make_unique<Rpc::RpcResponse>(res, status.MPI_SOURCE);
     }
+
+    std::unique_ptr<Rpc::RpcResponse>
+    Recv_Rpc_Timeout(int src, long timeout, int tag, MPI_Comm comm) {
+        auto start = std::chrono::steady_clock::now();
+        while (true) {
+            auto end = std::chrono::steady_clock::now();
+            auto countTime = std::chrono::duration_cast<std::chrono::milliseconds>(
+                    end - start).count();
+
+            auto msg = Recv_Rpc(src, tag, comm);
+            if (msg != nullptr)
+                return msg;
+
+            if (timeout < countTime)
+                break;
+            usleep(100);
+        }
+
+        return nullptr;
+    }
+
 }
