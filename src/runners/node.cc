@@ -10,8 +10,19 @@
 
 bool Node::update_follower(std::unique_ptr<Rpc::RpcResponse> &rpc, FollowerCycleState &cycleState) {
     spdlog::info("Follower: Received {} from {}", Rpc::getTypeName(rpc->rpc->Type()), rpc->senderId);
-    MPI::Send_Rpc(Rpc::Message("Reply"), rpc->senderId);
-    return true;
+    switch (rpc->rpc->Type()) {
+        case Rpc::TYPE::REQUEST_VOTE:
+            MPI::Send_Rpc(Rpc::RequestVoteResponse(0, true), rpc->senderId);
+            return true;
+        case Rpc::TYPE::APPEND_ENTRIES:
+            MPI::Send_Rpc(Rpc::AppendEntriesResponse(0, true), rpc->senderId);
+            return true;
+        case Rpc::TYPE::REQUEST_VOTE_RESPONSE:
+        case Rpc::TYPE::APPEND_ENTRIES_RESPONSE:
+        case Rpc::TYPE::MESSAGE:
+            break;
+    }
+    return false;
 }
 
 bool Node::update_leader(std::unique_ptr<Rpc::RpcResponse> &rpc, LeaderCycleState &cycleState) {
@@ -63,7 +74,7 @@ void Node::post_update(bool hasTimedOut) {
 void Node::update() {
     // Set timeout beginning
     auto start = std::chrono::steady_clock::now();
-    local_state_t variant;
+    local_state_t variant; // FIXME: Polymorphism classes?
     int timer; // FIXME: more elegant solution
 
     pre_update(variant, timer);
