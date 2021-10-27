@@ -8,7 +8,52 @@
 #include <rpc/requestVote.hh>
 #include <rpc/appendEntries.hh>
 
-bool Node::update_follower(std::unique_ptr<Rpc::RpcResponse> &rpc, FollowerCycleState &cycleState) {
+void Node::transition_to_leader() {
+    spdlog::info("State transition to leader !");
+    state = STATE::LEADER;
+}
+
+void Node::transition_to_follower() {
+    spdlog::info("State transition to follower !");
+    state = STATE::FOLLOWER;
+}
+
+void Node::transition_to_candidate() {
+    spdlog::info("State transition to candidate !");
+    state = STATE::CANDIDATE;
+    term += 1;
+}
+
+bool Node::update_always(std::unique_ptr<Rpc::RpcResponse> &rpc) {
+    int sentTerm = -1;
+    switch (rpc->rpc->Type()) {
+        case Rpc::TYPE::REQUEST_VOTE:
+            sentTerm = static_cast<Rpc::RequestVote*>(rpc->rpc.get())->term;
+            break;
+        case Rpc::TYPE::APPEND_ENTRIES:
+            sentTerm = static_cast<Rpc::AppendEntries*>(rpc->rpc.get())->term;
+            break;
+        case Rpc::TYPE::REQUEST_VOTE_RESPONSE:
+            sentTerm = static_cast<Rpc::RequestVoteResponse*>(rpc->rpc.get())->term;
+            break;
+        case Rpc::TYPE::APPEND_ENTRIES_RESPONSE:
+            sentTerm = static_cast<Rpc::AppendEntriesResponse*>(rpc->rpc.get())->term;
+            break;
+        case Rpc::TYPE::MESSAGE:
+            break;
+    }
+    if (sentTerm != -1 && sentTerm > term) {
+        term = sentTerm;
+        if (state != STATE::FOLLOWER) {
+            transition_to_follower();
+            rpcReciever.reinject_rpc(std::move(rpc));
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Node::update_follower(std::unique_ptr<Rpc::RpcResponse> &rpc, FollowerCycleState&) {
     spdlog::info("Follower: Received {} from {}", Rpc::getTypeName(rpc->rpc->Type()), rpc->senderId);
     switch (rpc->rpc->Type()) {
         case Rpc::TYPE::REQUEST_VOTE:
@@ -25,8 +70,14 @@ bool Node::update_follower(std::unique_ptr<Rpc::RpcResponse> &rpc, FollowerCycle
     return false;
 }
 
-bool Node::update_leader(std::unique_ptr<Rpc::RpcResponse> &rpc, LeaderCycleState &cycleState) {
+bool Node::update_leader(std::unique_ptr<Rpc::RpcResponse> &rpc, LeaderCycleState&) {
     spdlog::info("Leader: Received {} from {}", Rpc::getTypeName(rpc->rpc->Type()), rpc->senderId);
+    if (term == 1 && std::rand() % 10 == 0) {
+        spdlog::critical("Leader: going to sleep !");
+        usleep(1000 * 1000);
+        spdlog::critical("Leader: waking up !");
+        return true;
+    }
     return false;
 }
 
@@ -34,8 +85,7 @@ bool Node::update_candidate(std::unique_ptr<Rpc::RpcResponse> &rpc, CandidateCyc
     spdlog::info("Candidate: Received {} from {}", Rpc::getTypeName(rpc->rpc->Type()), rpc->senderId);
     cycleState.voteCount += 1;
     if (cycleState.voteCount > GlobalConfig::size / 2) {
-        state = STATE::LEADER;
-        spdlog::info("Candidate: elected leader !");
+        transition_to_leader();
         return true;
     }
     return false;
@@ -48,14 +98,15 @@ void Node::pre_update(local_state_t &variant, int &timer) {
     } else if (state == STATE::LEADER) {
         variant = LeaderCycleState();
         timer = 100; // FIXME
-        auto rpc = Rpc::AppendEntries(0, GlobalConfig::rank); // FIXME: use real term
+        auto rpc = Rpc::AppendEntries(term, GlobalConfig::rank);
         for (auto dst = 0; dst < GlobalConfig::size; ++dst)
             if (dst != GlobalConfig::rank)
                 MPI::Send_Rpc(rpc, dst);
     } else if (state == STATE::CANDIDATE) {
         timer = 200; // FIXME
-        variant = CandidateCycleState{.voteCount = 1};
-        auto rpc = Rpc::RequestVote(0, GlobalConfig::rank); // FIXME: use real term
+        votedFor = GlobalConfig::rank;
+        variant = CandidateCycleState{ .voteCount = 1 };
+        auto rpc = Rpc::RequestVote(term, GlobalConfig::rank);
         for (auto dst = 0; dst < GlobalConfig::size; ++dst)
             if (dst != GlobalConfig::rank)
                 MPI::Send_Rpc(rpc, dst);
@@ -67,7 +118,10 @@ void Node::pre_update(local_state_t &variant, int &timer) {
 void Node::post_update(bool hasTimedOut) {
     if (state == STATE::FOLLOWER && hasTimedOut) {
         spdlog::info("Follower timed out");
-        state = STATE::CANDIDATE;
+        transition_to_candidate();
+    } else if (state == STATE::CANDIDATE && hasTimedOut) {
+        spdlog::info("Candidate timed out");
+        transition_to_follower();
     }
 }
 
@@ -81,26 +135,32 @@ void Node::update() {
 
     std::unique_ptr<Rpc::RpcResponse> rpcResponse = nullptr;
     bool leaveCycle = false;
+    bool hasTimedOut = false;
     do {
         auto cur = std::chrono::steady_clock::now();
         long countTime = std::chrono::duration_cast<std::chrono::milliseconds>(cur - start).count();
         long timeToWait = timer - countTime;
-        rpcResponse = MPI::Recv_Rpc_Timeout(MPI_ANY_SOURCE, timeToWait);
-        if (rpcResponse != nullptr) {
-            // Received a message
-            if (state == STATE::FOLLOWER) {
-                leaveCycle = update_follower(rpcResponse, std::get<Node::FollowerCycleState>(variant));
-            } else if (state == STATE::LEADER) {
-                leaveCycle = update_leader(rpcResponse, std::get<Node::LeaderCycleState>(variant));
-            } else if (state == STATE::CANDIDATE) {
-                leaveCycle = update_candidate(rpcResponse, std::get<Node::CandidateCycleState>(variant));
-            } else {
-                throw std::logic_error("NODE>UPDATE> invalid state !");
+//        rpcResponse = MPI::Recv_Rpc_Timeout(MPI_ANY_SOURCE, timeToWait);
+        rpcResponse = rpcReciever.get_rpc_timeout(MPI_ANY_SOURCE, timeToWait);
+        hasTimedOut = rpcResponse == nullptr;
+        if (!hasTimedOut) {
+            leaveCycle = update_always(rpcResponse);
+            if (!leaveCycle) {
+                // Received a message
+                if (state == STATE::FOLLOWER) {
+                    leaveCycle = update_follower(rpcResponse, std::get<Node::FollowerCycleState>(variant));
+                } else if (state == STATE::LEADER) {
+                    leaveCycle = update_leader(rpcResponse, std::get<Node::LeaderCycleState>(variant));
+                } else if (state == STATE::CANDIDATE) {
+                    leaveCycle = update_candidate(rpcResponse, std::get<Node::CandidateCycleState>(variant));
+                } else {
+                    throw std::logic_error("NODE>UPDATE> invalid state !");
+                }
             }
         }
-    } while (rpcResponse != nullptr && !leaveCycle);
+    } while (!hasTimedOut && !leaveCycle);
 
-    post_update(rpcResponse == nullptr);
+    post_update(hasTimedOut);
 }
 
 void Node::start() {

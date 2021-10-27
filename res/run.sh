@@ -1,4 +1,4 @@
-[ $# -ne 1] && echo "Missing argument (1 required)" && exit 1
+[ $# -ne 1 ] && echo "Missing argument (1 required)" && exit 1
 
 resPath="$1"
 [ ! -e hostfile ] && ln -s "$resPath/hostfile" hostfile

@@ -8,7 +8,9 @@
 #include <chrono>
 
 #include <wrappers/mpi_include.hh>
+#include <wrappers/mpi/rpcRecieverReinjecter.hh>
 #include <variant>
+#include <optional>
 
 class Node {
 public:
@@ -29,7 +31,15 @@ public:
 
 public:
     Node()
-            : state(STATE::FOLLOWER) {}
+            : state(STATE::FOLLOWER), rpcReciever() {}
+
+    void transition_to_leader();
+
+    void transition_to_follower();
+
+    void transition_to_candidate();
+
+    bool update_always(std::unique_ptr<Rpc::RpcResponse> &rpc);
 
     bool update_follower(std::unique_ptr<Rpc::RpcResponse> &rpc, FollowerCycleState &cycleState);
 
@@ -47,4 +57,7 @@ public:
 
 protected:
     STATE state;
+    Rpc::RpcRecieverReinjecter rpcReciever;
+    int term = 0;
+    std::optional<int> votedFor = std::nullopt;
 };

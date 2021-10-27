@@ -31,10 +31,13 @@ int main(int argc, char *argv[]) {
         spdlog::info("Initialisation: I am {} out of {}, ({}, {})", rank, size, version, len);
     }
 
-    GlobalConfig::initConfig(rank, size);
-    std::srand(std::time(nullptr) + rank);
-    auto pattern = std::string("[RANK: ") + std::to_string(rank) + "] %+";
-    spdlog::set_pattern(pattern);
+    { // Initialisation
+        GlobalConfig::initConfig(rank, size);
+        std::srand(std::time(nullptr) + rank);
+        std::stringstream ss;
+        ss << "[%^%L%$] [RANK " << GlobalConfig::rank << "] [%H:%M:%S.%f]: %v";
+        spdlog::set_pattern(ss.str());
+    }
 
     Node node = Node();
     node.start();

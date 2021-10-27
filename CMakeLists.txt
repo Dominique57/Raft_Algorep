@@ -41,6 +41,8 @@ add_executable(${PROJECT_NAME}
 
     src/config/globalConfig.cc src/config/globalConfig.hh
     src/rpc/appendEntries.cc src/rpc/appendEntries.hh
+    src/wrappers/mpi/rpcRecieverReinjecter.cc src/wrappers/mpi/rpcRecieverReinjecter.hh
+    src/wrappers/debug/add_stack_strace.cc src/wrappers/debug/add_stack_strace.hh
 )
 
 target_compile_features(${PROJECT_NAME} PRIVATE
@@ -50,7 +52,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE
     "-Wall"
     "-Wextra"
     $<$<CONFIG:Release>:-Werror -Ofast -flto -march=native>
-    $<$<CONFIG:Debug>:-O0 -ggdb>
+    $<$<CONFIG:Debug>:-O0 -g3>
 )
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_SOURCE_DIR}/src
@@ -61,4 +63,8 @@ target_link_libraries(${PROJECT_NAME} LINK_PUBLIC
     ${MPI_CXX_LIBRARIES}
     spdlog::spdlog
     nlohmann_json::nlohmann_json
+)
+target_link_options(${PROJECT_NAME} PRIVATE
+    $<$<CONFIG:Release>:>
+    $<$<CONFIG:Debug>:-rdynamic -ldl>
 )
