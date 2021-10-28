@@ -12,52 +12,54 @@
 #include <variant>
 #include <optional>
 
-class Node {
-public:
+#include "node/cycle/cycle.hh"
+#include "node/cycle/followerCycle.hh"
+#include "node/cycle/leaderCycle.hh"
+#include "node/cycle/candidateCycle.hh"
+
+namespace Node {
+
     enum class STATE {
         FOLLOWER = 0,
         LEADER,
         CANDIDATE,
     };
 
-    struct FollowerCycleState {
-    };
-    struct LeaderCycleState {
-    };
-    struct CandidateCycleState {
-        int voteCount = 0;
-    };
-    using local_state_t = std::variant<FollowerCycleState, LeaderCycleState, CandidateCycleState>;
+    class Node {
+    public:
+        struct FollowerCycleState {
+        };
+        struct LeaderCycleState {
+        };
+        struct CandidateCycleState {
+            int voteCount = 0;
+        };
+        using local_state_t = std::variant<FollowerCycleState, LeaderCycleState, CandidateCycleState>;
 
-public:
-    Node()
+    public:
+        Node()
             : state(STATE::FOLLOWER), rpcReciever() {}
 
-    void transition_to_leader();
+        bool update_always(std::unique_ptr<Rpc::RpcResponse> &rpc);
 
-    void transition_to_follower();
+        bool update_follower(std::unique_ptr<Rpc::RpcResponse> &rpc, FollowerCycleState &cycleState);
 
-    void transition_to_candidate();
+        bool update_leader(std::unique_ptr<Rpc::RpcResponse> &rpc, LeaderCycleState &cycleState);
 
-    bool update_always(std::unique_ptr<Rpc::RpcResponse> &rpc);
+        bool update_candidate(std::unique_ptr<Rpc::RpcResponse> &rpc, CandidateCycleState &cycleState);
 
-    bool update_follower(std::unique_ptr<Rpc::RpcResponse> &rpc, FollowerCycleState &cycleState);
+        void pre_update(local_state_t &variant, int &timer);
 
-    bool update_leader(std::unique_ptr<Rpc::RpcResponse> &rpc, LeaderCycleState &cycleState);
+        void post_update(bool hasTimedOut);
 
-    bool update_candidate(std::unique_ptr<Rpc::RpcResponse> &rpc, CandidateCycleState &cycleState);
+        void update(Cycle &cycle);
 
-    void pre_update(local_state_t &variant, int &timer);
+        void start();
 
-    void post_update(bool hasTimedOut);
-
-    void update();
-
-    void start();
-
-protected:
-    STATE state;
-    Rpc::RpcRecieverReinjecter rpcReciever;
-    int term = 0;
-    std::optional<int> votedFor = std::nullopt;
-};
+    protected:
+        STATE state;
+        Rpc::RpcRecieverReinjecter rpcReciever;
+        int term = 0;
+        std::optional<int> votedFor = std::nullopt;
+    };
+}

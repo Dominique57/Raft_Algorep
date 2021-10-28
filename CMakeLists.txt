@@ -29,21 +29,24 @@ add_custom_target(
 add_executable(${PROJECT_NAME}
     src/main.cc
     src/runners/node.cc src/runners/node.hh
+    src/runners/node/cycle/cycle.hh
+    src/runners/node/cycle/followerCycle.hh
+    src/runners/node/cycle/leaderCycle.hh
+    src/runners/node/cycle/candidateCycle.hh
 
     src/wrappers/mpi_include.cc src/wrappers/mpi_include.hh
     src/wrappers/nlhomann_include.cc src/wrappers/nlhomann_include.hh
+    src/wrappers/mpi/rpcRecieverReinjecter.cc src/wrappers/mpi/rpcRecieverReinjecter.hh
+    src/wrappers/debug/add_stack_strace.cc src/wrappers/debug/add_stack_strace.hh
 
     src/rpc/rpc.cc src/rpc/rpc.hh
     src/rpc/message.cc src/rpc/message.hh
     src/rpc/requestVote.cc src/rpc/requestVote.hh
-
+    src/rpc/appendEntries.cc src/rpc/appendEntries.hh
     src/rpc/rpcResponse.cc src/rpc/rpcResponse.hh
 
     src/config/globalConfig.cc src/config/globalConfig.hh
-    src/rpc/appendEntries.cc src/rpc/appendEntries.hh
-    src/wrappers/mpi/rpcRecieverReinjecter.cc src/wrappers/mpi/rpcRecieverReinjecter.hh
-    src/wrappers/debug/add_stack_strace.cc src/wrappers/debug/add_stack_strace.hh
-)
+    src/runners/node/cycle/followerCycle.cc src/runners/node/cycle/candidateCycle.cc src/runners/node/cycle/leaderCycle.cc src/runners/node/cycle/cycle.cc src/runners/node/cycle/fwd.hh)
 
 target_compile_features(${PROJECT_NAME} PRIVATE
     cxx_std_17
