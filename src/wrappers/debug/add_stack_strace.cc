@@ -2,6 +2,7 @@
 
 #include "add_stack_strace.hh"
 
+#ifndef NDEBUG
 extern "C" {
 void __cxa_throw(void *ex, void *info, void (*dest)(void *)) {
     DEBUG::exception_name = DEBUG::demangle(reinterpret_cast<const std::type_info *>(info)->name());
@@ -11,3 +12,4 @@ void __cxa_throw(void *ex, void *info, void (*dest)(void *)) {
     rethrow(ex, info, dest);
 }
 }
+#endif

@@ -11,6 +11,9 @@ namespace Node {
 
     bool FollowerCycle::should_stop_cycle(std::unique_ptr<Rpc::RpcResponse> rpc) {
         spdlog::info("Follower: Received {} from {}", Rpc::getTypeName(rpc->rpc->Type()), rpc->senderId);
+        if (check_always_should_stop(rpc))
+            return true;
+
         switch (rpc->rpc->Type()) {
             case Rpc::TYPE::REQUEST_VOTE:
                 MPI::Send_Rpc(Rpc::RequestVoteResponse(0, true), rpc->senderId);

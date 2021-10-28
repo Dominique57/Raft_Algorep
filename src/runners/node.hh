@@ -27,34 +27,17 @@ namespace Node {
 
     class Node {
     public:
-        struct FollowerCycleState {
-        };
-        struct LeaderCycleState {
-        };
-        struct CandidateCycleState {
-            int voteCount = 0;
-        };
-        using local_state_t = std::variant<FollowerCycleState, LeaderCycleState, CandidateCycleState>;
-
-    public:
         Node()
             : state(STATE::FOLLOWER), rpcReciever() {}
-
-        bool update_always(std::unique_ptr<Rpc::RpcResponse> &rpc);
-
-        bool update_follower(std::unique_ptr<Rpc::RpcResponse> &rpc, FollowerCycleState &cycleState);
-
-        bool update_leader(std::unique_ptr<Rpc::RpcResponse> &rpc, LeaderCycleState &cycleState);
-
-        bool update_candidate(std::unique_ptr<Rpc::RpcResponse> &rpc, CandidateCycleState &cycleState);
-
-        void pre_update(local_state_t &variant, int &timer);
-
-        void post_update(bool hasTimedOut);
 
         void update(Cycle &cycle);
 
         void start();
+
+        friend Cycle;
+        friend LeaderCycle;
+        friend FollowerCycle;
+        friend CandidateCycle;
 
     protected:
         STATE state;

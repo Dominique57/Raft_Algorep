@@ -9,11 +9,15 @@
 namespace Node {
 
     void CandidateCycle::pre_cycle() {
-//        term += 1;  // FIXME: access node state
-//        votedFor = GlobalConfig::rank; // FIXME: access node state
+        // New term
+        node.term += 1;
+
+        // Vote for itself
+        node.votedFor = GlobalConfig::rank;
         voteCount += 1;
 
-        auto rpc = Rpc::RequestVote(0, GlobalConfig::rank); // FIXME term
+        // Broadcast request vote
+        auto rpc = Rpc::RequestVote(node.term, GlobalConfig::rank);
         for (auto dst = 0; dst < GlobalConfig::size; ++dst)
             if (dst != GlobalConfig::rank)
                 MPI::Send_Rpc(rpc, dst);
@@ -21,6 +25,9 @@ namespace Node {
 
     bool CandidateCycle::should_stop_cycle(std::unique_ptr<Rpc::RpcResponse> rpc) {
         spdlog::info("Candidate: Received {} from {}", Rpc::getTypeName(rpc->rpc->Type()), rpc->senderId);
+        if (check_always_should_stop(rpc))
+            return true;
+
         voteCount += 1;
         if (voteCount > GlobalConfig::size / 2) {
             spdlog::info("Candidate has been elected leader !");

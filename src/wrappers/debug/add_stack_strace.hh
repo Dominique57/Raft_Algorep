@@ -10,7 +10,11 @@
 #include <cxxabi.h>
 #include <cstdlib>
 
+#ifndef NDEBUG
 namespace DEBUG {
+    /*
+     * FOR DEBUGGING PURPOSES *ONLY*: DO NOT USE IN PRODUCTION
+     */
     inline void * last_frames[20];
     inline size_t last_size;
     inline std::string exception_name;
@@ -25,3 +29,4 @@ namespace DEBUG {
 extern "C" {
     void __cxa_throw(void *ex, void *info, void (*dest)(void *));
 }
+#endif

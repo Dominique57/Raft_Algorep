@@ -2,6 +2,7 @@
 
 #include "cycle.hh"
 #include <runners/node.hh>
+#include <spdlog/spdlog.h>
 
 namespace Node {
 
@@ -12,5 +13,35 @@ namespace Node {
 
     std::optional<STATE> Cycle::NextState() const {
         return nextState;
+    }
+
+    bool Cycle::check_always_should_stop(std::unique_ptr<Rpc::RpcResponse> &rpc) {
+        int sentTerm = -1;
+        switch (rpc->rpc->Type()) {
+            case Rpc::TYPE::REQUEST_VOTE:
+                sentTerm = static_cast<Rpc::RequestVote *>(rpc->rpc.get())->term;
+                break;
+            case Rpc::TYPE::APPEND_ENTRIES:
+                sentTerm = static_cast<Rpc::AppendEntries *>(rpc->rpc.get())->term;
+                break;
+            case Rpc::TYPE::REQUEST_VOTE_RESPONSE:
+                sentTerm = static_cast<Rpc::RequestVoteResponse *>(rpc->rpc.get())->term;
+                break;
+            case Rpc::TYPE::APPEND_ENTRIES_RESPONSE:
+                sentTerm = static_cast<Rpc::AppendEntriesResponse *>(rpc->rpc.get())->term;
+                break;
+            case Rpc::TYPE::MESSAGE:
+                break;
+        }
+        if (sentTerm != -1 && sentTerm > node.term) {
+            node.term = sentTerm;
+            node.votedFor = std::nullopt;
+            if (node.state != STATE::FOLLOWER) {
+                changeNextState(STATE::FOLLOWER);
+                node.rpcReciever.reinject_rpc(std::move(rpc));
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -11,8 +11,8 @@ namespace Node {
 
     class LeaderCycle : public Cycle {
     public:
-        LeaderCycle(Rpc::RpcRecieverReinjecter &rpcReciever)
-            : Cycle(45, rpcReciever) {}
+        LeaderCycle(Node &node)
+            : Cycle(100, node) {}
 
         void pre_cycle() override;
 

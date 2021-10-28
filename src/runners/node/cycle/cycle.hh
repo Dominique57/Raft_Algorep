@@ -11,8 +11,8 @@ namespace Node {
     // Foreward declaration
     class Cycle {
     protected:
-        Cycle(int timer, Rpc::RpcRecieverReinjecter &rpcReciever)
-            : timer(timer), nextState(std::nullopt), rpcReciever(rpcReciever) {}
+        Cycle(int timer, Node &node)
+            : timer(timer), nextState(std::nullopt), node(node) {}
 
     public:
         virtual void pre_cycle() = 0;
@@ -20,6 +20,8 @@ namespace Node {
         virtual bool should_stop_cycle(std::unique_ptr<Rpc::RpcResponse> message) = 0;
 
         virtual void post_cycle(bool hasTimedOut) = 0;
+
+        bool check_always_should_stop(std::unique_ptr<Rpc::RpcResponse> &message);
 
         /// GETTER: Node::Cycle::timer
         int Timer() const { return timer; }
@@ -33,7 +35,7 @@ namespace Node {
     protected:
         int timer;
         std::optional<STATE> nextState;
-        Rpc::RpcRecieverReinjecter &rpcReciever;
+        Node &node;
     };
 
 }

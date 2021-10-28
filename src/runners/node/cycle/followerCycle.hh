@@ -12,8 +12,8 @@ namespace Node {
 
     class FollowerCycle : public Cycle {
     public:
-        FollowerCycle(Rpc::RpcRecieverReinjecter &rpcReciever)
-            : Cycle((std::rand() % 150) + 150, rpcReciever) {}
+        FollowerCycle(Node &node)
+            : Cycle((std::rand() % 150) + 150, node) {}
 
         void pre_cycle() override;
 
