@@ -1,5 +1,3 @@
-// Created by dominique on 10/24/21.
-
 #include "mpi_include.hh"
 
 #include <chrono>

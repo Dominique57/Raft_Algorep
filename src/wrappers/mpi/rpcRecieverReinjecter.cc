@@ -1,5 +1,3 @@
-// Created by dominique on 10/27/21.
-
 #include "rpcRecieverReinjecter.hh"
 
 namespace Rpc {

@@ -1,5 +1,3 @@
-// Created by dominique on 10/28/21.
-
 #include "cycle.hh"
 #include <runners/node.hh>
 #include <spdlog/spdlog.h>
