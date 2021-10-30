@@ -27,11 +27,33 @@ namespace Node {
 
     class Node {
     public:
+        /**
+         * @brief Node constructor.
+         */
         Node()
             : state(STATE::FOLLOWER), rpcReciever() {}
 
+        /**
+         * @brief Updates the node depending on it's current cycle.
+         * @details The cycle is in which state the node currently is: FOLLOWER,
+         *          LEADER and CANDIDATE.
+         *          It first calls pre_cycle, which depends on the current cycle.
+         *          It sends heartbeat for the LEADER, and sends REQUEST_VOTE
+         *          messages to every node.
+         *          It then launches the actual cycle with a timeout and checks
+         *          if we have timed out while waiting for a message.
+         *          If we receives a message, we check if we need to leave the
+         *          current cycle like timing out as a FOLLOWER.
+         *          If we quit the current cycle, we call post_cycle, especially
+         *          used for changing from FOLLOWER to CANDIDATE and changing
+         *          to the next cycle.
+         * @param cycle The node's current cycle, can be changed during the execution.
+         */
         void update(Cycle &cycle);
 
+        /**
+         * @brief Launches the node's cycle.
+         */
         void start();
 
         friend Cycle;
