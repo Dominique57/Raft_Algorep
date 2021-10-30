@@ -22,10 +22,10 @@ namespace MPI {
         }
     }
 
-    size_t AnyMessageWaiting(int source, int tag, MPI_Comm comm) {
+    size_t AnyMessageWaiting(int src, int tag, MPI_Comm comm) {
         MPI_Status mpi_status;
         int flag;
-        MPI_Iprobe(source, tag, comm, &flag, &mpi_status);
+        MPI_Iprobe(src, tag, comm, &flag, &mpi_status);
         if (!flag)
             return 0;
 
