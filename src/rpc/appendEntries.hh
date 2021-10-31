@@ -32,7 +32,7 @@ namespace Rpc {
         }
 
     public:
-         /// Current term of the sender / responder.
+        /// Current term of the sender / responder.
         int term;
 
 
