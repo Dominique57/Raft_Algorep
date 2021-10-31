@@ -1,5 +1,3 @@
-// Created by dominique on 10/24/21.
-
 #pragma once
 
 #include "rpc.hh"
@@ -9,15 +7,24 @@ namespace Rpc {
     /// Simple Rpc class that sends a string
     class Message : public Rpc {
     public:
-        /// Constructor
+        /**
+         * @brief Constructor with string representation of the message.
+         * @param message       The message value to store
+         */
         Message(std::string message)
                 : Rpc(TYPE::MESSAGE), message(std::move(message)) {}
 
-        /// Constructor
+        /**
+         * @brief Constructor with char* representation of the message.
+         * @param msg           The message value to store
+         */
         Message(const char *msg)
                 : Message(std::string(msg)) {}
 
-        /// Constructor
+        /**
+         * @brief Constructor with JSON representation of the message.
+         * @param json          The message value to store
+         */
         Message(const json &json)
                 : Message(json["value"].get<std::string>()) {}
 
