@@ -7,6 +7,9 @@
 #include <runners/node.hh>
 #include "mpi.h"
 
+/**
+ * Function to execute every time we stop the program, no matter what happens.
+ */
 void executeAtAexit() {
     MPI_Finalize();
 }

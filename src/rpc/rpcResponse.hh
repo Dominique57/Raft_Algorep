@@ -9,7 +9,11 @@ namespace Rpc {
     /// Container representing a rpc with metadata such as the sender id.
     class RpcResponse {
     public:
-        /// Constructor
+        /**
+         * @brief Constructor
+         * @param rpc           The RPC message.
+         * @param senderId      The sender id.
+         */
         RpcResponse(std::unique_ptr<Rpc> &rpc, int senderId)
                 : rpc(std::move(rpc)), senderId(senderId) {}
 

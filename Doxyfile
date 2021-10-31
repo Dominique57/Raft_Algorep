@@ -3,7 +3,7 @@ DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = "RAFT - algoreppppp"
 PROJECT_NUMBER         =
 PROJECT_BRIEF          =
-OUTPUT_DIRECTORY       = "docs/"
+OUTPUT_DIRECTORY       = "res/docs/"
 OUTPUT_LANGUAGE        = English
 
 # Input file(s)

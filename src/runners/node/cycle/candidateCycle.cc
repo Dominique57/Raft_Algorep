@@ -1,5 +1,3 @@
-// Created by dominique on 10/28/21.
-
 #include "candidateCycle.hh"
 
 #include <runners/node.hh>

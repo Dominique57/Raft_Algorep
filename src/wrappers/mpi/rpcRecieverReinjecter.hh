@@ -1,5 +1,3 @@
-// Created by dominique on 10/27/21.
-
 #pragma once
 
 #include <wrappers/mpi_include.hh>
@@ -10,19 +8,37 @@ namespace Rpc {
     /// Handle a FIFO cache to reinject message in the next Recv_Rpc wrapper method call
     class RpcRecieverReinjecter {
     public:
-        /// Constructor
+        /**
+         * @brief Constructor
+         */
         RpcRecieverReinjecter()
             : reinjected_messages_() {}
 
-        /// Add a new existing rpc in the cache
+        /**
+         * @brief Add a new existing RPC in the cache
+         * @param message_
+         */
         void reinject_rpc(std::unique_ptr<RpcResponse> message_) {
             reinjected_messages_.emplace(std::move(message_));
         }
 
-        /// Wrapper Around MPI::Recv_Rpc that sends cached message in priority
+        /**
+         * @brief Around MPI::Recv_Rpc that sends cached message in priority
+         * @param src       ID of the sender, can be set to -1
+         * @param tag       optional message tag
+         * @param comm      optional group to send the message to
+         * @return A unique smart pointer to the RPC message.
+         */
         std::unique_ptr<RpcResponse> get_rpc(int src, int tag = 0, MPI_Comm comm = MPI_COMM_WORLD);
 
-        /// Wrapper Around MPI::Recv_Rpc_Timeout that sends cached message in priority
+        /**
+         * @brief Wrapper Around MPI::Recv_Rpc_Timeout that sends cached message in priority
+         * @param src       ID of the sender, can be set to -1
+         * @param timeout   timeout limit before receiving the message
+         * @param tag       optional message tag
+         * @param comm      optional group to send the message to
+         * @return A unique smart pointer to the RPC message if one was received from the cache before the timeout.
+         */
         std::unique_ptr<RpcResponse> get_rpc_timeout(int src, long timeout, int tag = 0, MPI_Comm comm = MPI_COMM_WORLD);
 
     protected:

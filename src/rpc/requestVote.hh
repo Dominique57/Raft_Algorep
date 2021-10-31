@@ -1,18 +1,23 @@
-// Created by dominique on 10/26/21.
-
 #pragma once
 
 #include "rpc.hh"
 
 namespace Rpc {
-    /// Rpc representing a request to vote for a given node (id)
+    /// Rpc representing a request to vote for a given node (id).
     class RequestVote : public Rpc {
     public:
-        /// Constructor
+        /**
+         * @brief Constructor
+         * @param term              The candidate's term.
+         * @param candidateId       The candidate's ID.
+         */
         RequestVote(int term, int candidateId)
             : Rpc(TYPE::REQUEST_VOTE), term(term), candidateId(candidateId) {}
 
-        /// Constructor
+        /**
+         * @brief Constructor
+         * @param json              The JSON containing the term and the candidateId.
+         */
         RequestVote(const json &json)
             : RequestVote(json["term"].get<int>(), json["candidateId"].get<int>()) {}
 
@@ -22,20 +27,27 @@ namespace Rpc {
         }
 
     public:
-        /// Current term of the sender / responder
+        /// Current term of the sender / responder.
         int term;
-        /// Id of the candidate node for whom the request has been sent for
+        /// Id of the candidate node for whom the request has been sent for.
         int candidateId;
     };
 
     /// Rpc response to Rpc::RequestVote
     class RequestVoteResponse : public Rpc {
     public:
-        /// Constructor
+        /**
+         * @brief Constructor
+         * @param term              The candidate's term.
+         * @param voteGranted       True if the follower voted for the candidate.
+         */
         RequestVoteResponse(int term, bool voteGranted)
             : Rpc(TYPE::REQUEST_VOTE_RESPONSE), term(term), voteGranted(voteGranted) {}
 
-        /// Constructor
+        /**
+         * @brief Constructor
+         * @param json              The JSON containing the term and if the follower voted for the candidate.
+         */
         RequestVoteResponse(const json& json)
             : RequestVoteResponse(json["term"].get<int>(), json["voteGranted"].get<bool>()) {}
 
@@ -45,9 +57,9 @@ namespace Rpc {
         }
 
     public:
-        /// Current term of the sender / responder
+        /// Current term of the sender / responder.
         int term;
-        /// True if vote has been granted by sender / responder
+        /// True if vote has been granted by sender / responder.
         bool voteGranted;
     };
 }
