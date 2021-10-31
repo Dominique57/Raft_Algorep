@@ -32,11 +32,11 @@ namespace Rpc {
         }
 
     public:
-         /// @brief Current term of the sender / responder.
+         /// Current term of the sender / responder.
         int term;
 
 
-        /// @brief Current leader id, will allow follower to share that knowledge.
+        /// Current leader id, will allow follower to share that knowledge.
         int leaderId;
     };
 
