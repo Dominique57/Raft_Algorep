@@ -9,6 +9,8 @@ namespace Rpc {
         MESSAGE = 0,
         REQUEST_VOTE,
         REQUEST_VOTE_RESPONSE,
+        REQUEST_LEADER,
+        REQUEST_LEADER_RESPONSE,
         APPEND_ENTRIES,
         APPEND_ENTRIES_RESPONSE,
     };
