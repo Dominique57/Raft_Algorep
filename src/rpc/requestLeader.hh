@@ -53,6 +53,7 @@ namespace Rpc {
             return json::object({{"leaderId", leaderId}, {"success", success}});
         }
 
+    public:
         /// ID the current leader
         int leaderId;
 

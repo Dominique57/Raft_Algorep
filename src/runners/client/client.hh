@@ -10,6 +10,10 @@ namespace Client {
          */
         Client() = default;
 
-        int request_leader_id()
+        int request_leader_id();
+
+    protected:
+        int timeout;
+        int leaderId;
     };
 }

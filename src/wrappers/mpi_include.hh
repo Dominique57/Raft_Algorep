@@ -18,7 +18,7 @@ namespace MPI {
      * @param src       ID of the sender, can be set to -1
      * @param tag       optional message tag
      * @param comm      optional group to send the message to
-     * @return The length of the waiting message, 0 if there is none.
+     * @return The length of the waiting message timeout, 0 if there is none.
      */
     size_t AnyMessageWaiting(int src, int tag = 0, MPI_Comm comm = MPI_COMM_WORLD);
 

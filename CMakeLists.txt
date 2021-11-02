@@ -34,6 +34,7 @@ add_executable(${PROJECT_NAME}
     src/runners/node/cycle/leaderCycle.hh
     src/runners/node/cycle/candidateCycle.hh
     src/runners/client/client.hh
+    src/runners/client/client.cc
 
     src/wrappers/mpi_include.cc src/wrappers/mpi_include.hh
     src/wrappers/nlhomann_include.cc src/wrappers/nlhomann_include.hh

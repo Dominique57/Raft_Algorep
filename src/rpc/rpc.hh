@@ -9,10 +9,10 @@ namespace Rpc {
         MESSAGE = 0,
         REQUEST_VOTE,
         REQUEST_VOTE_RESPONSE,
-        REQUEST_LEADER,
-        REQUEST_LEADER_RESPONSE,
         APPEND_ENTRIES,
         APPEND_ENTRIES_RESPONSE,
+        REQUEST_LEADER,
+        REQUEST_LEADER_RESPONSE,
     };
 
     /// Rpc type names (used to convert enum to text).
@@ -22,6 +22,8 @@ namespace Rpc {
         "REQUEST_VOTE_RESPONSE",
         "APPEND_ENTRIES",
         "APPEND_ENTRIES_RESPONSE",
+        "REQUEST_LEADER",
+        "REQUEST_LEADER_RESPONSE",
     };
 
     /**

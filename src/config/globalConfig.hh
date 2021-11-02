@@ -1,5 +1,3 @@
-// Created by dominique on 10/24/21.
-
 #pragma once
 
 /// Global processus configuration data
