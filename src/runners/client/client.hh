@@ -1,5 +1,7 @@
 #pragma once
 
+#include "wrappers/mpi/rpcRecieverReinjecter.hh"
+
 
 namespace Client {
 
@@ -8,12 +10,13 @@ namespace Client {
         /**
          * @brief Default constructor.
          */
-        Client() = default;
+        Client(int timeout_) : timeout(timeout_) {}
 
         int request_leader_id();
 
     protected:
         int timeout;
         int leaderId;
+        Rpc::RpcRecieverReinjecter rpcReciever;
     };
 }

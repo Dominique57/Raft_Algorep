@@ -1,6 +1,7 @@
 #include "followerCycle.hh"
-#include <runners/node.hh>
+
 #include <spdlog/spdlog.h>
+#include "runners/node.hh"
 
 namespace Node {
 
@@ -22,6 +23,8 @@ namespace Node {
             case Rpc::TYPE::REQUEST_VOTE_RESPONSE:
             case Rpc::TYPE::APPEND_ENTRIES_RESPONSE:
             case Rpc::TYPE::MESSAGE:
+            case Rpc::TYPE::REQUEST_LEADER:
+            case Rpc::TYPE::REQUEST_LEADER_RESPONSE:
                 break;
         }
         return false;

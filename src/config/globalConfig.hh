@@ -12,6 +12,8 @@ public:
     /// Current node id
     static int rank;
     /// Total number of node
-    static int size;
+    static int nb_node;
+    /// Total number of client
+    static int nb_client;
 };
 

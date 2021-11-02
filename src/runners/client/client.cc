@@ -11,21 +11,22 @@ namespace Client
         bool success = false;
 
         do {
-        int max = GlobalConfig::size;
-        int min = GlobalConfig::size / 2;
-        int dst = min + ( std::rand() % ( max - min + 1 ) );
+            int max = GlobalConfig::nb_node;
+            int dst = (std::rand() %  max );
 
-        MPI::Send_Rpc(Rpc::RequestLeader(), dst);
+            MPI::Send_Rpc(Rpc::RequestLeader(), dst);
 
-        auto response = static_cast<Rpc::RequestLeaderResponse *>(MPI::Recv_Rpc_Timeout(MPI_ANY_SOURCE, timeout)->rpc.get());
+            auto response = MPI::Recv_Rpc_Timeout(MPI_ANY_SOURCE, timeout, 0, MPI_COMM_WORLD);
 
-        success = response->success;
-        if (success)
-            leaderId = response->leaderId;
+            if (response && response->rpc.get()->Type() == Rpc::TYPE::REQUEST_LEADER_RESPONSE)
+            {
+                auto resp = static_cast<Rpc::RequestLeaderResponse *>(response->rpc.get());
+                success = resp->success;
+                if (success)
+                    leaderId = resp->leaderId;
+            }
+        }while (!success);
 
-        } while (!success);
-
-
-
+        return leaderId;
     }
 }

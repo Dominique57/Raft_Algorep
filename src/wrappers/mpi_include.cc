@@ -3,9 +3,12 @@
 #include <chrono>
 #include <unistd.h>
 #include <spdlog/spdlog.h>
-#include <rpc/message.hh>
-#include <rpc/requestVote.hh>
-#include <rpc/appendEntries.hh>
+
+
+#include "rpc/message.hh"
+#include "rpc/requestVote.hh"
+#include "rpc/appendEntries.hh"
+#include "rpc/requestLeader.hh"
 
 namespace MPI {
 
@@ -63,6 +66,12 @@ namespace MPI {
             case Rpc::TYPE::APPEND_ENTRIES_RESPONSE:
                 res = std::make_unique<Rpc::AppendEntriesResponse>(recvJson["data"]);
                 break;
+            case Rpc::TYPE::REQUEST_LEADER:
+                res = std::make_unique<Rpc::RequestLeader>(recvJson["data"]);
+                break;
+            case Rpc::TYPE::REQUEST_LEADER_RESPONSE:
+                res = std::make_unique<Rpc::RequestLeaderResponse>(recvJson["data"]);
+                break;
         }
         if (res == nullptr) {
             auto errMsg = std::string("Unhandled message type: ") + Rpc::getTypeName(recvType);
@@ -84,7 +93,6 @@ namespace MPI {
             auto msg = Recv_Rpc(src, tag, comm);
             if (msg != nullptr)
                 return msg;
-
             if (timeout < countTime)
                 break;
             usleep(100);

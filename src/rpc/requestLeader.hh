@@ -14,7 +14,7 @@ namespace Rpc {
         /**
          * @brief Construct a request to ask for the leader
          */
-        RequestLeader(const json &json)
+        RequestLeader(const json&)
             : RequestLeader() {}
 
     protected:

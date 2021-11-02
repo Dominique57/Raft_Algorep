@@ -3,9 +3,10 @@
 #include <spdlog/spdlog.h>
 #include <cstdlib>
 
-#include <config/globalConfig.hh>
-#include <runners/node.hh>
+#include "config/globalConfig.hh"
+#include "runners/node.hh"
 #include "mpi.h"
+#include "runners/client/client.hh"
 
 /**
  * Function to execute every time we stop the program, no matter what happens.
@@ -42,7 +43,15 @@ int main(int argc, char *argv[]) {
         spdlog::set_pattern(ss.str());
     }
 
-    auto node = Node::Node();
-    node.start();
+    if (rank <  GlobalConfig::nb_node)
+    {
+        auto node = Node::Node();
+        node.start();
+    }
+    else{
+        auto client = Client::Client(2000);
+        usleep(1000000);
+        client.request_leader_id();
+    }
     return 0;
 }

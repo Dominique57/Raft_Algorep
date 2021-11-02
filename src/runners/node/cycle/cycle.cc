@@ -29,6 +29,8 @@ namespace Node {
                 sentTerm = static_cast<Rpc::AppendEntriesResponse *>(rpc->rpc.get())->term;
                 break;
             case Rpc::TYPE::MESSAGE:
+            case Rpc::TYPE::REQUEST_LEADER:
+            case Rpc::TYPE::REQUEST_LEADER_RESPONSE:
                 break;
         }
         if (sentTerm != -1 && sentTerm > node.term) {

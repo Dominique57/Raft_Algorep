@@ -1,7 +1,7 @@
 #pragma once
 
 #include <mpi.h>
-#include <rpc/rpcResponse.hh>
+#include "rpc/rpcResponse.hh"
 
 namespace MPI {
     /**
