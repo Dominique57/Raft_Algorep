@@ -2,6 +2,7 @@
 
 #include "config/globalConfig.hh"
 #include "wrappers/mpi_include.hh"
+#include "wrappers/debug/print_log.hh"
 #include "rpc/requestLeader.hh"
 
 namespace Client
@@ -27,6 +28,16 @@ namespace Client
             }
         }while (!success);
 
+        //TODO : fix compilation
+        //Log::recieve_leader_response(GlobalConfig::rank, leaderId);
         return leaderId;
     }
+
+    //TODO: must take all message type
+    void Client::send_message(std::string message)
+    {
+        auto rpc = Rpc::Message(message);
+        MPI::Send_Rpc(rpc, leaderId);
+    }
+
 }

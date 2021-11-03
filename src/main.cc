@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
     }
     else{
         auto client = Client::Client(2000);
-        usleep(1000000);
+        usleep(2000); //TODO: wait until leader elected done by the controller
         client.request_leader_id();
     }
     return 0;

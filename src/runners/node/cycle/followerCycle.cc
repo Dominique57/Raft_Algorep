@@ -1,7 +1,7 @@
 #include "followerCycle.hh"
 
-#include <spdlog/spdlog.h>
 #include "runners/node.hh"
+#include "wrappers/debug/print_log.cc"
 
 namespace Node {
 
@@ -9,10 +9,10 @@ namespace Node {
     }
 
     bool FollowerCycle::should_stop_cycle(std::unique_ptr<Rpc::RpcResponse> rpc) {
-        spdlog::info("Follower: Received {} from {}", Rpc::getTypeName(rpc->rpc->Type()), rpc->senderId);
         if (check_always_should_stop(rpc))
             return true;
 
+        Log::recieve(STATE::FOLLOWER, rpc->rpc->Type(), rpc->senderId);
         switch (rpc->rpc->Type()) {
             case Rpc::TYPE::REQUEST_VOTE:
                 MPI::Send_Rpc(Rpc::RequestVoteResponse(0, true), rpc->senderId);

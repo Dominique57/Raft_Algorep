@@ -25,6 +25,27 @@ namespace Node {
         CANDIDATE,
     };
 
+    /// Node state names (used to convert enum to text).
+    static const char *state_names[] = {
+        "Follower",
+        "Leader",
+        "Candidate",
+    };
+
+    /**
+     * @brief Converts an Node::STATE enum to text.
+     * @return static const pointer to name.
+     */
+    inline const char *getStateName(STATE state) {
+        auto stateIndex = static_cast<unsigned int>(state);
+
+        if (stateIndex >= sizeof(state_names) / sizeof(state_names[0]))
+            return "unknownName";
+        ///
+        return state_names[stateIndex];
+    }
+
+
     class Node {
     public:
         /**

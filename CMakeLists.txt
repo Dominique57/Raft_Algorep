@@ -40,6 +40,7 @@ add_executable(${PROJECT_NAME}
     src/wrappers/nlhomann_include.cc src/wrappers/nlhomann_include.hh
     src/wrappers/mpi/rpcRecieverReinjecter.cc src/wrappers/mpi/rpcRecieverReinjecter.hh
     src/wrappers/debug/add_stack_strace.cc src/wrappers/debug/add_stack_strace.hh
+    src/wrappers/debug/print_log.cc src/wrappers/debug/print_log.hh
 
     src/rpc/rpc.cc src/rpc/rpc.hh
     src/rpc/message.cc src/rpc/message.hh

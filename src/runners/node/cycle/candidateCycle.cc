@@ -1,8 +1,9 @@
 #include "candidateCycle.hh"
-
-#include <runners/node.hh>
-#include <config/globalConfig.hh>
 #include <spdlog/spdlog.h>
+
+#include "runners/node.hh"
+#include "config/globalConfig.hh"
+#include "wrappers/debug/print_log.hh"
 
 namespace Node {
 
@@ -22,7 +23,7 @@ namespace Node {
     }
 
     bool CandidateCycle::should_stop_cycle(std::unique_ptr<Rpc::RpcResponse> rpc) {
-        spdlog::info("Candidate: Received {} from {}", Rpc::getTypeName(rpc->rpc->Type()), rpc->senderId);
+        Log::recieve(STATE::CANDIDATE, rpc->rpc->Type(), rpc->senderId);
         if (check_always_should_stop(rpc))
             return true;
 
