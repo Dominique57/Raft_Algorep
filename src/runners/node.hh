@@ -87,5 +87,7 @@ namespace Node {
         Rpc::RpcRecieverReinjecter rpcReciever;
         int term = 0;
         std::optional<int> votedFor = std::nullopt;
+    private:
+        int postLeader = -1;
     };
 }

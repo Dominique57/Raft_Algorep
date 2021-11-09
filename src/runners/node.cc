@@ -23,20 +23,28 @@ namespace Node {
             rpcResponse = rpcReciever.get_rpc_timeout(MPI_ANY_SOURCE, timeToWait);
             hasTimedOut = rpcResponse == nullptr;
             if (!hasTimedOut)
+            {
+                auto type = rpcResponse->rpc->Type();
+                int senderId = rpcResponse->senderId;
                 leaveCycle = cycle.should_stop_cycle(std::move(rpcResponse));
+                postLeader = cycle.leaderId;
+                if (type == Rpc::TYPE::REQUEST_LEADER)
+                    cycle.request_leader_response(senderId);
+            }
         } while (!hasTimedOut && !leaveCycle);
 
         cycle.post_cycle(hasTimedOut);
 
         if (cycle.NextState().has_value()) {
             state = *cycle.NextState();
+            postLeader = -1;
         }
     }
 
     void Node::start() {
         while (true) {
             if (state == STATE::FOLLOWER) {
-                auto cycle = FollowerCycle(*this);
+                auto cycle = FollowerCycle(*this, postLeader);
                 update(cycle);
             } else if (state == STATE::LEADER) {
                 auto cycle = LeaderCycle(*this);

@@ -6,6 +6,8 @@
 namespace Node {
 
     void FollowerCycle::pre_cycle() {
+        if(postLeader != -1)
+            leaderId = postLeader;
     }
 
     bool FollowerCycle::should_stop_cycle(std::unique_ptr<Rpc::RpcResponse> rpc) {
@@ -15,6 +17,7 @@ namespace Node {
         Log::recieve(STATE::FOLLOWER, rpc->rpc->Type(), rpc->senderId);
         switch (rpc->rpc->Type()) {
             case Rpc::TYPE::REQUEST_VOTE:
+                leaderId = rpc->senderId;
                 MPI::Send_Rpc(Rpc::RequestVoteResponse(0, true), rpc->senderId);
                 return true;
             case Rpc::TYPE::APPEND_ENTRIES:

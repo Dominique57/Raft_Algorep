@@ -10,6 +10,7 @@ namespace Node {
 
     void LeaderCycle::pre_cycle() {
         auto rpc = Rpc::AppendEntries(node.term, GlobalConfig::rank);
+        leaderId = GlobalConfig::rank;
         for (auto dst = 0; dst < GlobalConfig::nb_node; ++dst)
             if (dst != GlobalConfig::rank)
                 MPI::Send_Rpc(rpc, dst);
@@ -22,6 +23,7 @@ namespace Node {
         if (check_always_should_stop(rpc))
             return true;
 
+        /*
         // Small fault code that forces new re-election
         if (node.term == 1 && std::rand() % 10 == 0) {
             spdlog::critical("Leader: going to sleep !");
@@ -29,6 +31,7 @@ namespace Node {
             spdlog::critical("Leader: waking up !");
             return true;
         }
+        */
         return false;
     }
 

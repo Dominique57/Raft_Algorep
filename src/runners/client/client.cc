@@ -26,6 +26,8 @@ namespace Client
                 if (success)
                     leaderId = resp->leaderId;
             }
+
+        std::cout << " moi : " << GlobalConfig::rank <<" dst: "<<dst<< " coucou leader : " << leaderId << std::endl;
         }while (!success);
 
         Log::recieve_leader_response(leaderId);
@@ -37,6 +39,8 @@ namespace Client
     {
         auto rpc = Rpc::AppendEntries(message);
         MPI::Send_Rpc(rpc, leaderId);
+        std::cout << "client " << GlobalConfig::rank << " has sent : \" "\
+            << message << " \"" << std::endl;
     }
 
 }

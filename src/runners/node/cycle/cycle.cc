@@ -1,6 +1,8 @@
 #include "cycle.hh"
-#include <runners/node.hh>
-#include <spdlog/spdlog.h>
+#include "runners/node.hh"
+#include "spdlog/spdlog.h"
+#include "rpc/requestLeader.hh"
+
 
 namespace Node {
 
@@ -43,5 +45,10 @@ namespace Node {
             }
         }
         return false;
+    }
+
+    void Cycle::request_leader_response(int senderId) {
+        auto rpc_response = Rpc::RequestLeaderResponse(leaderId, true);
+        MPI::Send_Rpc(rpc_response, senderId);
     }
 }

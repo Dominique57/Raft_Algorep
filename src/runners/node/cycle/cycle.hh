@@ -38,6 +38,7 @@ namespace Node {
          */
         bool check_always_should_stop(std::unique_ptr<Rpc::RpcResponse> &message);
 
+        void request_leader_response(int senderId);
         /**
          * @brief GETTER: Node::Cycle::timer
          * @return The current timer value.
@@ -50,6 +51,8 @@ namespace Node {
          */
         std::optional<STATE> NextState() const;
 
+        int leaderId = 0;
+        int timer;
     protected:
         /**
          * @brief Changes our current cycle's state to the next.
@@ -57,8 +60,6 @@ namespace Node {
          */
         void changeNextState(STATE newState);
 
-    protected:
-        int timer;
         std::optional<STATE> nextState;
         Node &node;
     };
