@@ -14,7 +14,7 @@ namespace Client {
         Client(int timeout_) : timeout(timeout_) {}
 
         int request_leader_id();
-        void send_message(std::string message);
+        void send_message(const json& message);
 
     protected:
         int timeout;
