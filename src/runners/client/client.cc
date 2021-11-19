@@ -7,28 +7,34 @@
 
 namespace Client
 {
+    Client::Client(const int& timeout_)
+        : timeout(timeout_)
+    {
+        leaderId = this->request_leader_id();
+    }
+
     int Client::request_leader_id()
     {
         bool success = false;
+        const int max = GlobalConfig::nb_node;
 
         do {
-            int max = GlobalConfig::nb_node;
-            int dst = (std::rand() %  max );
+            const int dst = (std::rand() % max);
 
             MPI::Send_Rpc(Rpc::RequestLeader(), dst);
 
-            auto response = MPI::Recv_Rpc_Timeout(MPI_ANY_SOURCE, timeout, 0, MPI_COMM_WORLD);
+            auto response = MPI::Recv_Rpc_Timeout(MPI_ANY_SOURCE, this->timeout, 0, MPI_COMM_WORLD);
 
-            if (response && response->rpc.get()->Type() == Rpc::TYPE::REQUEST_LEADER_RESPONSE)
-            {
+            if (response && response->rpc.get()->Type() == Rpc::TYPE::REQUEST_LEADER_RESPONSE) {
+                std::cout << "Receive response of type REQUEST_LEADER_RESPONSE" << std::endl;
                 auto resp = static_cast<Rpc::RequestLeaderResponse *>(response->rpc.get());
                 success = resp->success;
-                if (success)
+                if (success) {
+                    std::cout << "Success response: leader is " << resp->leaderId << std::endl;
                     leaderId = resp->leaderId;
+                }
             }
-
-        std::cout << " moi : " << GlobalConfig::rank <<" dst: "<<dst<< " coucou leader : " << leaderId << std::endl;
-        }while (!success);
+        } while (!success);
 
         Log::recieve_leader_response(leaderId);
         return leaderId;
@@ -37,10 +43,12 @@ namespace Client
     //TODO: must take all message type
     void Client::send_message(const json &message)
     {
-        auto rpc = Rpc::AppendEntries(message);
-        MPI::Send_Rpc(rpc, leaderId);
-        std::cout << "client " << GlobalConfig::rank << " has sent : \" "\
-            << message << " \"" << std::endl;
+        std::cout << "Client: " << GlobalConfig::rank << " with leader: " << this->leaderId << std::endl;
+
+        //auto rpc = Rpc::AppendEntries(message);
+        //MPI::Send_Rpc(rpc, this->leaderId);
+        //std::cout << "client " << GlobalConfig::rank << " has sent : \" "\
+        //    << message << " \"" << std::endl;
     }
 
 }

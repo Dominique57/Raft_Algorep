@@ -7,7 +7,7 @@ public:
      * @param rank : GlobalConfig::rank
      * @param size : GlobalConfig::size
      */
-    static void initConfig(int rank, int size);
+    static void initConfig(const int& rank, const int& size);
 
     /// Current node id
     static int rank;

@@ -23,7 +23,6 @@ namespace Node {
         if (check_always_should_stop(rpc))
             return true;
 
-        /*
         // Small fault code that forces new re-election
         if (node.term == 1 && std::rand() % 10 == 0) {
             spdlog::critical("Leader: going to sleep !");
@@ -31,7 +30,6 @@ namespace Node {
             spdlog::critical("Leader: waking up !");
             return true;
         }
-        */
         return false;
     }
 

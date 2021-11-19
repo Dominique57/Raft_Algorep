@@ -1,12 +1,12 @@
 #include "followerCycle.hh"
 
 #include "runners/node.hh"
-#include "wrappers/debug/print_log.cc"
+#include "wrappers/debug/print_log.hh"
 
 namespace Node {
 
     void FollowerCycle::pre_cycle() {
-        if(postLeader != -1)
+        if (postLeader != -1)
             leaderId = postLeader;
     }
 

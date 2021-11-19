@@ -22,8 +22,7 @@ namespace Node {
             long timeToWait = cycle.Timer() - countTime;
             rpcResponse = rpcReciever.get_rpc_timeout(MPI_ANY_SOURCE, timeToWait);
             hasTimedOut = rpcResponse == nullptr;
-            if (!hasTimedOut)
-            {
+            if (!hasTimedOut) {
                 auto type = rpcResponse->rpc->Type();
                 int senderId = rpcResponse->senderId;
                 leaveCycle = cycle.should_stop_cycle(std::move(rpcResponse));

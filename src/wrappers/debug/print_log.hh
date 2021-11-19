@@ -1,9 +1,13 @@
 #pragma once
+
+#include <spdlog/spdlog.h>
+
 #include "rpc/rpc.hh"
 #include "runners/node.hh"
+#include "config/globalConfig.hh"
 
 namespace Log {
-    inline void recieve(Node::STATE state, Rpc::TYPE type, int senderId)
+    inline void recieve(const Node::STATE& state, const Rpc::TYPE& type, const int& senderId)
     {
         std::string stateName = Node::getStateName(state);
 
@@ -18,7 +22,7 @@ namespace Log {
     }
 
 
-    inline void recieve_leader_response(int leaderId)
+    inline void recieve_leader_response(const int& leaderId)
     {
 #ifndef NDEBUG
         spdlog::info("Client {} : Received REQUEST_LEADER_RESPONSE from {}", GlobalConfig::rank, leaderId);

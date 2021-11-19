@@ -11,14 +11,15 @@ namespace Client {
         /**
          * @brief Default constructor.
          */
-        Client(int timeout_) : timeout(timeout_) {}
+        Client(const int& timeout_);
 
-        int request_leader_id();
         void send_message(const json& message);
 
     protected:
         int timeout;
         int leaderId;
         Rpc::RpcRecieverReinjecter rpcReciever;
+
+        int request_leader_id();
     };
 }

@@ -6,7 +6,7 @@ int GlobalConfig::rank = 0;
 int GlobalConfig::nb_node = 0;
 int GlobalConfig::nb_client = 0;
 
-void GlobalConfig::initConfig(int rank_, int size_) {
+void GlobalConfig::initConfig(const int& rank_, const int& size_) {
     rank = rank_;
     nb_node = size_ /2;
     nb_client = size_ - nb_node;
