@@ -13,6 +13,10 @@ public:
     static bool is_client();
     static bool is_node();
 
+    static bool is_controller(const int& rank);
+    static bool is_client(const int& rank);
+    static bool is_node(const int& rank);
+
     /// Current node id
     static int rank;
     /// Total number of node

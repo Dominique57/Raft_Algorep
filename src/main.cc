@@ -4,9 +4,10 @@
 #include <cstdlib>
 
 #include "config/globalConfig.hh"
-#include "runners/node.hh"
 #include "mpi.h"
+#include "runners/node.hh"
 #include "runners/client/client.hh"
+#include "runners/controller/controller.hh"
 
 /**
  * Function to execute every time we stop the program, no matter what happens.
@@ -52,6 +53,8 @@ int main(int argc, char *argv[]) {
     }
 
     if (GlobalConfig::is_controller()) {
+        auto controller = Controller::Controller();
+        controller.start();
         // TODO
     } else if (GlobalConfig::is_node()) {
         // Server

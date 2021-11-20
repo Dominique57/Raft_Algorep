@@ -1,13 +1,16 @@
 #pragma once
 
+#include <string>
 
 namespace Controller
 {
     class Controller {
+
     public:
-        Controller();
+        /* Constructor */
+        Controller() = default;
 
-        void GetRequest();
-
+        /* Methods */
+        void start() const;
     };
 }

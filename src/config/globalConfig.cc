@@ -33,3 +33,15 @@ bool GlobalConfig::is_client() {
 bool GlobalConfig::is_node() {
     return nb_node_min <= rank && rank <= nb_node_max;
 }
+
+bool GlobalConfig::is_controller(const int& rank_) {
+    return rank_ == 0;
+}
+
+bool GlobalConfig::is_client(const int& rank_) {
+    return nb_client_min <= rank_ && rank_ <= nb_client_max;
+}
+
+bool GlobalConfig::is_node(const int& rank_) {
+    return nb_node_min <= rank_ && rank_ <= nb_node_max;
+}

@@ -34,6 +34,7 @@ add_executable(${PROJECT_NAME}
     src/runners/node/cycle/leaderCycle.hh
     src/runners/node/cycle/candidateCycle.hh
     src/runners/client/client.hh
+    src/runners/controller/controller.hh
 
     src/wrappers/mpi_include.cc src/wrappers/mpi_include.hh
     src/wrappers/nlhomann_include.cc src/wrappers/nlhomann_include.hh
@@ -56,6 +57,9 @@ add_executable(${PROJECT_NAME}
     src/runners/node/cycle/cycle.cc
     src/runners/node/cycle/fwd.hh
     src/runners/client/client.cc
+    src/runners/controller/controller.cc
+
+    src/utils/string.hh
 )
 
 target_compile_features(${PROJECT_NAME} PRIVATE
