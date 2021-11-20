@@ -22,6 +22,7 @@ namespace Node {
             long timeToWait = cycle.Timer() - countTime;
             rpcResponse = rpcReciever.get_rpc_timeout(MPI_ANY_SOURCE, timeToWait);
             hasTimedOut = rpcResponse == nullptr;
+
             if (!hasTimedOut) {
                 auto type = rpcResponse->rpc->Type();
                 int senderId = rpcResponse->senderId;

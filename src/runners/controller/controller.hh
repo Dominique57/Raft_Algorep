@@ -3,10 +3,11 @@
 
 namespace Controller
 {
-    class Conroller {
-        public:
-            Controller();
-            void GetRequest();
+    class Controller {
+    public:
+        Controller();
+
+        void GetRequest();
 
     };
 }

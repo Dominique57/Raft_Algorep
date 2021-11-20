@@ -34,7 +34,6 @@ add_executable(${PROJECT_NAME}
     src/runners/node/cycle/leaderCycle.hh
     src/runners/node/cycle/candidateCycle.hh
     src/runners/client/client.hh
-    src/runners/client/client.cc
 
     src/wrappers/mpi_include.cc src/wrappers/mpi_include.hh
     src/wrappers/nlhomann_include.cc src/wrappers/nlhomann_include.hh
@@ -50,7 +49,14 @@ add_executable(${PROJECT_NAME}
     src/rpc/requestLeader.cc src/rpc/requestLeader.hh
 
     src/config/globalConfig.cc src/config/globalConfig.hh
-    src/runners/node/cycle/followerCycle.cc src/runners/node/cycle/candidateCycle.cc src/runners/node/cycle/leaderCycle.cc src/runners/node/cycle/cycle.cc src/runners/node/cycle/fwd.hh src/rpc/requestLeader.cc src/rpc/requestLeader.hh)
+
+    src/runners/node/cycle/followerCycle.cc
+    src/runners/node/cycle/candidateCycle.cc
+    src/runners/node/cycle/leaderCycle.cc
+    src/runners/node/cycle/cycle.cc
+    src/runners/node/cycle/fwd.hh
+    src/runners/client/client.cc
+)
 
 target_compile_features(${PROJECT_NAME} PRIVATE
     cxx_std_17

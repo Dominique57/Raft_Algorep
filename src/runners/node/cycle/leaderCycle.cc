@@ -11,7 +11,7 @@ namespace Node {
     void LeaderCycle::pre_cycle() {
         auto rpc = Rpc::AppendEntries(node.term, GlobalConfig::rank);
         leaderId = GlobalConfig::rank;
-        for (auto dst = 0; dst < GlobalConfig::nb_node; ++dst)
+        for (auto dst = GlobalConfig::nb_node_min; dst <= GlobalConfig::nb_node_max; ++dst)
             if (dst != GlobalConfig::rank)
                 MPI::Send_Rpc(rpc, dst);
     }
@@ -26,7 +26,7 @@ namespace Node {
         // Small fault code that forces new re-election
         if (node.term == 1 && std::rand() % 10 == 0) {
             spdlog::critical("Leader: going to sleep !");
-            usleep(1000 * 1000 * 1000);
+            usleep(1000 * 1000 * 2);
             spdlog::critical("Leader: waking up !");
             return true;
         }
@@ -36,12 +36,11 @@ namespace Node {
     void LeaderCycle::post_cycle(bool) {
     }
 
-
-    void LeaderCycle::receive_cleint_request()
+    void LeaderCycle::receive_client_request()
     {
         auto start = std::chrono::steady_clock::now();
 
-        for (auto dst = GlobalConfig::nb_node; dst < GlobalConfig::nb_client; ++dst)
+        for (auto dst = GlobalConfig::nb_client_min; dst <= GlobalConfig::nb_client_max; ++dst)
         {
             auto cur = std::chrono::steady_clock::now();
             long countTime = std::chrono::duration_cast<std::chrono::milliseconds>(cur - start).count();
@@ -59,7 +58,7 @@ namespace Node {
 
     void LeaderCycle::share_client_request()
     {
-        for (auto dst = 0; dst < GlobalConfig::nb_node; ++dst)
+        for (auto dst = GlobalConfig::nb_node_min; dst <= GlobalConfig::nb_node_max; ++dst)
         {
             if (dst != GlobalConfig::rank)
             {

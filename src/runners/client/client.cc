@@ -16,10 +16,10 @@ namespace Client
     int Client::request_leader_id()
     {
         bool success = false;
-        const int max = GlobalConfig::nb_node;
+        const int max = GlobalConfig::nb_node_max - GlobalConfig::nb_node_min;
 
         do {
-            const int dst = (std::rand() % max);
+            const int dst = (std::rand() % max) + GlobalConfig::nb_node_min;
 
             MPI::Send_Rpc(Rpc::RequestLeader(), dst);
 

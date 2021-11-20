@@ -16,6 +16,14 @@ void executeAtAexit() {
 }
 
 int main(int argc, char *argv[]) {
+    if (argc < 3) {
+        std::cerr << "Usage: ./algorep nb_node nb_client" << std::endl;
+        return 1;
+    }
+
+    const int nb_node = std::atoi(argv[1]);
+    const int nb_client = std::atoi(argv[2]);
+
     int rank, size;
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -35,15 +43,17 @@ int main(int argc, char *argv[]) {
         spdlog::info("Initialisation: I am {} out of {}, ({}, {})", rank, size, version, len);
     }
 
-    { // Initialisation
-        GlobalConfig::initConfig(rank, size);
+    {   // Initialisation
+        GlobalConfig::initConfig(rank, nb_node, nb_client);
         std::srand(std::time(nullptr) + rank);
         std::stringstream ss;
         ss << "[%^%L%$] [RANK " << GlobalConfig::rank << "] [%H:%M:%S.%f]: %v";
         spdlog::set_pattern(ss.str());
     }
 
-    if (rank < GlobalConfig::nb_node) {
+    if (GlobalConfig::is_controller()) {
+        // TODO
+    } else if (GlobalConfig::is_node()) {
         // Server
         auto node = Node::Node();
         node.start();

@@ -17,7 +17,7 @@ namespace Node {
 
         // Broadcast request vote
         auto rpc = Rpc::RequestVote(node.term, GlobalConfig::rank);
-        for (auto dst = 0; dst < GlobalConfig::nb_node; ++dst)
+        for (auto dst = GlobalConfig::nb_node_min; dst <= GlobalConfig::nb_node_max; ++dst)
             if (dst != GlobalConfig::rank)
                 MPI::Send_Rpc(rpc, dst);
     }
@@ -28,7 +28,10 @@ namespace Node {
             return true;
 
         voteCount += 1;
-        if (voteCount > GlobalConfig::nb_node / 2) {
+        std::cerr << "RANK: " << GlobalConfig::rank << " with counts: " << voteCount << std::endl;
+        std::cerr << "Nb node: " << GlobalConfig::nb_node_min << ' ' << GlobalConfig::nb_node_max << std::endl;
+        std::cerr << "Nb client: " << GlobalConfig::nb_client_min << ' ' << GlobalConfig::nb_client_max << std::endl;
+        if (voteCount > (GlobalConfig::nb_node_max - GlobalConfig::nb_node_min) / 2) {
             spdlog::info("Candidate has been elected leader !");
             changeNextState(STATE::LEADER);
             return true;
