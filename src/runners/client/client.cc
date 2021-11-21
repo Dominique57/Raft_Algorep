@@ -35,9 +35,10 @@ namespace Client
     }
 
     //TODO: must take all message type
-    void Client::send_message(const json &message)
+    //TODO: clean message notification
+    void Client::send_message(const json& message)
     {
-        auto rpc = Rpc::AppendEntries(message);
+        auto rpc = Rpc::Message(message);
         MPI::Send_Rpc(rpc, leaderId);
         std::cout << "client " << GlobalConfig::rank << " has sent : \" "\
             << message << " \"" << std::endl;

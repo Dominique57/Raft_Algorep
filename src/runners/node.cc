@@ -24,12 +24,13 @@ namespace Node {
             hasTimedOut = rpcResponse == nullptr;
             if (!hasTimedOut)
             {
-                auto type = rpcResponse->rpc->Type();
                 int senderId = rpcResponse->senderId;
-                leaveCycle = cycle.should_stop_cycle(std::move(rpcResponse));
-                postLeader = cycle.leaderId;
-                if (type == Rpc::TYPE::REQUEST_LEADER)
-                    cycle.request_leader_response(senderId);
+                if (GlobalConfig::is_node(senderId))
+                        leaveCycle = cycle.should_stop_cycle(std::move(rpcResponse));
+                else
+                    if (GlobalConfig::is_client(senderId))
+                        cycle.client_response(std::move(rpcResponse));
+                //else controller
             }
         } while (!hasTimedOut && !leaveCycle);
 
@@ -37,14 +38,13 @@ namespace Node {
 
         if (cycle.NextState().has_value()) {
             state = *cycle.NextState();
-            postLeader = -1;
         }
     }
 
     void Node::start() {
         while (true) {
             if (state == STATE::FOLLOWER) {
-                auto cycle = FollowerCycle(*this, postLeader);
+                auto cycle = FollowerCycle(*this);
                 update(cycle);
             } else if (state == STATE::LEADER) {
                 auto cycle = LeaderCycle(*this);
