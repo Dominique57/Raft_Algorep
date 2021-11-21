@@ -34,7 +34,7 @@ namespace Node {
 
         /**
          * @brief Checks if we have to stop the current cycle depending on the received message.
-         * @param message   The received RPC message
+         * @param message   The received RPC message alaways send from a node
          * @return True if we have to stop the current cycle, false otherwise.
          */
         bool check_always_should_stop(std::unique_ptr<Rpc::RpcResponse> &message);
@@ -42,6 +42,12 @@ namespace Node {
         virtual void handle_controller_request(const Rpc::RpcResponse *message) = 0;
 
         void request_leader_response(int senderId);
+        /**
+         * @brief send client response
+         * @param message The received RPC message always from a client
+         */
+        void client_response(std::unique_ptr<Rpc::RpcResponse> message);
+
         /**
          * @brief GETTER: Node::Cycle::timer
          * @return The current timer value.
@@ -54,8 +60,7 @@ namespace Node {
          */
         std::optional<STATE> NextState() const;
 
-        int leaderId = 0;
-        int timer;
+
     protected:
         /**
          * @brief Changes our current cycle's state to the next.
@@ -64,6 +69,7 @@ namespace Node {
         void changeNextState(STATE newState);
         std::ostream& has_crashed(std::ostream& out) const;
 
+        int timer;
         std::optional<STATE> nextState;
         Node &node;
     };

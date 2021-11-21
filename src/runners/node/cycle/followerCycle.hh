@@ -6,8 +6,8 @@ namespace Node {
 
     class FollowerCycle : public Cycle {
     public:
-        FollowerCycle(Node &node, int postLeader)
-            : Cycle((std::rand() % 150) + 150, node), postLeader(postLeader) {}
+        FollowerCycle(Node &node)
+            : Cycle((std::rand() % 150) + 150, node) {}
 
         void pre_cycle() override;
 
@@ -17,7 +17,6 @@ namespace Node {
 
         void post_cycle(bool hasTimedOut) override;
 
-        int postLeader;
     };
 
 }

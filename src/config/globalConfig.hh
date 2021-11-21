@@ -4,8 +4,9 @@
 class GlobalConfig {
 public:
     /** Initializes the global configuration
-     * @param rank : GlobalConfig::rank
-     * @param size : GlobalConfig::size
+     * @param rank      : GlobalConfig::rank
+     * @param nb_node   : Number of nodes
+     * @param nb_client : Number of clients
      */
     static void initConfig(const int& rank, const int& nb_node, const int& nb_client);
 

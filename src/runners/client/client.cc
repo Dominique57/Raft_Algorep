@@ -26,13 +26,10 @@ namespace Client
             auto response = MPI::Recv_Rpc_Timeout(MPI_ANY_SOURCE, this->timeout, 0, MPI_COMM_WORLD);
 
             if (response && response->rpc.get()->Type() == Rpc::TYPE::REQUEST_LEADER_RESPONSE) {
-                std::cout << "Receive response of type REQUEST_LEADER_RESPONSE" << std::endl;
                 auto resp = static_cast<Rpc::RequestLeaderResponse *>(response->rpc.get());
                 success = resp->success;
-                if (success) {
-                    std::cout << "Success response: leader is " << resp->leaderId << std::endl;
+                if (success)
                     leaderId = resp->leaderId;
-                }
             }
         } while (!success);
 
@@ -40,14 +37,12 @@ namespace Client
         return leaderId;
     }
 
-    //TODO: must take all message type
-    void Client::send_message(const json &)
+    //TODO: clean message notification
+    void Client::send_message(const json& message)
     {
-        std::cout << "Client: " << GlobalConfig::rank << " with leader: " << this->leaderId << std::endl;
-
-        //auto rpc = Rpc::AppendEntries(message);
-        //MPI::Send_Rpc(rpc, this->leaderId);
-        //std::cout << "client " << GlobalConfig::rank << " has sent : \" " << message << " \"" << std::endl;
+        auto rpc = Rpc::Message(message);
+        MPI::Send_Rpc(rpc, leaderId);
+        std::cout << "client " << GlobalConfig::rank << " has sent : \" " << message << " \"" << std::endl;
     }
 
 }

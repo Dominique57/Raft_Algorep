@@ -63,13 +63,12 @@ int main(int argc, char *argv[]) {
     } else {
         // Client
         auto client = Client::Client(2000);
-        //usleep(10000000); //TODO: wait until leader elected done by the controller
-        //client.request_leader_id();
+        usleep(10000000); //TODO: wait until leader elected done by the controller
+        client.request_leader_id();
         usleep(2000); //TODO: wait for controller demande
-        std::cout << "couocu4 "<< std::endl;
 
-        json exemple = json::object({ {"one", 1}, {"two", 2} });
-        std::cout << "couocu5 "<< std::endl;
+        json exemple;
+        exemple["value"] = "1";
         client.send_message(exemple);
     }
     return 0;

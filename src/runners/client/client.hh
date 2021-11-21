@@ -14,12 +14,11 @@ namespace Client {
         Client(const int& timeout_);
 
         void send_message(const json& message);
+        int request_leader_id();
 
     protected:
         int timeout;
         int leaderId;
         Rpc::RpcRecieverReinjecter rpcReciever;
-
-        int request_leader_id();
     };
 }

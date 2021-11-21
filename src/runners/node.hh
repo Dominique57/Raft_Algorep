@@ -40,7 +40,7 @@ namespace Node {
         auto stateIndex = static_cast<unsigned int>(state);
 
         if (stateIndex >= sizeof(state_names) / sizeof(state_names[0]))
-            return "unknownName";
+            return "Unknown name";
         ///
         return state_names[stateIndex];
     }
@@ -86,11 +86,10 @@ namespace Node {
         STATE state;
         Rpc::RpcRecieverReinjecter rpcReciever;
         int term = 0;
+
         std::optional<int> votedFor = std::nullopt;
+        std::optional<int> leaderId = std::nullopt;
 
         bool crash = false;
-
-    private:
-        int postLeader = -1;
     };
 }

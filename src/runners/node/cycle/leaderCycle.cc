@@ -9,7 +9,7 @@ namespace Node {
 
     void LeaderCycle::pre_cycle() {
         auto rpc = Rpc::AppendEntries(node.term, GlobalConfig::rank);
-        leaderId = GlobalConfig::rank;
+        node.leaderId = GlobalConfig::rank;
         for (auto dst = GlobalConfig::nb_node_min; dst <= GlobalConfig::nb_node_max; ++dst)
             if (dst != GlobalConfig::rank)
                 MPI::Send_Rpc(rpc, dst);

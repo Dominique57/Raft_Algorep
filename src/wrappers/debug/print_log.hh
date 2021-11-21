@@ -7,6 +7,7 @@
 #include "config/globalConfig.hh"
 
 namespace Log {
+
     inline void recieve(const Node::STATE& state, const Rpc::TYPE& type, const int& senderId)
     {
         std::string stateName = Node::getStateName(state);

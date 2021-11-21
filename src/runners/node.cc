@@ -23,18 +23,18 @@ namespace Node {
             rpcResponse = rpcReciever.get_rpc_timeout(MPI_ANY_SOURCE, timeToWait);
             hasTimedOut = rpcResponse == nullptr;
 
-            if (!hasTimedOut) {
-                auto type = rpcResponse->rpc->Type();
+            if (!hasTimedOut)
+            {
                 int senderId = rpcResponse->senderId;
-                if (type == Rpc::TYPE::REQUEST_LEADER)
-                    cycle.request_leader_response(senderId);
+                auto type = rpcResponse->rpc->Type();
+                if (GlobalConfig::is_node(senderId))
+                    leaveCycle = cycle.should_stop_cycle(std::move(rpcResponse));
+
                 else if (type == Rpc::TYPE::CONTROLLER_REQUEST)
                     cycle.handle_controller_request(rpcResponse.get());
-                else if (type == Rpc::TYPE::MESSAGE)
-                    std::cout << "Receive request " << Rpc::getTypeName(type) << std::endl;
 
-                leaveCycle = cycle.should_stop_cycle(std::move(rpcResponse));
-                postLeader = cycle.leaderId;
+                else if (GlobalConfig::is_client(senderId))
+                    cycle.client_response(std::move(rpcResponse));
             }
         } while (!hasTimedOut && !leaveCycle);
 
@@ -42,14 +42,13 @@ namespace Node {
 
         if (cycle.NextState().has_value()) {
             state = *cycle.NextState();
-            postLeader = -1;
         }
     }
 
     void Node::start() {
         while (true) {
             if (state == STATE::FOLLOWER) {
-                auto cycle = FollowerCycle(*this, postLeader);
+                auto cycle = FollowerCycle(*this);
                 update(cycle);
             } else if (state == STATE::LEADER) {
                 auto cycle = LeaderCycle(*this);
