@@ -1,6 +1,9 @@
 #pragma once
 #include "rpc/rpc.hh"
 #include "runners/node.hh"
+#include "config/globalConfig.hh"
+
+#include <spdlog/spdlog.h>
 
 namespace Log {
     inline void recieve(Node::STATE state, Rpc::TYPE type, int senderId)
