@@ -10,7 +10,7 @@ namespace Node {
 
     void LeaderCycle::pre_cycle() {
         auto rpc = Rpc::AppendEntries(node.term, GlobalConfig::rank);
-        leaderId = GlobalConfig::rank;
+        node.leaderId = GlobalConfig::rank;
         for (auto dst = 0; dst < GlobalConfig::nb_node; ++dst)
             if (dst != GlobalConfig::rank)
                 MPI::Send_Rpc(rpc, dst);
@@ -39,7 +39,7 @@ namespace Node {
     }
 
 
-    void LeaderCycle::receive_cleint_request()
+    void LeaderCycle::receive_client_request()
     {
         auto start = std::chrono::steady_clock::now();
 

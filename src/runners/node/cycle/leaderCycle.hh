@@ -23,7 +23,7 @@ namespace Node {
         /**
          * @brief receive the request from all clients and push them to requests_client
          */
-        void receive_cleint_request();
+        void receive_client_request();
 
         /**
          * @brief send all elements from requests_client to the other nodes
