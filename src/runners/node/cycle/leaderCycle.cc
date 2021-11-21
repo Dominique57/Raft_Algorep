@@ -1,8 +1,5 @@
 #include "leaderCycle.hh"
-#include <spdlog/spdlog.h>
 
-#include "rpc/message.hh"
-#include "config/globalConfig.hh"
 #include "runners/node.hh"
 #include "wrappers/debug/print_log.hh"
 
@@ -70,4 +67,10 @@ namespace Node {
         requests_client.clear();
     }
 
+    void LeaderCycle::handle_message(Rpc::RpcResponse *rpc) {
+        auto message = static_cast<Rpc::Message*>(rpc->rpc.get());
+        if (message->type == Rpc::MESSAGE_TYPE::STATUS)
+            std::cout << "Node | " << GlobalConfig::rank << " | Leader" << std::endl;
+        // TODO
+    }
 }

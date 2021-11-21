@@ -1,9 +1,11 @@
 #include "controller.hh"
-#include "config/globalConfig.hh"
-
-#include "utils/string.hh"
 
 #include <iostream>
+
+#include "config/globalConfig.hh"
+#include "rpc/message.hh"
+#include "utils/string.hh"
+#include "wrappers/mpi_include.hh"
 
 namespace Controller
 {
@@ -79,9 +81,18 @@ namespace Controller
     static void status_command(const std::string& arg) {
         std::cout << "STATUS command" << std::endl;
         if (arg.empty()) {
-
             for (int dst = GlobalConfig::nb_node_min; dst <= GlobalConfig::nb_node_max; ++dst) {
+                MPI::Send_Rpc(Rpc::Message(Rpc::MESSAGE_TYPE::STATUS, ""), dst);
             }
+        } else {
+            int dst = string::to_int(arg);
+            if (dst == -1)
+                return;
+
+            if (!GlobalConfig::is_node(dst) && !GlobalConfig::is_client(dst))
+                std::cerr << "Invalid rankId" << std::endl;
+
+            MPI::Send_Rpc(Rpc::Message(Rpc::MESSAGE_TYPE::STATUS, ""), dst);
         }
     }
 

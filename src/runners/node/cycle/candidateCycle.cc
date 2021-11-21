@@ -1,8 +1,6 @@
 #include "candidateCycle.hh"
-#include <spdlog/spdlog.h>
 
 #include "runners/node.hh"
-#include "config/globalConfig.hh"
 #include "wrappers/debug/print_log.hh"
 
 namespace Node {
@@ -37,6 +35,12 @@ namespace Node {
             return true;
         }
         return false;
+    }
+
+    void CandidateCycle::handle_message(Rpc::RpcResponse *rpc) {
+        auto message = static_cast<Rpc::Message*>(rpc->rpc.get());
+        if (message->type == Rpc::MESSAGE_TYPE::STATUS)
+            std::cout << "Node | " << GlobalConfig::rank << " | Candidate" << std::endl;
     }
 
     void CandidateCycle::post_cycle(bool hasTimedOut) {

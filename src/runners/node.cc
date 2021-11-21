@@ -26,10 +26,13 @@ namespace Node {
             if (!hasTimedOut) {
                 auto type = rpcResponse->rpc->Type();
                 int senderId = rpcResponse->senderId;
-                leaveCycle = cycle.should_stop_cycle(std::move(rpcResponse));
-                postLeader = cycle.leaderId;
                 if (type == Rpc::TYPE::REQUEST_LEADER)
                     cycle.request_leader_response(senderId);
+                else if (type == Rpc::TYPE::MESSAGE)
+                    cycle.handle_message(rpcResponse.get());
+
+                leaveCycle = cycle.should_stop_cycle(std::move(rpcResponse));
+                postLeader = cycle.leaderId;
             }
         } while (!hasTimedOut && !leaveCycle);
 

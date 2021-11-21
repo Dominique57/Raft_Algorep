@@ -38,6 +38,8 @@ namespace Node {
          */
         bool check_always_should_stop(std::unique_ptr<Rpc::RpcResponse> &message);
 
+        virtual void handle_message(Rpc::RpcResponse *message) = 0;
+
         void request_leader_response(int senderId);
         /**
          * @brief GETTER: Node::Cycle::timer

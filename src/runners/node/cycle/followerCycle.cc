@@ -33,6 +33,12 @@ namespace Node {
         return false;
     }
 
+    void FollowerCycle::handle_message(Rpc::RpcResponse *rpc) {
+        auto message = static_cast<Rpc::Message*>(rpc->rpc.get());
+        if (message->type == Rpc::MESSAGE_TYPE::STATUS)
+            std::cout << "Node | " << GlobalConfig::rank << " | Follower" << std::endl;
+    }
+
     void FollowerCycle::post_cycle(bool hasTimedOut) {
         if (hasTimedOut) {
             spdlog::info("Follower timed out");

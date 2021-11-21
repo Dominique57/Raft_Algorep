@@ -34,8 +34,8 @@ namespace Rpc {
         auto typeIndex = static_cast<unsigned int>(type);
 
         if (typeIndex >= sizeof(type_names) / sizeof(type_names[0]))
-            return "unknownName";
-        ///
+            return "Unkown Name";
+
         return type_names[typeIndex];
     }
 
