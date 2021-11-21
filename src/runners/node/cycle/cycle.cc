@@ -47,8 +47,12 @@ namespace Node {
         return false;
     }
 
-    void Cycle::request_leader_response(int senderId) {
-        auto rpc_response = Rpc::RequestLeaderResponse(leaderId, true);
-        MPI::Send_Rpc(rpc_response, senderId);
+    void Cycle::client_response(std::unique_ptr<Rpc::RpcResponse> message)
+    {
+        if (message->rpc->Type() == Rpc::TYPE::REQUEST_LEADER)
+        {
+            auto rpc = Rpc::RequestLeaderResponse(node.leaderId.value_or(0), node.leaderId.has_value());
+            MPI::Send_Rpc(rpc, message->senderId);
+        }
     }
 }
