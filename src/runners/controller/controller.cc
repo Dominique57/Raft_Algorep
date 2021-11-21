@@ -1,9 +1,10 @@
 #include "controller.hh"
 
 #include <iostream>
+#include <string>
 
 #include "config/globalConfig.hh"
-#include "rpc/message.hh"
+#include "rpc/controllerRequest.hh"
 #include "utils/string.hh"
 #include "wrappers/mpi_include.hh"
 
@@ -75,7 +76,7 @@ namespace Controller
         if (!GlobalConfig::is_node(dst) && !GlobalConfig::is_client(dst))
             std::cerr << "Invalid rankId" << std::endl;
 
-        MPI::Send_Rpc(Rpc::Message(Rpc::MESSAGE_TYPE::CRASH, ""), dst);
+        MPI::Send_Rpc(Rpc::ControllerRequest(Rpc::CONTROLLER_REQUEST_TYPE::CRASH, ""), dst);
     }
 
     static void start_command(const std::string& arg) {
@@ -91,7 +92,7 @@ namespace Controller
 
             // Send message to nodes
             for (int dst = GlobalConfig::nb_node_min; dst <= GlobalConfig::nb_node_max; ++dst)
-                MPI::Send_Rpc(Rpc::Message(Rpc::MESSAGE_TYPE::STATUS, ""), dst);
+                MPI::Send_Rpc(Rpc::ControllerRequest(Rpc::CONTROLLER_REQUEST_TYPE::STATUS, ""), dst);
 
             // TODO: send message to clients
         } else {
@@ -102,7 +103,7 @@ namespace Controller
             if (!GlobalConfig::is_node(dst) && !GlobalConfig::is_client(dst))
                 std::cerr << "Invalid rankId" << std::endl;
 
-            MPI::Send_Rpc(Rpc::Message(Rpc::MESSAGE_TYPE::STATUS, ""), dst);
+            MPI::Send_Rpc(Rpc::ControllerRequest(Rpc::CONTROLLER_REQUEST_TYPE::STATUS, ""), dst);
         }
     }
 

@@ -1,8 +1,10 @@
 #include "cycle.hh"
-#include "runners/node.hh"
-#include "spdlog/spdlog.h"
-#include "rpc/requestLeader.hh"
 
+#include "spdlog/spdlog.h"
+
+#include "runners/node.hh"
+#include "rpc/requestLeader.hh"
+#include "rpc/appendEntries.hh"
 
 namespace Node {
 
@@ -33,6 +35,7 @@ namespace Node {
             case Rpc::TYPE::MESSAGE:
             case Rpc::TYPE::REQUEST_LEADER:
             case Rpc::TYPE::REQUEST_LEADER_RESPONSE:
+            case Rpc::TYPE::CONTROLLER_REQUEST:
                 break;
         }
         if (sentTerm != -1 && sentTerm > node.term) {

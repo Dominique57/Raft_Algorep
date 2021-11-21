@@ -1,9 +1,5 @@
 #pragma once
 
-#include <rpc/appendEntries.hh>
-#include <rpc/requestVote.hh>
-
-#include "fwd.hh"
 #include "cycle.hh"
 
 namespace Node {
@@ -17,7 +13,7 @@ namespace Node {
 
         bool should_stop_cycle(std::unique_ptr<Rpc::RpcResponse> rpc) override;
 
-        void handle_message(const Rpc::RpcResponse *message) override;
+        void handle_controller_request(const Rpc::RpcResponse *rpc) override;
 
         void post_cycle(bool hasTimedOut) override;
 

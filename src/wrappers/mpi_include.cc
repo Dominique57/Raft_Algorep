@@ -9,6 +9,7 @@
 #include "rpc/requestVote.hh"
 #include "rpc/appendEntries.hh"
 #include "rpc/requestLeader.hh"
+#include "rpc/controllerRequest.hh"
 
 namespace MPI {
 
@@ -71,6 +72,9 @@ namespace MPI {
                 break;
             case Rpc::TYPE::REQUEST_LEADER_RESPONSE:
                 res = std::make_unique<Rpc::RequestLeaderResponse>(recvJson["data"]);
+                break;
+            case Rpc::TYPE::CONTROLLER_REQUEST:
+                res = std::make_unique<Rpc::ControllerRequest>(recvJson["data"]);
                 break;
         }
         if (res == nullptr) {

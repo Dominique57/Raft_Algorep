@@ -1,6 +1,8 @@
 #include "followerCycle.hh"
 
 #include "runners/node.hh"
+#include "rpc/appendEntries.hh"
+#include "rpc/controllerRequest.hh"
 #include "wrappers/debug/print_log.hh"
 
 namespace Node {
@@ -28,19 +30,20 @@ namespace Node {
             case Rpc::TYPE::MESSAGE:
             case Rpc::TYPE::REQUEST_LEADER:
             case Rpc::TYPE::REQUEST_LEADER_RESPONSE:
+            case Rpc::TYPE::CONTROLLER_REQUEST:
                 break;
         }
         return false;
     }
 
-    void FollowerCycle::handle_message(const Rpc::RpcResponse *rpc) {
-        auto message = static_cast<Rpc::Message*>(rpc->rpc.get());
+    void FollowerCycle::handle_controller_request(const Rpc::RpcResponse *rpc) {
+        auto message = static_cast<Rpc::ControllerRequest*>(rpc->rpc.get());
         switch (message->type) {
-        case Rpc::MESSAGE_TYPE::STATUS:
+        case Rpc::CONTROLLER_REQUEST_TYPE::STATUS:
             std::cout << "Node | " << GlobalConfig::rank << " | Follower ";
             has_crashed(std::cout) << std::endl;
             break;
-        case Rpc::MESSAGE_TYPE::CRASH:
+        case Rpc::CONTROLLER_REQUEST_TYPE::CRASH:
             std::cout << "Node " << GlobalConfig::rank << " crashed" << std::endl;
             node.crash = true;
             break;

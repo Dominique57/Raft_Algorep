@@ -1,6 +1,8 @@
 #include "leaderCycle.hh"
 
 #include "runners/node.hh"
+#include "rpc/appendEntries.hh"
+#include "rpc/controllerRequest.hh"
 #include "wrappers/debug/print_log.hh"
 
 namespace Node {
@@ -67,19 +69,19 @@ namespace Node {
         requests_client.clear();
     }
 
-    void LeaderCycle::handle_message(const Rpc::RpcResponse *rpc) {
-        auto message = static_cast<Rpc::Message*>(rpc->rpc.get());
-
+    void LeaderCycle::handle_controller_request(const Rpc::RpcResponse *rpc) {
+        auto message = static_cast<Rpc::ControllerRequest*>(rpc->rpc.get());
         switch (message->type) {
-        case Rpc::MESSAGE_TYPE::STATUS:
+        case Rpc::CONTROLLER_REQUEST_TYPE::STATUS:
             std::cout << "Node | " << GlobalConfig::rank << " | Leader   ";
             has_crashed(std::cout) << std::endl;
             break;
-        case Rpc::MESSAGE_TYPE::CRASH:
+        case Rpc::CONTROLLER_REQUEST_TYPE::CRASH:
             std::cout << "Node " << GlobalConfig::rank << " crashed" << std::endl;
             node.crash = true;
             break;
         default:
+            std::cout << "Unkown controller request" << std::endl;
             break;
         }
 

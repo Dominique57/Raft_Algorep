@@ -13,6 +13,7 @@ namespace Rpc {
         APPEND_ENTRIES_RESPONSE,
         REQUEST_LEADER,
         REQUEST_LEADER_RESPONSE,
+        CONTROLLER_REQUEST,
     };
 
     /// Rpc type names (used to convert enum to text).
@@ -24,6 +25,7 @@ namespace Rpc {
         "APPEND_ENTRIES_RESPONSE",
         "REQUEST_LEADER",
         "REQUEST_LEADER_RESPONSE",
+        "CONTROLLER_REQUEST",
     };
 
     /**

@@ -1,8 +1,9 @@
 #pragma once
 
-#include "fwd.hh"
 #include <optional>
-#include <wrappers/mpi/rpcRecieverReinjecter.hh>
+
+#include "fwd.hh"
+#include "wrappers/mpi/rpcRecieverReinjecter.hh"
 
 namespace Node {
 
@@ -38,7 +39,7 @@ namespace Node {
          */
         bool check_always_should_stop(std::unique_ptr<Rpc::RpcResponse> &message);
 
-        virtual void handle_message(const Rpc::RpcResponse *message) = 0;
+        virtual void handle_controller_request(const Rpc::RpcResponse *message) = 0;
 
         void request_leader_response(int senderId);
         /**

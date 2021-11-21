@@ -44,6 +44,7 @@ add_executable(${PROJECT_NAME}
 
     src/rpc/rpc.cc src/rpc/rpc.hh
     src/rpc/message.cc src/rpc/message.hh
+    src/rpc/controllerRequest.cc src/rpc/controllerRequest.hh
     src/rpc/requestVote.cc src/rpc/requestVote.hh
     src/rpc/appendEntries.cc src/rpc/appendEntries.hh
     src/rpc/rpcResponse.cc src/rpc/rpcResponse.hh

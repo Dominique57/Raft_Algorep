@@ -28,8 +28,10 @@ namespace Node {
                 int senderId = rpcResponse->senderId;
                 if (type == Rpc::TYPE::REQUEST_LEADER)
                     cycle.request_leader_response(senderId);
+                else if (type == Rpc::TYPE::CONTROLLER_REQUEST)
+                    cycle.handle_controller_request(rpcResponse.get());
                 else if (type == Rpc::TYPE::MESSAGE)
-                    cycle.handle_message(rpcResponse.get());
+                    std::cout << "Receive request " << Rpc::getTypeName(type) << std::endl;
 
                 leaveCycle = cycle.should_stop_cycle(std::move(rpcResponse));
                 postLeader = cycle.leaderId;
