@@ -38,7 +38,7 @@ namespace Node {
          */
         bool check_always_should_stop(std::unique_ptr<Rpc::RpcResponse> &message);
 
-        virtual void handle_message(Rpc::RpcResponse *message) = 0;
+        virtual void handle_message(const Rpc::RpcResponse *message) = 0;
 
         void request_leader_response(int senderId);
         /**
@@ -61,6 +61,7 @@ namespace Node {
          * @param newState  The next state for our cycle.
          */
         void changeNextState(STATE newState);
+        std::ostream& has_crashed(std::ostream& out) const;
 
         std::optional<STATE> nextState;
         Node &node;

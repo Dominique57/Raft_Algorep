@@ -88,6 +88,8 @@ namespace Node {
         int term = 0;
         std::optional<int> votedFor = std::nullopt;
 
+        bool crash = false;
+
     private:
         int postLeader = -1;
     };

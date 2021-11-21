@@ -37,10 +37,20 @@ namespace Node {
         return false;
     }
 
-    void CandidateCycle::handle_message(Rpc::RpcResponse *rpc) {
+    void CandidateCycle::handle_message(const Rpc::RpcResponse *rpc) {
         auto message = static_cast<Rpc::Message*>(rpc->rpc.get());
-        if (message->type == Rpc::MESSAGE_TYPE::STATUS)
-            std::cout << "Node | " << GlobalConfig::rank << " | Candidate" << std::endl;
+        switch (message->type) {
+        case Rpc::MESSAGE_TYPE::STATUS:
+            std::cout << "Node | " << GlobalConfig::rank << " | Candidate";
+            has_crashed(std::cout) << std::endl;
+            break;
+        case Rpc::MESSAGE_TYPE::CRASH:
+            std::cout << "Node " << GlobalConfig::rank << " crashed" << std::endl;
+            node.crash = true;
+            break;
+        default:
+            break;
+        }
     }
 
     void CandidateCycle::post_cycle(bool hasTimedOut) {

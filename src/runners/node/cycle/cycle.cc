@@ -51,4 +51,9 @@ namespace Node {
         auto rpc_response = Rpc::RequestLeaderResponse(leaderId, true);
         MPI::Send_Rpc(rpc_response, senderId);
     }
+
+    std::ostream& Cycle::has_crashed(std::ostream& out) const {
+        const std::string s = node.crash ? "    crashed" : "Not crashed";
+        return out << " | " << s;
+    }
 }

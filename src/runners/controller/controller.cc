@@ -68,7 +68,14 @@ namespace Controller
             std::cout << "Missing argument for CRASH command" << std::endl;
             return;
         }
-        std::cout << "CRASH command" << std::endl;
+        int dst = string::to_int(arg);
+        if (dst == -1)
+            return;
+
+        if (!GlobalConfig::is_node(dst) && !GlobalConfig::is_client(dst))
+            std::cerr << "Invalid rankId" << std::endl;
+
+        MPI::Send_Rpc(Rpc::Message(Rpc::MESSAGE_TYPE::CRASH, ""), dst);
     }
 
     static void start_command(const std::string& arg) {
@@ -81,9 +88,12 @@ namespace Controller
     static void status_command(const std::string& arg) {
         std::cout << "STATUS command" << std::endl;
         if (arg.empty()) {
-            for (int dst = GlobalConfig::nb_node_min; dst <= GlobalConfig::nb_node_max; ++dst) {
+
+            // Send message to nodes
+            for (int dst = GlobalConfig::nb_node_min; dst <= GlobalConfig::nb_node_max; ++dst)
                 MPI::Send_Rpc(Rpc::Message(Rpc::MESSAGE_TYPE::STATUS, ""), dst);
-            }
+
+            // TODO: send message to clients
         } else {
             int dst = string::to_int(arg);
             if (dst == -1)
@@ -97,15 +107,14 @@ namespace Controller
     }
 
     void Controller::start() const {
+        std::string line;
 
-        std::cout << "[CONTROLLER] ";
-
-        for (std::string line; std::getline(std::cin, line);) {
+        do {
+            std::cout << "[CONTROLLER] ";
 
             if (!line.empty())
                 parse_input_command(line);
 
-            std::cout << "[CONTROLLER] ";
-        }
+        } while (std::getline(std::cin, line));
     }
 }

@@ -67,10 +67,21 @@ namespace Node {
         requests_client.clear();
     }
 
-    void LeaderCycle::handle_message(Rpc::RpcResponse *rpc) {
+    void LeaderCycle::handle_message(const Rpc::RpcResponse *rpc) {
         auto message = static_cast<Rpc::Message*>(rpc->rpc.get());
-        if (message->type == Rpc::MESSAGE_TYPE::STATUS)
-            std::cout << "Node | " << GlobalConfig::rank << " | Leader" << std::endl;
-        // TODO
+
+        switch (message->type) {
+        case Rpc::MESSAGE_TYPE::STATUS:
+            std::cout << "Node | " << GlobalConfig::rank << " | Leader   ";
+            has_crashed(std::cout) << std::endl;
+            break;
+        case Rpc::MESSAGE_TYPE::CRASH:
+            std::cout << "Node " << GlobalConfig::rank << " crashed" << std::endl;
+            node.crash = true;
+            break;
+        default:
+            break;
+        }
+
     }
 }

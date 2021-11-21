@@ -16,7 +16,7 @@ namespace Node {
 
         bool should_stop_cycle(std::unique_ptr<Rpc::RpcResponse> rpc) override;
 
-        void handle_message(Rpc::RpcResponse *message) override;
+        void handle_message(const Rpc::RpcResponse *message) override;
 
         void post_cycle(bool hasTimedOut) override;
 
