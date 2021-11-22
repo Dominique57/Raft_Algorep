@@ -4,6 +4,7 @@
 #include "config/globalConfig.hh"
 #include "wrappers/mpi_include.hh"
 #include "rpc/requestLeader.hh"
+#include "rpc/requestClient.hh"
 
 namespace Client
 {
@@ -39,7 +40,7 @@ namespace Client
 
     //TODO: clean message notification
     void Client::send_message(const json& message) {
-        auto rpc = Rpc::Message(message);
+        auto rpc = Rpc::RequestClient(message);
         MPI::Send_Rpc(rpc, leaderId);
         std::cout << "client " << GlobalConfig::rank << " has sent : \" " << message << " \"" << std::endl;
     }

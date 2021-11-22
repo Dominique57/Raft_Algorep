@@ -43,8 +43,9 @@ namespace Node {
             //TODO: request_client is the request (message) sent by the client
             auto request_client = MPI::Recv_Rpc_Timeout(dst, timeToWait, 0, MPI_COMM_WORLD);
 
-            if (request_client && request_client->rpc.get()->Type() == Rpc::TYPE::MESSAGE) {
-                auto request = static_cast<Rpc::Message *>(request_client->rpc.get());
+            if (request_client
+                    && request_client->rpc.get()->Type() == Rpc::TYPE::REQUEST_CLIENT) {
+                auto request = static_cast<Rpc::RequestClient *>(request_client->rpc.get());
                 requests_client.push_back(request);
             }
         }

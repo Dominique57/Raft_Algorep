@@ -36,9 +36,9 @@ namespace Node {
             case Rpc::TYPE::APPEND_ENTRIES_RESPONSE:
                 sentTerm = static_cast<Rpc::AppendEntriesResponse *>(rpc->rpc.get())->term;
                 break;
-            case Rpc::TYPE::MESSAGE:
             case Rpc::TYPE::REQUEST_LEADER:
             case Rpc::TYPE::REQUEST_LEADER_RESPONSE:
+            case Rpc::TYPE::REQUEST_CLIENT:
             case Rpc::TYPE::CONTROLLER_REQUEST:
                 break;
         }
