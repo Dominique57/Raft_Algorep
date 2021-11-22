@@ -47,6 +47,9 @@ namespace Node {
 
     void Node::start() {
         while (true) {
+
+            clock.wait();
+
             if (state == STATE::FOLLOWER) {
                 auto cycle = FollowerCycle(*this);
                 update(cycle);

@@ -1,8 +1,7 @@
 #pragma once
 
-#include "wrappers/debug/print_log.hh"
+#include "utils/clock.hh"
 #include "wrappers/mpi/rpcRecieverReinjecter.hh"
-
 
 namespace Client {
 
@@ -10,6 +9,7 @@ namespace Client {
     public:
         /**
          * @brief Default constructor.
+         * @param timeout_      Max time to wait
          */
         Client(const int& timeout_);
 
@@ -20,5 +20,8 @@ namespace Client {
         int timeout;
         int leaderId;
         Rpc::RpcRecieverReinjecter rpcReciever;
+
+        // TODO: use clock attribute (process speed)
+        Clock::Clock clock;
     };
 }

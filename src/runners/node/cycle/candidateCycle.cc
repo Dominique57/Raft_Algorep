@@ -1,7 +1,6 @@
 #include "candidateCycle.hh"
 
 #include "runners/node.hh"
-#include "rpc/controllerRequest.hh"
 #include "wrappers/debug/print_log.hh"
 
 namespace Node {
@@ -38,26 +37,9 @@ namespace Node {
         return false;
     }
 
-    void CandidateCycle::handle_controller_request(const Rpc::RpcResponse *rpc) {
-        auto message = static_cast<Rpc::ControllerRequest*>(rpc->rpc.get());
-        switch (message->type) {
-        case Rpc::CONTROLLER_REQUEST_TYPE::STATUS:
-            std::cout << "Node | " << GlobalConfig::rank << " | Candidate";
-            has_crashed(std::cout) << std::endl;
-            break;
-        case Rpc::CONTROLLER_REQUEST_TYPE::CRASH:
-            std::cout << "Node " << GlobalConfig::rank << " crashed" << std::endl;
-            node.crash = true;
-            break;
-        default:
-            break;
-        }
-    }
-
     void CandidateCycle::post_cycle(bool hasTimedOut) {
         if (hasTimedOut) {
             spdlog::info("Candidate timed out");
         }
     }
-
 }

@@ -8,7 +8,7 @@
 namespace Client
 {
     Client::Client(const int& timeout_)
-        : timeout(timeout_)
+        : timeout(timeout_), clock(Clock::SPEED_TYPE::HIGH)
     {
         leaderId = this->request_leader_id();
     }
@@ -38,8 +38,7 @@ namespace Client
     }
 
     //TODO: clean message notification
-    void Client::send_message(const json& message)
-    {
+    void Client::send_message(const json& message) {
         auto rpc = Rpc::Message(message);
         MPI::Send_Rpc(rpc, leaderId);
         std::cout << "client " << GlobalConfig::rank << " has sent : \" " << message << " \"" << std::endl;

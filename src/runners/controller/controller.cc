@@ -45,36 +45,49 @@ namespace Controller
             return;
         }
 
-        int dst = string::to_int(arg);
-        if (dst == -1)
-            return;
-
-        if (!GlobalConfig::is_node(dst) && !GlobalConfig::is_client(dst))
+        int dst = String::to_int(arg);
+        if (dst == -1 || (!GlobalConfig::is_node(dst) && !GlobalConfig::is_client(dst))) {
             std::cerr << "Invalid rankId" << std::endl;
+            return;
+        }
 
         // TODO: send message to dst
     }
 
     static void speed_command(const std::string& arg) {
-        if (arg.empty()) {
-            std::cout << "Missing argument for SPEED command" << std::endl;
+        const auto idx = arg.find(" ");
+        const std::string rank_id = arg.substr(0, idx);
+        const std::string speed = idx == std::string::npos ? "" : arg.substr(idx + 1);
+
+        if (rank_id.empty() || speed.empty()) {
+            std::cout << "Missing argument. Expect: SPEED [id] [speed]" << std::endl;
             return;
         }
 
-        std::cout << "SPEED command" << std::endl;
+        int dst = String::to_int(rank_id);
+        if (dst == -1 || (!GlobalConfig::is_node(dst) && !GlobalConfig::is_client(dst))) {
+            std::cerr << "Invalid id. Expect id between " << GlobalConfig::nb_node_min << " and " << GlobalConfig::nb_client_max << std::endl;
+            return;
+        }
+
+        if (speed != "low" && speed != "medium" && speed != "high") {
+            std::cerr << "Invalid speed argument" << std::endl;
+            return;
+        }
+
+        MPI::Send_Rpc(Rpc::ControllerRequest(Rpc::CONTROLLER_REQUEST_TYPE::SPEED, speed), dst);
     }
 
     static void crash_command(const std::string& arg) {
         if (arg.empty()) {
-            std::cout << "Missing argument for CRASH command" << std::endl;
+            std::cout << "Missing argument. Expect: CRASH [id]" << std::endl;
             return;
         }
-        int dst = string::to_int(arg);
-        if (dst == -1)
+        int dst = String::to_int(arg);
+        if (dst == -1 || (!GlobalConfig::is_node(dst) && !GlobalConfig::is_client(dst))) {
+            std::cerr << "Invalid id. Expect id between " << GlobalConfig::nb_node_min << " and " << GlobalConfig::nb_client_max << std::endl;
             return;
-
-        if (!GlobalConfig::is_node(dst) && !GlobalConfig::is_client(dst))
-            std::cerr << "Invalid rankId" << std::endl;
+        }
 
         MPI::Send_Rpc(Rpc::ControllerRequest(Rpc::CONTROLLER_REQUEST_TYPE::CRASH, ""), dst);
     }
@@ -96,12 +109,11 @@ namespace Controller
 
             // TODO: send message to clients
         } else {
-            int dst = string::to_int(arg);
-            if (dst == -1)
+            int dst = String::to_int(arg);
+            if (dst == -1 || (!GlobalConfig::is_node(dst) && !GlobalConfig::is_client(dst))) {
+                std::cerr << "Invalid id. Expect id between " << GlobalConfig::nb_node_min << " and " << GlobalConfig::nb_client_max << std::endl;
                 return;
-
-            if (!GlobalConfig::is_node(dst) && !GlobalConfig::is_client(dst))
-                std::cerr << "Invalid rankId" << std::endl;
+            }
 
             MPI::Send_Rpc(Rpc::ControllerRequest(Rpc::CONTROLLER_REQUEST_TYPE::STATUS, ""), dst);
         }

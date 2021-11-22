@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <iostream>
 
-namespace string {
+namespace String {
 
 inline int to_int(const std::string& str) {
     try {

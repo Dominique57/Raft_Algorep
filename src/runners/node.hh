@@ -6,16 +6,18 @@
 #include <sstream>
 #include <ctime>
 #include <chrono>
-
-#include <wrappers/mpi_include.hh>
-#include <wrappers/mpi/rpcRecieverReinjecter.hh>
 #include <variant>
 #include <optional>
+
+#include "wrappers/mpi_include.hh"
+#include "wrappers/mpi/rpcRecieverReinjecter.hh"
 
 #include "node/cycle/cycle.hh"
 #include "node/cycle/followerCycle.hh"
 #include "node/cycle/leaderCycle.hh"
 #include "node/cycle/candidateCycle.hh"
+
+#include "utils/clock.hh"
 
 namespace Node {
 
@@ -52,7 +54,7 @@ namespace Node {
          * @brief Node constructor.
          */
         Node()
-            : state(STATE::FOLLOWER), rpcReciever() {}
+            : state(STATE::FOLLOWER), rpcReciever(), clock(Clock::SPEED_TYPE::HIGH) {}
 
         /**
          * @brief Updates the node depending on it's current cycle.
@@ -91,5 +93,6 @@ namespace Node {
         std::optional<int> leaderId = std::nullopt;
 
         bool crash = false;
+        Clock::Clock clock;
     };
 }

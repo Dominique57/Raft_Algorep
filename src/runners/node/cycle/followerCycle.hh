@@ -13,8 +13,6 @@ namespace Node {
 
         bool should_stop_cycle(std::unique_ptr<Rpc::RpcResponse> rpc) override;
 
-        void handle_controller_request(const Rpc::RpcResponse *rpc) override;
-
         void post_cycle(bool hasTimedOut) override;
 
     };

@@ -1,10 +1,14 @@
 #include "cycle.hh"
 
+#include <iomanip>
+
 #include "spdlog/spdlog.h"
 
+#include "config/globalConfig.hh"
 #include "runners/node.hh"
 #include "rpc/requestLeader.hh"
 #include "rpc/appendEntries.hh"
+#include "rpc/controllerRequest.hh"
 
 namespace Node {
 
@@ -50,17 +54,38 @@ namespace Node {
         return false;
     }
 
-    void Cycle::client_response(std::unique_ptr<Rpc::RpcResponse> message)
-    {
-        if (message->rpc->Type() == Rpc::TYPE::REQUEST_LEADER)
-        {
+    void Cycle::client_response(std::unique_ptr<Rpc::RpcResponse> message) {
+        if (message->rpc->Type() == Rpc::TYPE::REQUEST_LEADER) {
             auto rpc = Rpc::RequestLeaderResponse(node.leaderId.value_or(0), node.leaderId.has_value());
             MPI::Send_Rpc(rpc, message->senderId);
         }
     }
 
-    std::ostream& Cycle::has_crashed(std::ostream& out) const {
-        const std::string s = node.crash ? "    crashed" : "Not crashed";
-        return out << " | " << s;
+    static const std::string has_crashed(const bool& crash) {
+        return crash ? "crashed" : "Not crashed";
+    }
+
+    void Cycle::handle_controller_request(const Rpc::RpcResponse *rpc) {
+        const auto request = static_cast<Rpc::ControllerRequest*>(rpc->rpc.get());
+        switch (request->type) {
+        case Rpc::CONTROLLER_REQUEST_TYPE::STATUS:
+            std::cout << "Node | " << GlobalConfig::rank
+                << " | " << std::setw(9) << getStateName(node.state)
+                << " | " << std::setw(11) << has_crashed(node.crash)
+                << " | " << std::setw(6) << Clock::getSpeedTypeName(node.clock.speed) << " speed"
+                << std::endl;
+            break;
+        case Rpc::CONTROLLER_REQUEST_TYPE::CRASH:
+            std::cout << "Node " << GlobalConfig::rank << " crashed" << std::endl;
+            node.crash = true;
+            break;
+        case Rpc::CONTROLLER_REQUEST_TYPE::SPEED:
+            std::cout << "Node " << GlobalConfig::rank << " set speed to " << request->message << std::endl;
+            node.clock.speed = Clock::getSpeedType(request->message);
+            break;
+        default:
+            std::cout << "Unkown controller request" << std::endl;
+            break;
+        }
     }
 }

@@ -61,6 +61,7 @@ add_executable(${PROJECT_NAME}
     src/runners/controller/controller.cc
 
     src/utils/string.hh
+    src/utils/clock.cc src/utils/clock.hh
 )
 
 target_compile_features(${PROJECT_NAME} PRIVATE

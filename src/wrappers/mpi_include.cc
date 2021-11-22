@@ -1,9 +1,8 @@
 #include "mpi_include.hh"
 
 #include <chrono>
-#include <unistd.h>
 #include <spdlog/spdlog.h>
-
+#include <unistd.h>
 
 #include "rpc/message.hh"
 #include "rpc/requestVote.hh"
@@ -19,9 +18,8 @@ namespace MPI {
         MPI_Isend(message.c_str(), (int) message.size(), MPI_CHAR, dest, tag, comm, &request);
 
         const auto res = MPI_Request_free(&request);
-        if (res != MPI_SUCCESS) {
+        if (res != MPI_SUCCESS)
             spdlog::error("Failed to free request: {}", res);
-        }
     }
 
     size_t AnyMessageWaiting(const int& src, const int tag, const MPI_Comm comm) {
