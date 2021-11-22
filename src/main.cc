@@ -63,13 +63,15 @@ int main(int argc, char *argv[]) {
     } else {
         // Client
         auto client = Client::Client(2000);
-        usleep(10000000); //TODO: wait until leader elected done by the controller
-        client.request_leader_id();
-        usleep(2000); //TODO: wait for controller demande
+        client.set_start();
+
+        usleep(20000); //TODO: wait for controller demande
 
         json exemple;
         exemple["value"] = "1";
-        client.send_message(exemple);
+
+        client.set_request(exemple);
+        client.start();
     }
     return 0;
 }

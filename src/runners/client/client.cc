@@ -4,7 +4,6 @@
 #include "config/globalConfig.hh"
 #include "wrappers/mpi_include.hh"
 #include "rpc/requestLeader.hh"
-#include "rpc/requestClient.hh"
 
 namespace Client
 {
@@ -12,6 +11,35 @@ namespace Client
         : timeout(timeout_), clock(Clock::SPEED_TYPE::HIGH)
     {
         leaderId = this->request_leader_id();
+        first_start = false;
+        request = std::nullopt;
+    }
+
+    void Client::set_start()
+    {
+        first_start = true;
+    }
+
+    void Client::set_request(const json& request_)
+    {
+        request = std::optional<Rpc::RequestClient>{request_};
+    }
+
+    void Client::start()
+    {
+        while(true)
+        {
+            if (first_start)
+            {
+                request_leader_id();
+                first_start = false;
+            }
+            if (request)
+            {
+                send_request();
+                request = std::nullopt;
+            }
+        }
     }
 
     int Client::request_leader_id()
@@ -39,10 +67,14 @@ namespace Client
     }
 
     //TODO: clean message notification
-    void Client::send_message(const json& message) {
-        auto rpc = Rpc::RequestClient(message);
-        MPI::Send_Rpc(rpc, leaderId);
-        std::cout << "client " << GlobalConfig::rank << " has sent : \" " << message << " \"" << std::endl;
+    void Client::send_request() {
+        if (request)
+        {
+            MPI::Send_Rpc(request.value(), leaderId);
+            std::cout << "client " << GlobalConfig::rank << " has sent : \" " << request.value().message << " \"" << std::endl;
+        }
+        else
+            std::cout << "could not send request" << std::endl;
     }
 
 }
