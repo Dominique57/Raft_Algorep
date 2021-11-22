@@ -12,32 +12,32 @@ namespace Client {
     public:
         /**
          * @brief Default constructor.
-         * @param timeout_      Max time to wait
+         * @param timer_      Max time to wait
          */
-        Client(const int& timeout_);
+        Client(const int& timer_);
         void start();
 
         void send_request();
-        int request_leader_id();
-
-        void set_start();
+        void request_leader_id();
 
         /**
          * @brief controller set request client
-         # @param request_ request set by controller to be send by client
+         # @param request   Request set by controller to be sent by client
          */
         void set_request(const json& request);
 
-    protected:
-        bool first_start;
+        void handle_requests();
+        void handle_controller_request(const Rpc::RpcResponse *rpc);
 
+    protected:
+        bool run;
+
+        int timer;
+        int leaderId;
+
+        Rpc::RpcRecieverReinjecter rpcReciever;
         std::optional<Rpc::RequestClient> request;
 
-        int timeout;
-        int leaderId;
-        Rpc::RpcRecieverReinjecter rpcReciever;
-
-        // TODO: use clock attribute (process speed)
         Clock::Clock clock;
     };
 }

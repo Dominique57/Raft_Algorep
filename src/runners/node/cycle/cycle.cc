@@ -69,7 +69,7 @@ namespace Node {
         const auto request = static_cast<Rpc::ControllerRequest*>(rpc->rpc.get());
         switch (request->type) {
         case Rpc::CONTROLLER_REQUEST_TYPE::STATUS:
-            std::cout << "Node | " << GlobalConfig::rank
+            std::cout << "Node   | " << GlobalConfig::rank
                 << " | " << std::setw(9) << getStateName(node.state)
                 << " | " << std::setw(11) << has_crashed(node.crash)
                 << " | " << std::setw(6) << Clock::getSpeedTypeName(node.clock.speed) << " speed"

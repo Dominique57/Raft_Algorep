@@ -23,8 +23,7 @@ namespace Node {
             rpcResponse = rpcReciever.get_rpc_timeout(MPI_ANY_SOURCE, timeToWait);
             hasTimedOut = rpcResponse == nullptr;
 
-            if (!hasTimedOut)
-            {
+            if (!hasTimedOut) {
                 int senderId = rpcResponse->senderId;
                 auto type = rpcResponse->rpc->Type();
                 if (GlobalConfig::is_node(senderId))
@@ -48,7 +47,7 @@ namespace Node {
     void Node::start() {
         while (true) {
 
-            clock.wait();
+            this->clock.wait();
 
             if (state == STATE::FOLLOWER) {
                 auto cycle = FollowerCycle(*this);

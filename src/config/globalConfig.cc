@@ -2,6 +2,8 @@
 
 #include "globalConfig.hh"
 
+#include <iostream>
+
 int GlobalConfig::rank = 0;
 int GlobalConfig::nb_node_min = 0;
 int GlobalConfig::nb_node_max = 0;
@@ -16,10 +18,10 @@ void GlobalConfig::initConfig(const int& rank_, const int& nb_node_, const int& 
     rank = rank_;
 
     nb_node_min = 1;
-    nb_node_max = nb_node_min + nb_node_;
+    nb_node_max = nb_node_min + nb_node_ - 1;
 
     nb_client_min = nb_node_max + 1;
-    nb_client_max = nb_client_min + nb_client_;
+    nb_client_max = nb_client_min + nb_client_ - 1;
 }
 
 bool GlobalConfig::is_controller() {
