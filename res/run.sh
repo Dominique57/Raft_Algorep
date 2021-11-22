@@ -3,5 +3,5 @@
 resPath="$1"
 [ ! -e hostfile ] && ln -s "$resPath/hostfile" hostfile
 echo "========================== BEGIN ======================================"
-mpirun -hostfile hostfile --mca opal_warn_on_missing_libcuda 0 algoreppppp
+mpirun -hostfile hostfile --mca opal_warn_on_missing_libcuda 0 algoreppppp 3 4
 echo "=========================== END ======================================="

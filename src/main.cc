@@ -3,9 +3,11 @@
 #include <spdlog/spdlog.h>
 #include <cstdlib>
 
-#include <config/globalConfig.hh>
-#include <runners/node.hh>
+#include "config/globalConfig.hh"
 #include "mpi.h"
+#include "runners/node.hh"
+#include "runners/client/client.hh"
+#include "runners/controller/controller.hh"
 
 /**
  * Function to execute every time we stop the program, no matter what happens.
@@ -15,6 +17,14 @@ void executeAtAexit() {
 }
 
 int main(int argc, char *argv[]) {
+    if (argc < 3) {
+        std::cerr << "Usage: ./algorep nb_node nb_client" << std::endl;
+        return 1;
+    }
+
+    const int nb_node = std::atoi(argv[1]);
+    const int nb_client = std::atoi(argv[2]);
+
     int rank, size;
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -34,15 +44,32 @@ int main(int argc, char *argv[]) {
         spdlog::info("Initialisation: I am {} out of {}, ({}, {})", rank, size, version, len);
     }
 
-    { // Initialisation
-        GlobalConfig::initConfig(rank, size);
+    {   // Initialisation
+        GlobalConfig::initConfig(rank, nb_node, nb_client);
         std::srand(std::time(nullptr) + rank);
         std::stringstream ss;
         ss << "[%^%L%$] [RANK " << GlobalConfig::rank << "] [%H:%M:%S.%f]: %v";
         spdlog::set_pattern(ss.str());
     }
 
-    auto node = Node::Node();
-    node.start();
+    if (GlobalConfig::is_controller()) {
+        auto controller = Controller::Controller();
+        controller.start();
+        // TODO
+    } else if (GlobalConfig::is_node()) {
+        // Server
+        auto node = Node::Node();
+        node.start();
+    } else {
+        // Client
+        auto client = Client::Client(2000);
+        usleep(10000000); //TODO: wait until leader elected done by the controller
+        client.request_leader_id();
+        usleep(2000); //TODO: wait for controller demande
+
+        json exemple;
+        exemple["value"] = "1";
+        client.send_message(exemple);
+    }
     return 0;
 }

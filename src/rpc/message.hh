@@ -11,7 +11,7 @@ namespace Rpc {
          * @brief Constructor with string representation of the message.
          * @param message       The message value to store
          */
-        Message(std::string message)
+        Message(const std::string& message)
                 : Rpc(TYPE::MESSAGE), message(std::move(message)) {}
 
         /**

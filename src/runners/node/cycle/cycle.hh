@@ -1,8 +1,9 @@
 #pragma once
 
-#include "fwd.hh"
 #include <optional>
-#include <wrappers/mpi/rpcRecieverReinjecter.hh>
+
+#include "fwd.hh"
+#include "wrappers/mpi/rpcRecieverReinjecter.hh"
 
 namespace Node {
 
@@ -33,10 +34,19 @@ namespace Node {
 
         /**
          * @brief Checks if we have to stop the current cycle depending on the received message.
-         * @param message   The received RPC message
+         * @param message   The received RPC message alaways send from a node
          * @return True if we have to stop the current cycle, false otherwise.
          */
         bool check_always_should_stop(std::unique_ptr<Rpc::RpcResponse> &message);
+
+        void handle_controller_request(const Rpc::RpcResponse *rpc);
+
+        void request_leader_response(int senderId);
+        /**
+         * @brief send client response
+         * @param message The received RPC message always from a client
+         */
+        void client_response(std::unique_ptr<Rpc::RpcResponse> message);
 
         /**
          * @brief GETTER: Node::Cycle::timer
@@ -50,6 +60,7 @@ namespace Node {
          */
         std::optional<STATE> NextState() const;
 
+
     protected:
         /**
          * @brief Changes our current cycle's state to the next.
@@ -57,7 +68,6 @@ namespace Node {
          */
         void changeNextState(STATE newState);
 
-    protected:
         int timer;
         std::optional<STATE> nextState;
         Node &node;

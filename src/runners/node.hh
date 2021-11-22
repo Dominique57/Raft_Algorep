@@ -6,16 +6,18 @@
 #include <sstream>
 #include <ctime>
 #include <chrono>
-
-#include <wrappers/mpi_include.hh>
-#include <wrappers/mpi/rpcRecieverReinjecter.hh>
 #include <variant>
 #include <optional>
+
+#include "wrappers/mpi_include.hh"
+#include "wrappers/mpi/rpcRecieverReinjecter.hh"
 
 #include "node/cycle/cycle.hh"
 #include "node/cycle/followerCycle.hh"
 #include "node/cycle/leaderCycle.hh"
 #include "node/cycle/candidateCycle.hh"
+
+#include "utils/clock.hh"
 
 namespace Node {
 
@@ -25,13 +27,34 @@ namespace Node {
         CANDIDATE,
     };
 
+    /// Node state names (used to convert enum to text).
+    static const char *state_names[] = {
+        "Follower",
+        "Leader",
+        "Candidate",
+    };
+
+    /**
+     * @brief Converts an Node::STATE enum to text.
+     * @return static const pointer to name.
+     */
+    inline const char *getStateName(const STATE& state) {
+        auto stateIndex = static_cast<unsigned int>(state);
+
+        if (stateIndex >= sizeof(state_names) / sizeof(state_names[0]))
+            return "Unknown name";
+        ///
+        return state_names[stateIndex];
+    }
+
+
     class Node {
     public:
         /**
          * @brief Node constructor.
          */
         Node()
-            : state(STATE::FOLLOWER), rpcReciever() {}
+            : state(STATE::FOLLOWER), rpcReciever(), clock(Clock::SPEED_TYPE::HIGH) {}
 
         /**
          * @brief Updates the node depending on it's current cycle.
@@ -65,6 +88,11 @@ namespace Node {
         STATE state;
         Rpc::RpcRecieverReinjecter rpcReciever;
         int term = 0;
+
         std::optional<int> votedFor = std::nullopt;
+        std::optional<int> leaderId = std::nullopt;
+
+        bool crash = false;
+        Clock::Clock clock;
     };
 }

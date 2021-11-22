@@ -22,8 +22,20 @@ namespace Node {
             long timeToWait = cycle.Timer() - countTime;
             rpcResponse = rpcReciever.get_rpc_timeout(MPI_ANY_SOURCE, timeToWait);
             hasTimedOut = rpcResponse == nullptr;
+
             if (!hasTimedOut)
-                leaveCycle = cycle.should_stop_cycle(std::move(rpcResponse));
+            {
+                int senderId = rpcResponse->senderId;
+                auto type = rpcResponse->rpc->Type();
+                if (GlobalConfig::is_node(senderId))
+                    leaveCycle = cycle.should_stop_cycle(std::move(rpcResponse));
+
+                else if (type == Rpc::TYPE::CONTROLLER_REQUEST)
+                    cycle.handle_controller_request(rpcResponse.get());
+
+                else if (GlobalConfig::is_client(senderId))
+                    cycle.client_response(std::move(rpcResponse));
+            }
         } while (!hasTimedOut && !leaveCycle);
 
         cycle.post_cycle(hasTimedOut);
@@ -35,6 +47,9 @@ namespace Node {
 
     void Node::start() {
         while (true) {
+
+            clock.wait();
+
             if (state == STATE::FOLLOWER) {
                 auto cycle = FollowerCycle(*this);
                 update(cycle);

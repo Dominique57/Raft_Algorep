@@ -35,7 +35,6 @@ namespace Rpc {
         /// Current term of the sender / responder.
         int term;
 
-
         /// Current leader id, will allow follower to share that knowledge.
         int leaderId;
     };

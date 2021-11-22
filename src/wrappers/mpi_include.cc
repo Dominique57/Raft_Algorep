@@ -1,26 +1,28 @@
 #include "mpi_include.hh"
 
 #include <chrono>
-#include <unistd.h>
 #include <spdlog/spdlog.h>
-#include <rpc/message.hh>
-#include <rpc/requestVote.hh>
-#include <rpc/appendEntries.hh>
+#include <unistd.h>
+
+#include "rpc/message.hh"
+#include "rpc/requestVote.hh"
+#include "rpc/appendEntries.hh"
+#include "rpc/requestLeader.hh"
+#include "rpc/controllerRequest.hh"
 
 namespace MPI {
 
-    void Send_Rpc(const Rpc::Rpc &rpc, int dest, int tag, MPI_Comm comm) {
+    void Send_Rpc(const Rpc::Rpc &rpc, const int& dest, const int tag, const MPI_Comm comm) {
         const std::string &message = rpc.serialize().dump();
         MPI_Request request;
         MPI_Isend(message.c_str(), (int) message.size(), MPI_CHAR, dest, tag, comm, &request);
 
-        auto res = MPI_Request_free(&request);
-        if (res != MPI_SUCCESS) {
+        const auto res = MPI_Request_free(&request);
+        if (res != MPI_SUCCESS)
             spdlog::error("Failed to free request: {}", res);
-        }
     }
 
-    size_t AnyMessageWaiting(int src, int tag, MPI_Comm comm) {
+    size_t AnyMessageWaiting(const int& src, const int tag, const MPI_Comm comm) {
         MPI_Status mpi_status;
         int flag;
         MPI_Iprobe(src, tag, comm, &flag, &mpi_status);
@@ -32,7 +34,7 @@ namespace MPI {
         return messageLen;
     }
 
-    std::unique_ptr<Rpc::RpcResponse> Recv_Rpc(int src, int tag, MPI_Comm comm) {
+    std::unique_ptr<Rpc::RpcResponse> Recv_Rpc(const int& src, const int tag, const MPI_Comm comm) {
         size_t messageLen = AnyMessageWaiting(src, tag, comm);
         if (messageLen <= 0)
             return nullptr;
@@ -63,6 +65,15 @@ namespace MPI {
             case Rpc::TYPE::APPEND_ENTRIES_RESPONSE:
                 res = std::make_unique<Rpc::AppendEntriesResponse>(recvJson["data"]);
                 break;
+            case Rpc::TYPE::REQUEST_LEADER:
+                res = std::make_unique<Rpc::RequestLeader>(recvJson["data"]);
+                break;
+            case Rpc::TYPE::REQUEST_LEADER_RESPONSE:
+                res = std::make_unique<Rpc::RequestLeaderResponse>(recvJson["data"]);
+                break;
+            case Rpc::TYPE::CONTROLLER_REQUEST:
+                res = std::make_unique<Rpc::ControllerRequest>(recvJson["data"]);
+                break;
         }
         if (res == nullptr) {
             auto errMsg = std::string("Unhandled message type: ") + Rpc::getTypeName(recvType);
@@ -74,7 +85,7 @@ namespace MPI {
     }
 
     std::unique_ptr<Rpc::RpcResponse>
-    Recv_Rpc_Timeout(int src, long timeout, int tag, MPI_Comm comm) {
+    Recv_Rpc_Timeout(const int& src, const long& timeout, const int tag, const MPI_Comm comm) {
         auto start = std::chrono::steady_clock::now();
         while (true) {
             auto end = std::chrono::steady_clock::now();
@@ -84,7 +95,6 @@ namespace MPI {
             auto msg = Recv_Rpc(src, tag, comm);
             if (msg != nullptr)
                 return msg;
-
             if (timeout < countTime)
                 break;
             usleep(100);

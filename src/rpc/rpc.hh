@@ -11,6 +11,9 @@ namespace Rpc {
         REQUEST_VOTE_RESPONSE,
         APPEND_ENTRIES,
         APPEND_ENTRIES_RESPONSE,
+        REQUEST_LEADER,
+        REQUEST_LEADER_RESPONSE,
+        CONTROLLER_REQUEST,
     };
 
     /// Rpc type names (used to convert enum to text).
@@ -20,19 +23,21 @@ namespace Rpc {
         "REQUEST_VOTE_RESPONSE",
         "APPEND_ENTRIES",
         "APPEND_ENTRIES_RESPONSE",
+        "REQUEST_LEADER",
+        "REQUEST_LEADER_RESPONSE",
+        "CONTROLLER_REQUEST",
     };
 
     /**
-     * @brief Converts an Rpc::Type enum to text.
+     * @brief Converts an Rpc::TYPE enum to text.
      * @return static const pointer to name.
      */
     inline const char *getTypeName(Rpc::TYPE type) {
-        static const char *unknownName = "Unknown Type";
         auto typeIndex = static_cast<unsigned int>(type);
 
         if (typeIndex >= sizeof(type_names) / sizeof(type_names[0]))
-            return unknownName;
-        ///
+            return "Unkown Name";
+
         return type_names[typeIndex];
     }
 
