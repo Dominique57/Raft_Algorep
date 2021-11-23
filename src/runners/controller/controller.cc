@@ -12,12 +12,14 @@
 namespace Controller
 {
     static void crash_command(const std::string& arg);
+    static void help_command(const std::string& arg);
     static void speed_command(const std::string& arg);
     static void start_command(const std::string& arg);
     static void status_command(const std::string& arg);
 
     const std::pair<const char*, void (*)(const std::string&)> commands[] = {
         std::make_pair("CRASH", crash_command),
+        std::make_pair("HELP", help_command),
         std::make_pair("SPEED", speed_command),
         std::make_pair("START", start_command),
         std::make_pair("STATUS", status_command),
@@ -60,6 +62,15 @@ namespace Controller
         }
 
         MPI::Send_Rpc(Rpc::ControllerRequest(Rpc::CONTROLLER_REQUEST_TYPE::SPEED, speed), dst);
+    }
+
+    static void help_command(const std::string&) {
+        std::cout << "Commands: " << std::endl
+            << "* `HELP`: display help message" << std::endl
+            << "* `STATUS [rank]`: display information for the given process or for all processes" << std::endl
+            << "* `CRASH [rank]`: crash the given process" << std::endl
+            << "* `SPEED [rank] [speed]`: set speed for the given process, available speed: low, medium, high" << std::endl
+            << "* `START [client_rank]`: start the given client" << std::endl;
     }
 
     static void crash_command(const std::string& arg) {

@@ -75,14 +75,17 @@ namespace Node {
                 << " | " << std::setw(6) << Clock::getSpeedTypeName(node.clock.speed) << " speed"
                 << std::endl;
             break;
+
         case Rpc::CONTROLLER_REQUEST_TYPE::CRASH:
             std::cout << "Node " << GlobalConfig::rank << " crashed" << std::endl;
             node.crash = true;
             break;
+
         case Rpc::CONTROLLER_REQUEST_TYPE::SPEED:
             std::cout << "Node " << GlobalConfig::rank << " set speed to " << request->message << std::endl;
             node.clock.speed = Clock::getSpeedType(request->message);
             break;
+
         default:
             std::cout << "Unkown controller request" << std::endl;
             break;

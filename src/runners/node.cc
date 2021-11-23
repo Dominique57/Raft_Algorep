@@ -26,22 +26,25 @@ namespace Node {
             if (!hasTimedOut) {
                 int senderId = rpcResponse->senderId;
                 auto type = rpcResponse->rpc->Type();
-                if (GlobalConfig::is_node(senderId))
-                    leaveCycle = cycle.should_stop_cycle(std::move(rpcResponse));
-
-                else if (type == Rpc::TYPE::CONTROLLER_REQUEST)
+                if (type == Rpc::TYPE::CONTROLLER_REQUEST)
                     cycle.handle_controller_request(rpcResponse.get());
+
+                else if (this->crash)
+                    continue;
+
+                else if (GlobalConfig::is_node(senderId))
+                    leaveCycle = cycle.should_stop_cycle(std::move(rpcResponse));
 
                 else if (GlobalConfig::is_client(senderId))
                     cycle.client_response(std::move(rpcResponse));
             }
         } while (!hasTimedOut && !leaveCycle);
 
-        cycle.post_cycle(hasTimedOut);
+        if (!this->crash)
+            cycle.post_cycle(hasTimedOut);
 
-        if (cycle.NextState().has_value()) {
+        if (cycle.NextState().has_value())
             state = *cycle.NextState();
-        }
     }
 
     void Node::start() {

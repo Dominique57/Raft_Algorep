@@ -7,6 +7,7 @@ valeurs/commandes aux serveurs.
 
 # REPL: controller commands
 
+* `HELP`: display help message
 * `STATUS [rank]`: display information for the given process or for all processes
 * `CRASH [rank]`: crash the given process
 * `SPEED [rank] [speed]`: set speed for the given process, available speed: low, medium, high
