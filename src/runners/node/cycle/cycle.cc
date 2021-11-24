@@ -36,9 +36,9 @@ namespace Node {
             case Rpc::TYPE::APPEND_ENTRIES_RESPONSE:
                 sentTerm = static_cast<Rpc::AppendEntriesResponse *>(rpc->rpc.get())->term;
                 break;
-            case Rpc::TYPE::MESSAGE:
             case Rpc::TYPE::REQUEST_LEADER:
             case Rpc::TYPE::REQUEST_LEADER_RESPONSE:
+            case Rpc::TYPE::REQUEST_CLIENT:
             case Rpc::TYPE::CONTROLLER_REQUEST:
                 break;
         }
@@ -69,20 +69,23 @@ namespace Node {
         const auto request = static_cast<Rpc::ControllerRequest*>(rpc->rpc.get());
         switch (request->type) {
         case Rpc::CONTROLLER_REQUEST_TYPE::STATUS:
-            std::cout << "Node | " << GlobalConfig::rank
+            std::cout << "Node   | " << GlobalConfig::rank
                 << " | " << std::setw(9) << getStateName(node.state)
                 << " | " << std::setw(11) << has_crashed(node.crash)
                 << " | " << std::setw(6) << Clock::getSpeedTypeName(node.clock.speed) << " speed"
                 << std::endl;
             break;
+
         case Rpc::CONTROLLER_REQUEST_TYPE::CRASH:
             std::cout << "Node " << GlobalConfig::rank << " crashed" << std::endl;
             node.crash = true;
             break;
+
         case Rpc::CONTROLLER_REQUEST_TYPE::SPEED:
             std::cout << "Node " << GlobalConfig::rank << " set speed to " << request->message << std::endl;
             node.clock.speed = Clock::getSpeedType(request->message);
             break;
+
         default:
             std::cout << "Unkown controller request" << std::endl;
             break;

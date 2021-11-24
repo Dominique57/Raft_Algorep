@@ -6,25 +6,25 @@ namespace Rpc {
 
     /// Rpc type (different possible object-messages).
     enum class TYPE {
-        MESSAGE = 0,
-        REQUEST_VOTE,
+        REQUEST_VOTE = 0,
         REQUEST_VOTE_RESPONSE,
         APPEND_ENTRIES,
         APPEND_ENTRIES_RESPONSE,
         REQUEST_LEADER,
         REQUEST_LEADER_RESPONSE,
+        REQUEST_CLIENT,
         CONTROLLER_REQUEST,
     };
 
     /// Rpc type names (used to convert enum to text).
     static const char *type_names[] = {
-        "MESSAGE",
         "REQUEST_VOTE",
         "REQUEST_VOTE_RESPONSE",
         "APPEND_ENTRIES",
         "APPEND_ENTRIES_RESPONSE",
         "REQUEST_LEADER",
         "REQUEST_LEADER_RESPONSE",
+        "REQUEST_CLIENT",
         "CONTROLLER_REQUEST",
     };
 

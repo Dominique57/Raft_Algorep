@@ -4,10 +4,10 @@
 #include <spdlog/spdlog.h>
 #include <unistd.h>
 
-#include "rpc/message.hh"
 #include "rpc/requestVote.hh"
 #include "rpc/appendEntries.hh"
 #include "rpc/requestLeader.hh"
+#include "rpc/requestClient.hh"
 #include "rpc/controllerRequest.hh"
 
 namespace MPI {
@@ -50,9 +50,6 @@ namespace MPI {
         auto recvType = recvJson["type"].get<Rpc::TYPE>();
         auto res = std::unique_ptr<Rpc::Rpc>();
         switch (recvType) {
-            case Rpc::TYPE::MESSAGE:
-                res = std::make_unique<Rpc::Message>(recvJson["data"]);
-                break;
             case Rpc::TYPE::REQUEST_VOTE:
                 res = std::make_unique<Rpc::RequestVote>(recvJson["data"]);
                 break;
@@ -70,6 +67,9 @@ namespace MPI {
                 break;
             case Rpc::TYPE::REQUEST_LEADER_RESPONSE:
                 res = std::make_unique<Rpc::RequestLeaderResponse>(recvJson["data"]);
+                break;
+            case Rpc::TYPE::REQUEST_CLIENT:
+                res = std::make_unique<Rpc::RequestClient>(recvJson["data"]);
                 break;
             case Rpc::TYPE::CONTROLLER_REQUEST:
                 res = std::make_unique<Rpc::ControllerRequest>(recvJson["data"]);

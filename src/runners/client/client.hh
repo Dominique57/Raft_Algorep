@@ -2,6 +2,9 @@
 
 #include "utils/clock.hh"
 #include "wrappers/mpi/rpcRecieverReinjecter.hh"
+#include "rpc/requestClient.hh"
+
+#include <optional>
 
 namespace Client {
 
@@ -9,19 +12,32 @@ namespace Client {
     public:
         /**
          * @brief Default constructor.
-         * @param timeout_      Max time to wait
+         * @param timer_      Max time to wait
          */
-        Client(const int& timeout_);
+        Client(const int& timer_);
+        void start();
 
-        void send_message(const json& message);
-        int request_leader_id();
+        void send_request();
+        void request_leader_id();
+
+        /**
+         * @brief controller set request client
+         # @param request   Request set by controller to be sent by client
+         */
+        void set_request(const json& request);
+
+        void handle_requests();
+        void handle_controller_request(const Rpc::RpcResponse *rpc);
 
     protected:
-        int timeout;
-        int leaderId;
-        Rpc::RpcRecieverReinjecter rpcReciever;
+        bool run;
 
-        // TODO: use clock attribute (process speed)
+        int timer;
+        int leaderId;
+
+        Rpc::RpcRecieverReinjecter rpcReciever;
+        std::optional<Rpc::RequestClient> request;
+
         Clock::Clock clock;
     };
 }

@@ -23,7 +23,7 @@ namespace Node {
                 return true;
             case Rpc::TYPE::REQUEST_VOTE_RESPONSE:
             case Rpc::TYPE::APPEND_ENTRIES_RESPONSE:
-            case Rpc::TYPE::MESSAGE:
+            case Rpc::TYPE::REQUEST_CLIENT:
             case Rpc::TYPE::REQUEST_LEADER:
             case Rpc::TYPE::REQUEST_LEADER_RESPONSE:
             case Rpc::TYPE::CONTROLLER_REQUEST:

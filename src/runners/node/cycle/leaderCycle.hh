@@ -1,9 +1,8 @@
 #pragma once
 #include <vector>
 
-#include "rpc/message.hh"
-
 #include "cycle.hh"
+#include "rpc/requestClient.hh"
 
 namespace Node {
 
@@ -31,7 +30,7 @@ namespace Node {
     protected:
         //TODO: not sure about "void¨ it must be a message but the message
         //can be a string/char*/json
-        std::vector<Rpc::Message *> requests_client;
+        std::vector<Rpc::RequestClient *> requests_client;
 
     };
 
