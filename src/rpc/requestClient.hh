@@ -36,5 +36,35 @@ namespace Rpc {
         /// RequestClient: content of rpc
         std::string message;
     };
+    class RequestClientResponse : public Rpc {
+        public:
+            /**
+             * @brief Construct a REQUEST_CLIENT_RESPONSE RPC message
+             * @param success       If we successfully retrieved the leader ID or not.
+             */
+            RequestClientResponse(bool success)
+                : Rpc(TYPE::REQUEST_CLIENT_RESPONSE), success(success) {}
+
+            /**
+             * @brief Constructor
+             * @param json          The JSON containing boolean true if leader responded.
+             */
+            RequestClientResponse(const json &json)
+                : RequestClientResponse(json["success"].get<bool>()) {}
+
+        protected:
+            /**
+             * @brief Serialize the entries' data into json form.
+             * @return The JSON object containing the data.
+             */
+            json serialize_self() const override {
+                return json::object({{"success", success}});
+            }
+
+        public:
+            /// True if we received the leader's response
+            bool success;
+    };
+
 }
 

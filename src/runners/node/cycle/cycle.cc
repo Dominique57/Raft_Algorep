@@ -39,6 +39,7 @@ namespace Node {
             case Rpc::TYPE::REQUEST_LEADER:
             case Rpc::TYPE::REQUEST_LEADER_RESPONSE:
             case Rpc::TYPE::REQUEST_CLIENT:
+            case Rpc::TYPE::REQUEST_CLIENT_RESPONSE:
             case Rpc::TYPE::CONTROLLER_REQUEST:
                 break;
         }

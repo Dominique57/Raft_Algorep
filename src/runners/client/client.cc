@@ -62,10 +62,25 @@ namespace Client {
         Log::recieve_leader_response(this->leaderId);
     }
 
-    //TODO: clean message notification
     void Client::send_request() {
-        MPI::Send_Rpc(this->request.value(), this->leaderId);
+
+        bool success = false;
+
+        do {
+            MPI::Send_Rpc(this->request.value(), this->leaderId);
+
+            auto response = MPI::Recv_Rpc_Timeout(this->leaderId, this->timer, 0, MPI_COMM_WORLD);
+
+            if (response && response->rpc.get()->Type() == Rpc::TYPE::REQUEST_CLIENT_RESPONSE) {
+                auto resp = static_cast<Rpc::RequestClientResponse *>(response->rpc.get());
+                success = resp->success;
+            }
+        } while (!success);
+
+      //  Log::recieve_Client_response(this->leaderId);
+
         std::cout << "client " << GlobalConfig::rank << " has sent : \" " << this->request.value().message << " \"" << std::endl;
+
         this->request = std::nullopt;
     }
 

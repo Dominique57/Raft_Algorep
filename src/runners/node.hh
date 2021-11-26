@@ -86,6 +86,7 @@ namespace Node {
 
     protected:
         STATE state;
+        std::vector<std::pair<int, json>> logs;
         Rpc::RpcRecieverReinjecter rpcReciever;
         int term = 0;
 

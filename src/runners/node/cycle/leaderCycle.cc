@@ -41,17 +41,31 @@ namespace Node {
         }
         if (message->rpc->Type() == Rpc::TYPE::REQUEST_CLIENT)
         {
-            share_client_request(std::move(message));
+            int clientId = message->senderId;
+            bool has_been_send  = share_client_request(std::move(message));
+            if (has_been_send)
+                respond_client_request(clientId);
         }
     }
 
-    void LeaderCycle::share_client_request(std::unique_ptr<Rpc::RpcResponse> message) {
+    void LeaderCycle::respond_client_request(int senderId)
+    {
+        auto rpc = Rpc::RequestClientResponse(true);
+        MPI::Send_Rpc(rpc, senderId);
+    }
+
+    bool LeaderCycle::share_client_request(std::unique_ptr<Rpc::RpcResponse> message) {
         auto rpc = static_cast<Rpc::RequestClient *>(message->rpc.get());
+        node.logs.push_back(std::pair<int, json>(node.term, rpc->message));
+
         for (auto dst = GlobalConfig::nb_node_min; dst <= GlobalConfig::nb_node_max; ++dst) {
             if (dst != GlobalConfig::rank) {
                 MPI::Send_Rpc(*rpc, dst);
             }
         }
+
+        //TODO wait for response client request from all nodes then return true
+        return true;
     }
 
 }

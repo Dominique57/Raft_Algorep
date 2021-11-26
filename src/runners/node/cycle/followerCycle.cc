@@ -24,6 +24,7 @@ namespace Node {
             case Rpc::TYPE::REQUEST_VOTE_RESPONSE:
             case Rpc::TYPE::APPEND_ENTRIES_RESPONSE:
             case Rpc::TYPE::REQUEST_CLIENT:
+            case Rpc::TYPE::REQUEST_CLIENT_RESPONSE:
             case Rpc::TYPE::REQUEST_LEADER:
             case Rpc::TYPE::REQUEST_LEADER_RESPONSE:
             case Rpc::TYPE::CONTROLLER_REQUEST:
@@ -36,6 +37,11 @@ namespace Node {
         if (message->rpc->Type() == Rpc::TYPE::REQUEST_LEADER) {
             client_request_leader_response(std::move(message));
             return;
+        }
+        if (message->rpc->Type() == Rpc::TYPE::REQUEST_CLIENT)
+        {
+            auto request = static_cast<Rpc::RequestClient *>(message->rpc.get())->message;
+            node.logs.push_back(std::pair<int, json>(node.term, request));
         }
     }
     void FollowerCycle::post_cycle(bool hasTimedOut) {
