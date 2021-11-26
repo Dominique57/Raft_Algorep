@@ -39,14 +39,17 @@ namespace Node {
          */
         bool check_always_should_stop(std::unique_ptr<Rpc::RpcResponse> &message);
 
+        /**
+         * @brief reply client request
+         * @param message The received RPC message always from a client
+         */
+        virtual void handle_client_request(std::unique_ptr<Rpc::RpcResponse> message) = 0;
+
+        void client_request_leader_response(std::unique_ptr<Rpc::RpcResponse> message);
+
         void handle_controller_request(const Rpc::RpcResponse *rpc);
 
         void request_leader_response(int senderId);
-        /**
-         * @brief send client response
-         * @param message The received RPC message always from a client
-         */
-        void client_response(std::unique_ptr<Rpc::RpcResponse> message);
 
         /**
          * @brief GETTER: Node::Cycle::timer

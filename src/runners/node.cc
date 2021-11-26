@@ -36,7 +36,7 @@ namespace Node {
                     leaveCycle = cycle.should_stop_cycle(std::move(rpcResponse));
 
                 else if (GlobalConfig::is_client(senderId))
-                    cycle.client_response(std::move(rpcResponse));
+                    cycle.handle_client_request(std::move(rpcResponse));
             }
         } while (!hasTimedOut && !leaveCycle);
 

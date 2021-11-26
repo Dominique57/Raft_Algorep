@@ -63,9 +63,6 @@ int main(int argc, char *argv[]) {
     } else {
         // Client
         auto client = Client::Client(2000);
-        //client.set_start();
-
-        usleep(20000); //TODO: wait for controller demande
 
         json exemple;
         exemple["value"] = "1";

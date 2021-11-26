@@ -33,33 +33,25 @@ namespace Node {
     void LeaderCycle::post_cycle(bool) {
     }
 
-    void LeaderCycle::receive_client_request() {
-        auto start = std::chrono::steady_clock::now();
-
-        for (auto dst = GlobalConfig::nb_client_min; dst <= GlobalConfig::nb_client_max; ++dst) {
-            auto cur = std::chrono::steady_clock::now();
-            long countTime = std::chrono::duration_cast<std::chrono::milliseconds>(cur - start).count();
-            long timeToWait = Timer() - countTime;
-            //TODO: request_client is the request (message) sent by the client
-            auto request_client = MPI::Recv_Rpc_Timeout(dst, timeToWait, 0, MPI_COMM_WORLD);
-
-            if (request_client
-                    && request_client->rpc.get()->Type() == Rpc::TYPE::REQUEST_CLIENT) {
-                auto request = static_cast<Rpc::RequestClient *>(request_client->rpc.get());
-                requests_client.push_back(request);
-            }
+    void LeaderCycle::handle_client_request(std::unique_ptr<Rpc::RpcResponse> message)
+    {
+        if (message->rpc->Type() == Rpc::TYPE::REQUEST_LEADER) {
+            client_request_leader_response(std::move(message));
+            return;
+        }
+        if (message->rpc->Type() == Rpc::TYPE::REQUEST_CLIENT)
+        {
+            share_client_request(std::move(message));
         }
     }
 
-    void LeaderCycle::share_client_request() {
+    void LeaderCycle::share_client_request(std::unique_ptr<Rpc::RpcResponse> message) {
+        auto rpc = static_cast<Rpc::RequestClient *>(message->rpc.get());
         for (auto dst = GlobalConfig::nb_node_min; dst <= GlobalConfig::nb_node_max; ++dst) {
             if (dst != GlobalConfig::rank) {
-                for (auto rpc: requests_client)
-                    MPI::Send_Rpc(*rpc, dst);
+                MPI::Send_Rpc(*rpc, dst);
             }
         }
-
-        requests_client.clear();
     }
 
 }

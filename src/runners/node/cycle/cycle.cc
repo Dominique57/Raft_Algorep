@@ -54,11 +54,9 @@ namespace Node {
         return false;
     }
 
-    void Cycle::client_response(std::unique_ptr<Rpc::RpcResponse> message) {
-        if (message->rpc->Type() == Rpc::TYPE::REQUEST_LEADER) {
-            auto rpc = Rpc::RequestLeaderResponse(node.leaderId.value_or(0), node.leaderId.has_value());
-            MPI::Send_Rpc(rpc, message->senderId);
-        }
+    void Cycle::client_request_leader_response(std::unique_ptr<Rpc::RpcResponse> message) {
+        auto rpc = Rpc::RequestLeaderResponse(node.leaderId.value_or(0), node.leaderId.has_value());
+        MPI::Send_Rpc(rpc, message->senderId);
     }
 
     static const std::string has_crashed(const bool& crash) {

@@ -34,6 +34,11 @@ namespace Node {
         return false;
     }
 
+    void CandidateCycle::handle_client_request(std::unique_ptr<Rpc::RpcResponse> message)
+    {
+        (void) message;
+        return;
+    }
     void CandidateCycle::post_cycle(bool hasTimedOut) {
         if (hasTimedOut)
             spdlog::info("Candidate timed out");

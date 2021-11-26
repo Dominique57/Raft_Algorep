@@ -15,22 +15,13 @@ namespace Node {
 
         bool should_stop_cycle(std::unique_ptr<Rpc::RpcResponse> rpc) override;
 
+        void handle_client_request(std::unique_ptr<Rpc::RpcResponse> message) override;
+
         void post_cycle(bool hasTimedOut) override;
-
-        /**
-         * @brief receive the request from all clients and push them to requests_client
-         */
-        void receive_client_request();
-
         /**
          * @brief send all elements from requests_client to the other nodes
          */
-        void share_client_request();
-
-    protected:
-        //TODO: not sure about "void¨ it must be a message but the message
-        //can be a string/char*/json
-        std::vector<Rpc::RequestClient *> requests_client;
+        void share_client_request(std::unique_ptr<Rpc::RpcResponse> message);
 
     };
 

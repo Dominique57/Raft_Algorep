@@ -31,7 +31,13 @@ namespace Node {
         }
         return false;
     }
-
+    void FollowerCycle::handle_client_request(std::unique_ptr<Rpc::RpcResponse> message)
+    {
+        if (message->rpc->Type() == Rpc::TYPE::REQUEST_LEADER) {
+            client_request_leader_response(std::move(message));
+            return;
+        }
+    }
     void FollowerCycle::post_cycle(bool hasTimedOut) {
         if (hasTimedOut) {
             spdlog::info("Follower timed out");
