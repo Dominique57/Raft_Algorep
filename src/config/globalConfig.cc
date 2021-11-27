@@ -47,3 +47,7 @@ bool GlobalConfig::is_client(const int& rank_) {
 bool GlobalConfig::is_node(const int& rank_) {
     return nb_node_min <= rank_ && rank_ <= nb_node_max;
 }
+
+int GlobalConfig::nb_node() {
+    return nb_node_max - nb_node_min + 1;
+}

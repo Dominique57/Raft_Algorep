@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
         auto client = Client::Client(2000);
 
         json exemple;
-        exemple["value"] = "1";
+        exemple["value"] = std::to_string(GlobalConfig::rank);
 
         client.set_request(exemple);
         client.start();

@@ -8,7 +8,7 @@ namespace Node {
 
     void FollowerCycle::pre_cycle() {}
 
-    bool FollowerCycle::should_stop_cycle(std::unique_ptr<Rpc::RpcResponse> rpc) {
+    bool FollowerCycle::handle_node_request(std::unique_ptr<Rpc::RpcResponse> rpc) {
         if (check_always_should_stop(rpc))
             return true;
 
@@ -32,17 +32,11 @@ namespace Node {
         }
         return false;
     }
-    void FollowerCycle::handle_client_request(std::unique_ptr<Rpc::RpcResponse> message)
-    {
-        if (message->rpc->Type() == Rpc::TYPE::REQUEST_LEADER) {
+    void FollowerCycle::handle_client_request(std::unique_ptr<Rpc::RpcResponse> message) {
+        if (message->rpc->Type() == Rpc::TYPE::REQUEST_LEADER)
             client_request_leader_response(std::move(message));
-            return;
-        }
-        if (message->rpc->Type() == Rpc::TYPE::REQUEST_CLIENT)
-        {
-            auto request = static_cast<Rpc::RequestClient *>(message->rpc.get())->message;
-            node.logs.push_back(std::pair<int, json>(node.term, request));
-        }
+
+        // FIXME: return va te faire foutre
     }
     void FollowerCycle::post_cycle(bool hasTimedOut) {
         if (hasTimedOut) {

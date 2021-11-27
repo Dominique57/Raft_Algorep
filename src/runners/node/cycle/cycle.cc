@@ -85,8 +85,12 @@ namespace Node {
             node.clock.speed = Clock::getSpeedType(request->message);
             break;
 
+        case Rpc::CONTROLLER_REQUEST_TYPE::RECOVERY:
+            node.crash = false;
+            // FIXME : TODO
+            break;
         default:
-            std::cout << "Unkown controller request" << std::endl;
+            std::cout << "Unknown controller request" << std::endl;
             break;
         }
     }

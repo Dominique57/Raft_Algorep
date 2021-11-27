@@ -11,11 +11,12 @@ namespace Node {
         // Set timeout beginning
         auto start = std::chrono::steady_clock::now();
 
-        cycle.pre_cycle();
+        if (!this->crash)
+            cycle.pre_cycle();
 
         std::unique_ptr<Rpc::RpcResponse> rpcResponse = nullptr;
         bool leaveCycle = false;
-        bool hasTimedOut = false;
+        bool hasTimedOut;
         do {
             auto cur = std::chrono::steady_clock::now();
             long countTime = std::chrono::duration_cast<std::chrono::milliseconds>(cur - start).count();
@@ -33,7 +34,7 @@ namespace Node {
                     continue;
 
                 else if (GlobalConfig::is_node(senderId))
-                    leaveCycle = cycle.should_stop_cycle(std::move(rpcResponse));
+                    leaveCycle = cycle.handle_node_request(std::move(rpcResponse));
 
                 else if (GlobalConfig::is_client(senderId))
                     cycle.handle_client_request(std::move(rpcResponse));
@@ -67,4 +68,8 @@ namespace Node {
         }
     }
 
+    void Node::initLeader() {
+        std::fill(matchIndex.begin(), matchIndex.end(), -1);
+        std::fill(nextIndex.begin(), nextIndex.end(), logs.size());
+    }
 }

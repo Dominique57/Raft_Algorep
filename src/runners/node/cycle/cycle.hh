@@ -7,7 +7,7 @@
 
 namespace Node {
 
-    // Foreward declaration
+    // Forward declaration
     class Cycle {
     protected:
         Cycle(int timer, Node &node)
@@ -24,7 +24,7 @@ namespace Node {
          * @param message   The received RPC message
          * @return True if we have to stop the current cycle, false otherwise.
          */
-        virtual bool should_stop_cycle(std::unique_ptr<Rpc::RpcResponse> message) = 0;
+        virtual bool handle_node_request(std::unique_ptr<Rpc::RpcResponse> message) = 0;
 
         /**
          * @brief Executes actions after leaving the cycle depending if we have timed out or not.
@@ -40,16 +40,18 @@ namespace Node {
         bool check_always_should_stop(std::unique_ptr<Rpc::RpcResponse> &message);
 
         /**
-         * @brief reply client request
+         * @brief Reply client request
          * @param message The received RPC message always from a client
          */
         virtual void handle_client_request(std::unique_ptr<Rpc::RpcResponse> message) = 0;
 
         void client_request_leader_response(std::unique_ptr<Rpc::RpcResponse> message);
 
+        /**
+         * @brief Handle controller's request
+         * @param rpc The received RPC
+         */
         void handle_controller_request(const Rpc::RpcResponse *rpc);
-
-        void request_leader_response(int senderId);
 
         /**
          * @brief GETTER: Node::Cycle::timer

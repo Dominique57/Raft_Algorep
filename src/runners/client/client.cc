@@ -16,7 +16,6 @@ namespace Client {
         request(std::nullopt),
         clock(Clock::SPEED_TYPE::HIGH)
     {
-        this->request_leader_id();
     }
 
     void Client::set_request(const json& request_) {
@@ -64,18 +63,19 @@ namespace Client {
 
     void Client::send_request() {
 
-        bool success = false;
+        //bool success = false;
 
-        do {
-            MPI::Send_Rpc(this->request.value(), this->leaderId);
-
-            auto response = MPI::Recv_Rpc_Timeout(this->leaderId, this->timer, 0, MPI_COMM_WORLD);
-
-            if (response && response->rpc.get()->Type() == Rpc::TYPE::REQUEST_CLIENT_RESPONSE) {
-                auto resp = static_cast<Rpc::RequestClientResponse *>(response->rpc.get());
-                success = resp->success;
-            }
-        } while (!success);
+        MPI::Send_Rpc(this->request.value(), this->leaderId);
+//        do {
+//            MPI::Send_Rpc(this->request.value(), this->leaderId);
+//
+//            auto response = MPI::Recv_Rpc_Timeout(this->leaderId, this->timer, 0, MPI_COMM_WORLD);
+//
+//            if (response && response->rpc.get()->Type() == Rpc::TYPE::REQUEST_CLIENT_RESPONSE) {
+//                auto resp = static_cast<Rpc::RequestClientResponse *>(response->rpc.get());
+//                success = resp->success;
+//            }
+//        } while (!success);
 
       //  Log::recieve_Client_response(this->leaderId);
 
@@ -89,7 +89,7 @@ namespace Client {
         auto start = std::chrono::steady_clock::now();
 
         std::unique_ptr<Rpc::RpcResponse> rpcResponse = nullptr;
-        bool hasTimedOut = false;
+        bool hasTimedOut;
         do {
             auto cur = std::chrono::steady_clock::now();
             long countTime = std::chrono::duration_cast<std::chrono::milliseconds>(cur - start).count();
@@ -110,28 +110,36 @@ namespace Client {
     }
 
     void Client::handle_controller_request(const Rpc::RpcResponse *rpc) {
-        const auto request = static_cast<Rpc::ControllerRequest*>(rpc->rpc.get());
-        switch (request->type) {
+        const auto controllerRequest = static_cast<Rpc::ControllerRequest*>(rpc->rpc.get());
+        switch (controllerRequest->type) {
         case Rpc::CONTROLLER_REQUEST_TYPE::STATUS:
             std::cout << "Client | " << GlobalConfig::rank
                 << " | " << std::setw(11) << has_started(this->run)
                 << " | " << std::setw(6) << Clock::getSpeedTypeName(this->clock.speed) << " speed"
                 << std::endl;
             break;
+
         case Rpc::CONTROLLER_REQUEST_TYPE::CRASH:
             std::cout << "Client " << GlobalConfig::rank << " crashed" << std::endl;
             this->run = false;
             break;
+
         case Rpc::CONTROLLER_REQUEST_TYPE::START:
             std::cout << "Client " << GlobalConfig::rank << " started" << std::endl;
             this->run = true;
             break;
+
         case Rpc::CONTROLLER_REQUEST_TYPE::SPEED:
-            std::cout << "Client " << GlobalConfig::rank << " set speed to " << request->message << std::endl;
-            clock.speed = Clock::getSpeedType(request->message);
+            std::cout << "Client " << GlobalConfig::rank << " set speed to " << controllerRequest->message << std::endl;
+            clock.speed = Clock::getSpeedType(controllerRequest->message);
+            break;
+
+        case Rpc::CONTROLLER_REQUEST_TYPE::RECOVERY:
+            this->run = true;
+            // FIXME : TODO
             break;
         default:
-            std::cout << "Unkown controller request" << std::endl;
+            std::cout << "Unknown controller request" << std::endl;
             break;
         }
     }

@@ -16,6 +16,7 @@ namespace Controller
     static void speed_command(const std::string& arg);
     static void start_command(const std::string& arg);
     static void status_command(const std::string& arg);
+    static void recovery_command(const std::string& arg);
 
     const std::pair<const char*, void (*)(const std::string&)> commands[] = {
         std::make_pair("CRASH", crash_command),
@@ -23,6 +24,7 @@ namespace Controller
         std::make_pair("SPEED", speed_command),
         std::make_pair("START", start_command),
         std::make_pair("STATUS", status_command),
+        std::make_pair("RECOVERY", recovery_command),
     };
 
     static void parse_input_command(const std::string& line) {
@@ -71,6 +73,21 @@ namespace Controller
             << "* `CRASH [rank]`: crash the given process" << std::endl
             << "* `SPEED [rank] [speed]`: set speed for the given process, available speed: low, medium, high" << std::endl
             << "* `START [client_rank]`: start the given client" << std::endl;
+    }
+
+    static void recovery_command(const std::string& arg) {
+        if (arg.empty()) {
+            std::cout << "Missing argument. Expect: RECOVERY [id]" << std::endl;
+            return;
+        }
+
+        int dst = String::to_int(arg);
+        if (dst == -1 || (!GlobalConfig::is_node(dst) && !GlobalConfig::is_client(dst))) {
+            std::cerr << "Invalid id. Expect id between " << GlobalConfig::nb_node_min << " and " << GlobalConfig::nb_client_max << std::endl;
+            return;
+        }
+
+        MPI::Send_Rpc(Rpc::ControllerRequest(Rpc::CONTROLLER_REQUEST_TYPE::RECOVERY, ""), dst);
     }
 
     static void crash_command(const std::string& arg) {
@@ -134,10 +151,11 @@ namespace Controller
         std::string line;
 
         do {
-            std::cout << "[CONTROLLER] ";
 
             if (!line.empty())
                 parse_input_command(line);
+
+            std::cout << "[CONTROLLER] ";
 
         } while (std::getline(std::cin, line));
     }

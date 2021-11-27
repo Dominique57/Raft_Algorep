@@ -20,7 +20,7 @@ namespace Node {
                 MPI::Send_Rpc(rpc, dst);
     }
 
-    bool CandidateCycle::should_stop_cycle(std::unique_ptr<Rpc::RpcResponse> rpc) {
+    bool CandidateCycle::handle_node_request(std::unique_ptr<Rpc::RpcResponse> rpc) {
         Log::recieve(STATE::CANDIDATE, rpc->rpc->Type(), rpc->senderId);
         if (check_always_should_stop(rpc))
             return true;
@@ -34,13 +34,15 @@ namespace Node {
         return false;
     }
 
-    void CandidateCycle::handle_client_request(std::unique_ptr<Rpc::RpcResponse> message)
-    {
+    void CandidateCycle::handle_client_request(std::unique_ptr<Rpc::RpcResponse> message) {
         (void) message;
         return;
     }
     void CandidateCycle::post_cycle(bool hasTimedOut) {
         if (hasTimedOut)
             spdlog::info("Candidate timed out");
+        if (*nextState == STATE::LEADER) {
+            node.initLeader();
+        }
     }
 }

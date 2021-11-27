@@ -7,18 +7,18 @@ namespace Rpc {
     enum class CONTROLLER_REQUEST_TYPE {
         STATUS = 0,
         CRASH,
-        SLEEP,
         SPEED,
         START,
+        RECOVERY,
     };
 
     /// Rpc message type names (used to convert enum to text).
     static const char *controller_request_type_names[] = {
         "STATUS",
         "CRASH",
-        "SLEEP",
         "SPEED",
         "START",
+        "RECOVERY",
     };
 
     /**
@@ -29,7 +29,7 @@ namespace Rpc {
         auto typeIndex = static_cast<unsigned int>(type);
 
         if (typeIndex >= sizeof(controller_request_type_names) / sizeof(controller_request_type_names[0]))
-            return "Unkown Name";
+            return "Unknown Name";
 
         return controller_request_type_names[typeIndex];
     }

@@ -62,7 +62,8 @@ add_executable(${PROJECT_NAME}
 
     src/utils/string.hh
     src/utils/clock.cc src/utils/clock.hh
-)
+    src/runners/node/entry.cc src/runners/node/entry.hh
+    )
 
 target_compile_features(${PROJECT_NAME} PRIVATE
     cxx_std_17

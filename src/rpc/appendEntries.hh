@@ -2,6 +2,9 @@
 
 #include "rpc.hh"
 
+#include <runners/node/entry.hh>
+#include <utility>
+
 namespace Rpc {
 
     /// Rpc representing the heartbeat of the leader and the log synchronization request
@@ -12,15 +15,28 @@ namespace Rpc {
          * @param term          The current term.
          * @param leaderId      The current LEADER's ID.
          */
-        AppendEntries(int term, int leaderId)
-            : Rpc(TYPE::APPEND_ENTRIES), term(term), leaderId(leaderId) {}
+         // FIXME: doc
+        AppendEntries(int term, int leaderId, int prevLogTerm, int prevLogIndex, int leaderCommit, std::vector<Entry> entries)
+            : Rpc(TYPE::APPEND_ENTRIES), term(term), leaderId(leaderId), prevLogIndex(prevLogIndex),
+              prevLogTerm(prevLogTerm), leaderCommit(leaderCommit), entries(std::move(entries))
+        {}
+
+        // FIXME: doc
+        AppendEntries(int term, int leaderId, int prevLogTerm, int prevLogIndex, int leaderCommit)
+            : AppendEntries(term, leaderId, prevLogTerm, prevLogIndex, leaderCommit, {})
+        {}
 
         /**
          * @brief Constructor
-         * @param json          The JSON containing the term and the leaderId.
+         * @param json          The JSON containing the data.
          */
         AppendEntries(const json &json)
-            : AppendEntries(json["term"].get<int>(), json["leaderId"].get<int>()) {}
+            : AppendEntries(json["term"].get<int>(),
+                json["leaderId"].get<int>(),
+                json["prevLogTerm"].get<int>(),
+                json["prevLogIndex"].get<int>(),
+                json["leaderCommit"].get<int>(),
+                json["entries"].get<std::vector<Entry>>()) {}
 
     protected:
         /**
@@ -28,7 +44,11 @@ namespace Rpc {
          * @return The JSON object containing the data.
          */
         json serialize_self() const override {
-            return json::object({{"term", term}, {"leaderId", leaderId}});
+            return json::object({
+                {"term", term}, {"leaderId", leaderId}, {"prevLogTerm", prevLogIndex},
+                {"prevLogIndex", prevLogIndex}, {"leaderCommit", leaderCommit},
+                {"entries", entries}
+            });
         }
 
     public:
@@ -37,6 +57,18 @@ namespace Rpc {
 
         /// Current leader id, will allow follower to share that knowledge.
         int leaderId;
+
+        /// Index of log entry immediately preceding new ones
+        int prevLogIndex;
+
+        /// Term of prevLogIndex entry
+        int prevLogTerm;
+
+        /// Leader’s commitIndex
+        int leaderCommit;
+
+        /// Entries to send
+        std::vector<Entry> entries;
     };
 
     /// Response of sender / responder to Rpc::AppendEntries
