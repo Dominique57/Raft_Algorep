@@ -17,6 +17,7 @@ namespace Controller
     static void start_command(const std::string& arg);
     static void status_command(const std::string& arg);
     static void recovery_command(const std::string& arg);
+    static void print_log_command(const std::string& arg);
 
     const std::pair<const char*, void (*)(const std::string&)> commands[] = {
         std::make_pair("CRASH", crash_command),
@@ -25,6 +26,7 @@ namespace Controller
         std::make_pair("START", start_command),
         std::make_pair("STATUS", status_command),
         std::make_pair("RECOVERY", recovery_command),
+        std::make_pair("PRINT_LOG", print_log_command),
     };
 
     static void parse_input_command(const std::string& line) {
@@ -72,7 +74,26 @@ namespace Controller
             << "* `STATUS [rank]`: display information for the given process or for all processes" << std::endl
             << "* `CRASH [rank]`: crash the given process" << std::endl
             << "* `SPEED [rank] [speed]`: set speed for the given process, available speed: low, medium, high" << std::endl
-            << "* `START [client_rank]`: start the given client" << std::endl;
+            << "* `START [client_rank]`: start the given client" << std::endl
+            << "* `PRINT_LOG [node_rank]`: prints the log of a given node or all nodes" << std::endl;
+    }
+
+    static void print_log_command(const std::string& arg) {
+        if (arg.empty()) {
+            // Start all clients
+            for (int dst = GlobalConfig::nb_node_min; dst <= GlobalConfig::nb_node_max; ++dst)
+                MPI::Send_Rpc(Rpc::ControllerRequest(Rpc::CONTROLLER_REQUEST_TYPE::PRINT_LOG, ""), dst);
+
+        } else {
+            int dst = String::to_int(arg);
+            if (dst == -1 || !GlobalConfig::is_node(dst)) {
+                std::cerr << "Invalid id. Expect id between " << GlobalConfig::nb_node_min << " and " << GlobalConfig::nb_node_max << std::endl;
+                return;
+            }
+
+            MPI::Send_Rpc(Rpc::ControllerRequest(Rpc::CONTROLLER_REQUEST_TYPE::PRINT_LOG, ""), dst);
+        }
+
     }
 
     static void recovery_command(const std::string& arg) {

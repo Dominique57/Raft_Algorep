@@ -89,6 +89,10 @@ namespace Node {
             node.crash = false;
             // FIXME : TODO
             break;
+
+        case Rpc::CONTROLLER_REQUEST_TYPE::PRINT_LOG:
+            std::cout << "Node " << GlobalConfig::rank << " logs: \n" << node.logs;
+            break;
         default:
             std::cout << "Unknown controller request" << std::endl;
             break;

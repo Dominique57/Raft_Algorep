@@ -15,12 +15,10 @@ struct Entry {
 
 using json = nlohmann::json;
 
-inline void to_json(json& j, const Entry &entry) {
-    j = json{ {"index", entry.index}, {"term", entry.term}, {"cmd", entry.cmd} };
-}
+void to_json(json& j, const Entry &entry);
 
-inline void from_json(const json& j, Entry& p) {
-    j.at("index").get_to(p.index);
-    j.at("term").get_to(p.term);
-    j.at("cmd").get_to(p.cmd);
-}
+void from_json(const json& j, Entry& p);
+
+std::ostream& operator<<(std::ostream& os, const Entry &entry);
+
+std::ostream& operator<<(std::ostream& os, const std::vector<Entry> &entries);
