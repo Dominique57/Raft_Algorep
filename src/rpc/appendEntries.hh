@@ -45,7 +45,7 @@ namespace Rpc {
          */
         json serialize_self() const override {
             return json::object({
-                {"term", term}, {"leaderId", leaderId}, {"prevLogTerm", prevLogIndex},
+                {"term", term}, {"leaderId", leaderId}, {"prevLogTerm", prevLogTerm},
                 {"prevLogIndex", prevLogIndex}, {"leaderCommit", leaderCommit},
                 {"entries", entries}
             });
@@ -79,26 +79,34 @@ namespace Rpc {
          * @param term          The current term.
          * @param success       If the entry appended was successful.
          */
-        AppendEntriesResponse(int term, bool success)
-            : Rpc(TYPE::APPEND_ENTRIES_RESPONSE), term(term), success(success) {}
+        AppendEntriesResponse(int term, bool success, int newIndex)
+            : Rpc(TYPE::APPEND_ENTRIES_RESPONSE), term(term),
+              success(success), newIndex(newIndex)
+        {}
 
         /**
          * @brief Constructor
          * @param json          The JSON containing the necessary data.
          */
         AppendEntriesResponse(const json &json)
-            : AppendEntriesResponse(json["term"].get<int>(), json["success"].get<bool>()) {}
+            : AppendEntriesResponse(
+                  json["term"].get<int>(),
+                  json["success"].get<bool>(),
+                  json["newIndex"].get<int>()) {}
 
     protected:
         json serialize_self() const override {
-            return json::object({{"term", term}, {"success", success}});
+            return json::object({{"term", term}, {"success", success}, {"newIndex", newIndex}});
         }
 
     public:
          /// Current term of the sender / responder
         int term;
 
-         /// True if sender / responder contained entry matching prevLogIndex and prevLogTerm (!TODO!)
+         /// True if sender / responder contained entry matching prevLogIndex and prevLogTerm
         bool success;
+
+        /// New index of the node if success, -1 otherwise
+        int newIndex;
     };
 }

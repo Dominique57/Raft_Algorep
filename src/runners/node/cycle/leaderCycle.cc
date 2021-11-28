@@ -14,15 +14,14 @@ namespace Node {
                 continue;
 
             int prevLogTerm = 0;
-            int prevLogIndex = node.nextIndex[dst] - 1;
-            if (0 < prevLogIndex && prevLogIndex < (int) node.logs.size()) {
+            int prevLogIndex = node.nextIndex[dst - GlobalConfig::nb_node_min] - 1;
+            if (0 < prevLogIndex && prevLogIndex < (int) node.logs.size())
                 prevLogTerm = node.logs[prevLogIndex].term;
-            }
+
             // FIXME: TODO: add leader commit to rpc
             auto rpc = Rpc::AppendEntries(node.term, GlobalConfig::rank, prevLogTerm, prevLogIndex, -1);
-            for (int i = prevLogIndex + 1; i < (int) node.logs.size(); i++) {
+            for (int i = prevLogIndex + 1; i < (int) node.logs.size(); i++)
                 rpc.entries.push_back(node.logs[i]);
-            }
             MPI::Send_Rpc(rpc, dst);
         }
     }
@@ -35,6 +34,13 @@ namespace Node {
 
         // FIXME: handle node request
         if (rpc->rpc->Type() == Rpc::TYPE::APPEND_ENTRIES_RESPONSE) {
+            auto senderId = rpc->senderId;
+            auto res = static_cast<Rpc::AppendEntriesResponse*>(rpc->rpc.get());
+            if (res->success) {
+                node.nextIndex[senderId - GlobalConfig::nb_node_min] = res->newIndex;
+            } else {
+                node.nextIndex[senderId - GlobalConfig::nb_node_min] -= 1;
+            }
         }
 
         return false;
