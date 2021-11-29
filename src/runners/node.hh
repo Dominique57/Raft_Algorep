@@ -61,6 +61,7 @@ namespace Node {
               rpcReciever(),
               matchIndex(GlobalConfig::nb_node(), -1),
               nextIndex(GlobalConfig::nb_node(), 0),
+              commitIndex(-1),
               crash(false),
               clock(Clock::SPEED_TYPE::HIGH)
         {}
@@ -99,11 +100,31 @@ namespace Node {
         Rpc::RpcRecieverReinjecter rpcReciever;
         int term = 0;
 
+        /** candidateId that received vote in current
+          * term (or null if none)
+          */
         std::optional<int> votedFor = std::nullopt;
+
+        /** leaderId for client to get
+          */
         std::optional<int> leaderId = std::nullopt;
 
+        /** for each server, index of highest log entry known
+          * to be replicated on server
+          * (initialized to -1, increases monotonically)
+          */
         std::vector<int> matchIndex;
+
+        /** for each server, index of the next log entry
+          * to send to that server
+          * (initialized to leader last log index + 1)
+          */
         std::vector<int> nextIndex;
+
+        /** index of highest log entry known to be committed
+          * (initialized to -1, increases monotonically)
+          */
+        int commitIndex;
 
         bool crash;
         Clock::Clock clock;

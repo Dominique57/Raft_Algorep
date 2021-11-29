@@ -19,11 +19,29 @@ namespace Node {
                 prevLogTerm = node.logs[prevLogIndex].term;
 
             // FIXME: TODO: add leader commit to rpc
-            auto rpc = Rpc::AppendEntries(node.term, GlobalConfig::rank, prevLogTerm, prevLogIndex, -1);
+            auto rpc = Rpc::AppendEntries(node.term, GlobalConfig::rank, prevLogTerm, prevLogIndex, node.commitIndex);
             for (int i = prevLogIndex + 1; i < (int) node.logs.size(); i++)
                 rpc.entries.push_back(node.logs[i]);
             MPI::Send_Rpc(rpc, dst);
         }
+    }
+
+    void LeaderCycle::update_commitIndex()
+    {
+        // 1 for self vote
+        int majority = 1;
+        for (auto dst = GlobalConfig::nb_node_min; dst <= GlobalConfig::nb_node_max; ++dst)
+        {
+           if (node.matchIndex[dst] >= node.commitIndex + 1)
+                majority++;
+        }
+
+
+        //FIXME : do we save in file?
+        if (majority > GlobalConfig::nb_node() / 2
+            && (node.commitIndex + 1 < (int) node.logs.size()
+                    && node.logs[node.commitIndex + 1].term == node.term))
+            node.commitIndex += 1;
     }
 
     bool LeaderCycle::handle_node_request(std::unique_ptr<Rpc::RpcResponse> rpc) {
@@ -38,10 +56,13 @@ namespace Node {
             auto res = static_cast<Rpc::AppendEntriesResponse*>(rpc->rpc.get());
             if (res->success) {
                 node.nextIndex[senderId - GlobalConfig::nb_node_min] = res->newIndex;
+                node.matchIndex[senderId] = res->newIndex - 1;
             } else {
                 node.nextIndex[senderId - GlobalConfig::nb_node_min] -= 1;
             }
         }
+
+        update_commitIndex();
 
         return false;
     }

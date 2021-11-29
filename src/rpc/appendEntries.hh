@@ -11,17 +11,27 @@ namespace Rpc {
     class AppendEntries : public Rpc {
     public:
         /**
-         * @brief Constructor
-         * @param term          The current term.
-         * @param leaderId      The current LEADER's ID.
+         * @brief constructor appendEntries command
+         * @param term          the current term.
+         * @param leaderid      the current leader's id.
+         * @param prevlogTerm   the term of prevlogindex entry
+         * @param prevlogindex  the index of the log entry immediately precceding new ones
+         * @param leadercommit  the leader´s commitindex
+         * @param entries       The log entries to store (empty for heartbeat: may send more than one for efficiency)
          */
-         // FIXME: doc
         AppendEntries(int term, int leaderId, int prevLogTerm, int prevLogIndex, int leaderCommit, std::vector<Entry> entries)
             : Rpc(TYPE::APPEND_ENTRIES), term(term), leaderId(leaderId), prevLogIndex(prevLogIndex),
               prevLogTerm(prevLogTerm), leaderCommit(leaderCommit), entries(std::move(entries))
         {}
 
-        // FIXME: doc
+        /**
+         * @brief constructor appendEntries heartbeat
+         * @param term          the current term.
+         * @param leaderid      the current leader's id.
+         * @param prevlogTerm   the term of prevlogindex entry
+         * @param prevlogindex  the index of the log entry immediately precceding new ones
+         * @param leadercommit  the leader´s commitindex
+         */
         AppendEntries(int term, int leaderId, int prevLogTerm, int prevLogIndex, int leaderCommit)
             : AppendEntries(term, leaderId, prevLogTerm, prevLogIndex, leaderCommit, {})
         {}

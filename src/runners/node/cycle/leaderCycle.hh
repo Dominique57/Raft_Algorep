@@ -24,6 +24,8 @@ namespace Node {
         bool share_client_request(std::unique_ptr<Rpc::RpcResponse> message);
         void respond_client_request(int senderId);
 
+    private:
+        void update_commitIndex();
     };
 
 }
