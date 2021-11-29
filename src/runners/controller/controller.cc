@@ -18,6 +18,7 @@ namespace Controller
     static void status_command(const std::string& arg);
     static void recovery_command(const std::string& arg);
     static void print_log_command(const std::string& arg);
+    static void entry_command(const std::string& arg);
 
     const std::pair<const char*, void (*)(const std::string&)> commands[] = {
         std::make_pair("CRASH", crash_command),
@@ -27,6 +28,7 @@ namespace Controller
         std::make_pair("STATUS", status_command),
         std::make_pair("RECOVERY", recovery_command),
         std::make_pair("PRINT_LOG", print_log_command),
+        std::make_pair("ENTRY", entry_command),
     };
 
     static void parse_input_command(const std::string& line) {
@@ -166,6 +168,26 @@ namespace Controller
 
             MPI::Send_Rpc(Rpc::ControllerRequest(Rpc::CONTROLLER_REQUEST_TYPE::STATUS, ""), dst);
         }
+        usleep(100);
+    }
+
+    static void entry_command(const std::string& arg) {
+        const auto idx = arg.find(" ");
+        const std::string rank_id = arg.substr(0, idx);
+        const std::string cmd = idx == std::string::npos ? "" : arg.substr(idx + 1);
+
+        if (rank_id.empty() || cmd.empty()) {
+            std::cout << "Missing argument. Expect: ENTRY [id] [cmd]" << std::endl;
+            return;
+        }
+
+        int dst = String::to_int(rank_id);
+        if (dst == -1 || !GlobalConfig::is_client(dst)) {
+            std::cerr << "Invalid id. Expect id between " << GlobalConfig::nb_node_min << " and " << GlobalConfig::nb_client_max << std::endl;
+            return;
+        }
+
+        MPI::Send_Rpc(Rpc::ControllerRequest(Rpc::CONTROLLER_REQUEST_TYPE::ENTRY, cmd), dst);
     }
 
     void Controller::start() const {
@@ -176,6 +198,7 @@ namespace Controller
             if (!line.empty())
                 parse_input_command(line);
 
+            usleep(200);
             std::cout << "[CONTROLLER] ";
 
         } while (std::getline(std::cin, line));

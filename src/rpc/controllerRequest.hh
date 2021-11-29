@@ -11,6 +11,7 @@ namespace Rpc {
         START,
         RECOVERY,
         PRINT_LOG,
+        ENTRY,
     };
 
     /// Rpc message type names (used to convert enum to text).
@@ -21,6 +22,7 @@ namespace Rpc {
         "START",
         "RECOVERY",
         "PRINT_LOG",
+        "ENTRY",
     };
 
     /**

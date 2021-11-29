@@ -138,6 +138,11 @@ namespace Client {
             this->run = true;
             // FIXME : TODO
             break;
+
+        case Rpc::CONTROLLER_REQUEST_TYPE::ENTRY:
+            std::cout << "Client " << GlobalConfig::rank << " received a command: " << controllerRequest->message << std::endl;
+            // FIXME : TODO
+            break;
         default:
             std::cout << "Unknown controller request" << std::endl;
             break;
