@@ -24,7 +24,7 @@ namespace Client {
          * @brief controller set request client
          # @param request   Request set by controller to be sent by client
          */
-        void set_request(const json& request);
+        void set_request(const std::string request_);
 
         void handle_requests();
         void handle_controller_request(const Rpc::RpcResponse *rpc);

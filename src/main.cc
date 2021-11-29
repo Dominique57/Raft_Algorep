@@ -63,11 +63,6 @@ int main(int argc, char *argv[]) {
     } else {
         // Client
         auto client = Client::Client(2000);
-
-        json exemple;
-        exemple["value"] = std::to_string(GlobalConfig::rank);
-
-        client.set_request(exemple);
         client.start();
     }
     return 0;

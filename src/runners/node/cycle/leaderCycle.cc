@@ -42,6 +42,7 @@ namespace Node {
             && (node.commitIndex + 1 < (int) node.logs.size()
                     && node.logs[node.commitIndex + 1].term == node.term))
             node.commitIndex += 1;
+        //std::cout << majority << " " << node.commitIndex << std::endl;
     }
 
     bool LeaderCycle::handle_node_request(std::unique_ptr<Rpc::RpcResponse> rpc) {
@@ -56,7 +57,7 @@ namespace Node {
             auto res = static_cast<Rpc::AppendEntriesResponse*>(rpc->rpc.get());
             if (res->success) {
                 node.nextIndex[senderId - GlobalConfig::nb_node_min] = res->newIndex;
-                node.matchIndex[senderId] = res->newIndex - 1;
+                node.matchIndex[senderId - GlobalConfig::nb_node_min] = res->newIndex - 1;
             } else {
                 node.nextIndex[senderId - GlobalConfig::nb_node_min] -= 1;
             }

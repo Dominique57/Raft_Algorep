@@ -18,7 +18,7 @@ namespace Client {
     {
     }
 
-    void Client::set_request(const json& request_) {
+    void Client::set_request(const std::string request_) {
         request = std::optional<Rpc::RequestClient>{request_};
     }
 
@@ -63,22 +63,7 @@ namespace Client {
 
     void Client::send_request() {
 
-        //bool success = false;
-
         MPI::Send_Rpc(this->request.value(), this->leaderId);
-//        do {
-//            MPI::Send_Rpc(this->request.value(), this->leaderId);
-//
-//            auto response = MPI::Recv_Rpc_Timeout(this->leaderId, this->timer, 0, MPI_COMM_WORLD);
-//
-//            if (response && response->rpc.get()->Type() == Rpc::TYPE::REQUEST_CLIENT_RESPONSE) {
-//                auto resp = static_cast<Rpc::RequestClientResponse *>(response->rpc.get());
-//                success = resp->success;
-//            }
-//        } while (!success);
-
-      //  Log::recieve_Client_response(this->leaderId);
-
         std::cout << "client " << GlobalConfig::rank << " has sent : \" " << this->request.value().message << " \"" << std::endl;
 
         this->request = std::nullopt;
@@ -141,7 +126,7 @@ namespace Client {
 
         case Rpc::CONTROLLER_REQUEST_TYPE::ENTRY:
             std::cout << "Client " << GlobalConfig::rank << " received a command: " << controllerRequest->message << std::endl;
-            // FIXME : TODO
+            set_request(controllerRequest->message);
             break;
         default:
             std::cout << "Unknown controller request" << std::endl;
