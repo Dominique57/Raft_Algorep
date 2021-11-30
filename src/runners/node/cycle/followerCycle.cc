@@ -31,10 +31,16 @@ namespace Node {
 //        min(leaderCommit, index of last new entry)
 
     void FollowerCycle::append_entries(const Rpc::AppendEntries &appendEntries) {
-        for (unsigned i = 0; i < appendEntries.entries.size(); i++) {
+        // We do not follow exactly raft implementation as we remove everything
+        // after prevLogIndex to sync with leader
+        node.logs.resize(appendEntries.prevLogIndex + 1);
+
+        assert(node.logs.size() == appendEntries.prevLogIndex + 1);
+
+        for (const auto &entry : appendEntries.entries) {
             //auto idx = appendEntries.prevLogIndex
-            assert(appendEntries.entries[i].index == node.logs.size() && "Attempted to add log with inconsistent index");
-            node.logs.emplace_back(appendEntries.entries[i]);
+            assert(entry.index == node.logs.size() && "Attempted to add log with inconsistent index");
+            node.logs.emplace_back(entry);
         }
     }
 
