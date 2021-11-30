@@ -25,7 +25,7 @@ namespace Node {
         void respond_client_request(int senderId);
 
     private:
-        void update_commitIndex();
+        bool update_commitIndex();
     };
 
 }

@@ -33,6 +33,7 @@ namespace Node {
     void FollowerCycle::append_entries(const Rpc::AppendEntries &appendEntries) {
         for (unsigned i = 0; i < appendEntries.entries.size(); i++) {
             //auto idx = appendEntries.prevLogIndex
+            assert(appendEntries.entries[i].index == node.logs.size() && "Attempted to add log with inconsistent index");
             node.logs.emplace_back(appendEntries.entries[i]);
         }
     }
@@ -46,11 +47,17 @@ namespace Node {
             return;
         }
 
-        if (msg->entries.empty())
-            return;
+        if (!msg->entries.empty())
+            append_entries(*msg);
 
-        append_entries(*msg);
-        MPI::Send_Rpc(Rpc::AppendEntriesResponse(node.term, true, (int) node.logs.size()), rpc->senderId);
+        assert(msg->leaderCommit < node.logs.size() && "Attempted to commit non-existing log !");
+        for (auto index = node.commitIndex + 1; index <= msg->leaderCommit; ++index) {
+            spdlog::info("Committed {} (cmd: {})", index, node.logs[index].cmd);
+        }
+        node.commitIndex = msg->leaderCommit;
+
+        if (!msg->entries.empty())
+            MPI::Send_Rpc(Rpc::AppendEntriesResponse(node.term, true, (int) node.logs.size()), rpc->senderId);
     }
 
     bool FollowerCycle::handle_node_request(std::unique_ptr<Rpc::RpcResponse> rpc) {

@@ -26,23 +26,28 @@ namespace Node {
         }
     }
 
-    void LeaderCycle::update_commitIndex()
+    bool LeaderCycle::update_commitIndex()
     {
-        // 1 for self vote
-        int majority = 1;
-        for (auto dst = GlobalConfig::nb_node_min; dst <= GlobalConfig::nb_node_max; ++dst)
-        {
-           if (node.matchIndex[dst] >= node.commitIndex + 1)
-                majority++;
+        assert(node.commitIndex >= (int)node.logs.size());
+
+        int majority = 0;
+        for (auto dst = GlobalConfig::nb_node_min; dst <= GlobalConfig::nb_node_max; ++dst) {
+            if (dst == GlobalConfig::rank) {
+                majority += 1;
+                continue;
+            }
+           if (node.matchIndex[dst - GlobalConfig::nb_node_min] >= node.commitIndex + 1)
+               majority++;
         }
 
 
-        //FIXME : do we save in file?
-        if (majority > GlobalConfig::nb_node() / 2
-            && (node.commitIndex + 1 < (int) node.logs.size()
-                    && node.logs[node.commitIndex + 1].term == node.term))
+        assert(node.logs[node.commitIndex + 1].term == node.term);
+        if (majority > GlobalConfig::nb_node() / 2) {
             node.commitIndex += 1;
-        //std::cout << majority << " " << node.commitIndex << std::endl;
+            spdlog::info("Log index {} committed", node.commitIndex);
+            return true;
+        }
+        return false;
     }
 
     bool LeaderCycle::handle_node_request(std::unique_ptr<Rpc::RpcResponse> rpc) {
@@ -63,7 +68,8 @@ namespace Node {
             }
         }
 
-        update_commitIndex();
+        while (update_commitIndex())
+            continue;
 
         return false;
     }
