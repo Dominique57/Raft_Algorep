@@ -15,7 +15,7 @@ namespace Node {
 
             int prevLogTerm = 0;
             int prevLogIndex = node.nextIndex[dst - GlobalConfig::nb_node_min] - 1;
-            if (0 < prevLogIndex && prevLogIndex < (int) node.logs.size())
+            if (0 <= prevLogIndex && prevLogIndex < (int) node.logs.size())
                 prevLogTerm = node.logs[prevLogIndex].term;
 
             // FIXME: TODO: add leader commit to rpc
