@@ -90,6 +90,7 @@ namespace Node {
                 std::cout << "Node " << GlobalConfig::rank << " crashed" << std::endl;
                 node.crash = true;
                 crash_loop();
+                return true;
             }
             break;
 
@@ -99,8 +100,11 @@ namespace Node {
             break;
 
         case Rpc::CONTROLLER_REQUEST_TYPE::RECOVERY:
-            node.crash = false;
-            return true;
+            if (node.crash) {
+                std::cout << "Node " << GlobalConfig::rank << " recovered" << std::endl;
+                node.crash = false;
+            }
+            break;
 
         case Rpc::CONTROLLER_REQUEST_TYPE::PRINT_LOG:
             std::cout << "Node " << GlobalConfig::rank << " logs: \n" << node.logs;
