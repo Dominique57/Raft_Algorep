@@ -48,6 +48,11 @@ namespace Node {
         return false;
     }
 
+    void LeaderCycle::respond_client()
+    {
+        int clientId = node.logs[node.commitIndex].clientId;
+        MPI::Send_Rpc(Rpc::RequestClientResponse(true), clientId);
+    }
     bool LeaderCycle::handle_node_request(std::unique_ptr<Rpc::RpcResponse> rpc) {
         Log::recieve(STATE::LEADER, rpc->rpc->Type(), rpc->senderId);
 
@@ -67,8 +72,10 @@ namespace Node {
         }
 
         while (update_commitIndex())
+        {
+            respond_client();
             continue;
-
+        }
         return false;
     }
 
@@ -82,12 +89,8 @@ namespace Node {
 
         else if (message->rpc->Type() == Rpc::TYPE::REQUEST_CLIENT) {
             auto rpc = static_cast<Rpc::RequestClient *>(message->rpc.get());
-            node.logs.emplace_back(node.logs.size(), node.term, rpc->message);
+            node.logs.emplace_back(node.logs.size(), node.term, rpc->message, message->senderId);
         }
     }
 
-    void LeaderCycle::respond_client_request(int senderId) {
-        auto rpc = Rpc::RequestClientResponse(true);
-        MPI::Send_Rpc(rpc, senderId);
-    }
 }

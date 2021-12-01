@@ -86,6 +86,9 @@ namespace Client {
                 auto type = rpcResponse->rpc->Type();
                 if (type == Rpc::TYPE::CONTROLLER_REQUEST)
                     this->handle_controller_request(rpcResponse.get());
+                if (type == Rpc::TYPE::REQUEST_CLIENT_RESPONSE
+                        && rpcResponse->senderId == this->leaderId)
+                    std::cout << "Got answer form leader" << std::endl;
             }
         } while (!hasTimedOut);
     }

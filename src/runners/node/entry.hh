@@ -7,10 +7,11 @@
 
 struct Entry {
     Entry() = default;
-    Entry(int index, int term, std::string cmd);
+    Entry(int index, int term, std::string cmd, int clientId);
     int index;
     int term;
     std::string cmd;
+    int clientId;
 };
 
 using json = nlohmann::json;

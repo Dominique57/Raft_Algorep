@@ -22,10 +22,10 @@ namespace Node {
          * @brief send all elements from requests_client to the other nodes
          */
         bool share_client_request(std::unique_ptr<Rpc::RpcResponse> message);
-        void respond_client_request(int senderId);
 
     private:
         bool update_commitIndex();
+        void respond_client();
     };
 
 }
