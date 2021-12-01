@@ -47,7 +47,7 @@ namespace Client {
 
             MPI::Send_Rpc(Rpc::RequestLeader(), dst);
 
-            auto response = MPI::Recv_Rpc_Timeout(MPI_ANY_SOURCE, this->timer, 0, MPI_COMM_WORLD);
+            auto response = MPI::Recv_Rpc_Timeout(dst, this->timer, 0, MPI_COMM_WORLD);
 
             if (response && response->rpc.get()->Type() == Rpc::TYPE::REQUEST_LEADER_RESPONSE) {
                 auto resp = static_cast<Rpc::RequestLeaderResponse *>(response->rpc.get());

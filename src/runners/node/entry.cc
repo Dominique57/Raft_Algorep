@@ -20,14 +20,14 @@ void from_json(const json &j, Entry &p) {
 }
 
 std::ostream &operator<<(std::ostream &os, const Entry &entry) {
-    return os << "INDEX: " << entry.index
+    return os << "  INDEX: " << entry.index
               << " TERM: " << entry.term
-              << " CMD: " << entry.cmd
-              << " CLIENT_ID: " << entry.clientId;
+              << " CLIENT_ID: " << entry.clientId
+              << " CMD: " << entry.cmd;
 }
 
 std::ostream &operator<<(std::ostream &os, const std::vector<Entry> &entries) {
     for (const auto &entry : entries)
         os << entry << '\n';
-    return os;
+    return os << std::endl;
 }

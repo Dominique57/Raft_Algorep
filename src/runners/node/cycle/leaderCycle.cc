@@ -46,7 +46,6 @@ namespace Node {
 
         if (majority > GlobalConfig::nb_node() / 2) {
             node.commitIndex += 1;
-            spdlog::info("Log index {} committed", node.commitIndex);
             return true;
         }
         return false;
@@ -75,10 +74,9 @@ namespace Node {
             }
         }
 
-        while (update_commitIndex())
-        {
+        while (update_commitIndex()) {
             respond_client();
-            continue;
+            spdlog::info("Log index {} committed", node.commitIndex);
         }
         return false;
     }

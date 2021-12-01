@@ -80,7 +80,7 @@ namespace Node {
             MPI::Send_Rpc(Rpc::RequestVoteResponse(node.term,  node.votedFor.value() == rpc->senderId), rpc->senderId);
         } else if (node.logs.empty()
                    || node.logs.back().term < reqVote->lastLogTerm
-                   || (node.logs.back().term == reqVote->lastLogTerm && (int) node.logs.size() - 1 < reqVote->lastLogIndex)) {
+                   || (node.logs.back().term == reqVote->lastLogTerm && (int) node.logs.size() - 1 <= reqVote->lastLogIndex)) {
             // Add check that the candidate's log is at least as up-to-date as the receiver's log
             // Register vote AND reply voteGranted: success
             node.votedFor = rpc->senderId;
