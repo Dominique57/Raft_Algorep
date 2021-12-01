@@ -13,13 +13,13 @@ namespace Client {
     Client::Client(const int& timer_)
         : run(false),
         timer(timer_),
-        request(std::nullopt),
+        request{},
         clock(Clock::SPEED_TYPE::HIGH)
     {
     }
 
-    void Client::set_request(const std::string request_) {
-        request = std::optional<Rpc::RequestClient>{request_};
+    void Client::add_request(const std::string request_) {
+        this->request.emplace_back(request_);
     }
 
     void Client::start() {
@@ -31,10 +31,9 @@ namespace Client {
             if (!this->run)
                 continue;
 
-            // TODO: always request leader id ? or only when leader dead ? When dead, leaderId value ?
             this->request_leader_id();
 
-            if (this->request)
+            if (!this->request.empty())
                 this->send_request();
         }
     }
@@ -63,10 +62,12 @@ namespace Client {
 
     void Client::send_request() {
 
-        MPI::Send_Rpc(this->request.value(), this->leaderId);
-        std::cout << "client " << GlobalConfig::rank << " has sent : \" " << this->request.value().message << " \"" << std::endl;
-
-        this->request = std::nullopt;
+        for (auto rqst : this->request)
+        {
+        MPI::Send_Rpc(rqst, this->leaderId);
+        std::cout << "client " << GlobalConfig::rank << " has sent : \" " << rqst.message << " \"" << std::endl;
+        }
+        this->request.clear();
     }
 
     void Client::handle_requests() {
@@ -108,13 +109,19 @@ namespace Client {
             break;
 
         case Rpc::CONTROLLER_REQUEST_TYPE::CRASH:
-            std::cout << "Client " << GlobalConfig::rank << " crashed" << std::endl;
-            this->run = false;
+            if(this->run)
+            {
+                std::cout << "Client " << GlobalConfig::rank << " crashed" << std::endl;
+                this->run = false;
+            }
             break;
 
         case Rpc::CONTROLLER_REQUEST_TYPE::START:
-            std::cout << "Client " << GlobalConfig::rank << " started" << std::endl;
-            this->run = true;
+            if (!this->run)
+            {
+                std::cout << "Client " << GlobalConfig::rank << " started" << std::endl;
+                this->run = true;
+            }
             break;
 
         case Rpc::CONTROLLER_REQUEST_TYPE::SPEED:
@@ -124,12 +131,11 @@ namespace Client {
 
         case Rpc::CONTROLLER_REQUEST_TYPE::RECOVERY:
             this->run = true;
-            // FIXME : TODO
             break;
 
         case Rpc::CONTROLLER_REQUEST_TYPE::ENTRY:
             std::cout << "Client " << GlobalConfig::rank << " received a command: " << controllerRequest->message << std::endl;
-            set_request(controllerRequest->message);
+            add_request(controllerRequest->message);
             break;
         default:
             std::cout << "Unknown controller request" << std::endl;

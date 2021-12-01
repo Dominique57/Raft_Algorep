@@ -19,24 +19,25 @@ namespace Client {
 
         void send_request();
         void request_leader_id();
-
-        /**
-         * @brief controller set request client
-         # @param request   Request set by controller to be sent by client
-         */
-        void set_request(const std::string request_);
-
         void handle_requests();
         void handle_controller_request(const Rpc::RpcResponse *rpc);
 
     protected:
+
         bool run;
 
         int timer;
         int leaderId;
 
         Rpc::RpcRecieverReinjecter rpcReciever;
-        std::optional<Rpc::RequestClient> request;
+        std::vector<Rpc::RequestClient> request;
+
+        /**
+         * @brief controller set request client
+         * @param request   Request set by controller to be sent by client
+         */
+        void add_request(const std::string request_);
+
 
         Clock::Clock clock;
     };
