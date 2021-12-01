@@ -82,7 +82,7 @@ namespace Controller
 
     static void print_log_command(const std::string& arg) {
         if (arg.empty()) {
-            // Start all clients
+            // Print log for all nodes
             for (int dst = GlobalConfig::nb_node_min; dst <= GlobalConfig::nb_node_max; ++dst)
                 MPI::Send_Rpc(Rpc::ControllerRequest(Rpc::CONTROLLER_REQUEST_TYPE::PRINT_LOG, ""), dst);
 

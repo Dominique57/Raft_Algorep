@@ -51,7 +51,7 @@ namespace Node {
          * @brief Handle controller's request
          * @param rpc The received RPC
          */
-        void handle_controller_request(const Rpc::RpcResponse *rpc);
+        bool handle_controller_request(const Rpc::RpcResponse *rpc);
 
         /**
          * @brief GETTER: Node::Cycle::timer
@@ -72,6 +72,8 @@ namespace Node {
          * @param newState  The next state for our cycle.
          */
         void changeNextState(STATE newState);
+
+        void crash_loop();
 
         int timer;
         std::optional<STATE> nextState;

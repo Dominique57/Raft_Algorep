@@ -64,7 +64,17 @@ namespace Node {
         return crash ? "crashed" : "Not crashed";
     }
 
-    void Cycle::handle_controller_request(const Rpc::RpcResponse *rpc) {
+    void Cycle::crash_loop() {
+        while (node.crash) {
+            std::unique_ptr<Rpc::RpcResponse> rpcResponse = node.rpcReciever.get_rpc(MPI_ANY_SOURCE);
+            if (rpcResponse->rpc->Type() != Rpc::TYPE::CONTROLLER_REQUEST)
+                return;
+
+            handle_controller_request(rpcResponse.get());
+        }
+    }
+
+    bool Cycle::handle_controller_request(const Rpc::RpcResponse *rpc) {
         const auto request = static_cast<Rpc::ControllerRequest*>(rpc->rpc.get());
         switch (request->type) {
         case Rpc::CONTROLLER_REQUEST_TYPE::STATUS:
@@ -76,8 +86,11 @@ namespace Node {
             break;
 
         case Rpc::CONTROLLER_REQUEST_TYPE::CRASH:
-            std::cout << "Node " << GlobalConfig::rank << " crashed" << std::endl;
-            node.crash = true;
+            if (!node.crash) {
+                std::cout << "Node " << GlobalConfig::rank << " crashed" << std::endl;
+                node.crash = true;
+                crash_loop();
+            }
             break;
 
         case Rpc::CONTROLLER_REQUEST_TYPE::SPEED:
@@ -87,8 +100,7 @@ namespace Node {
 
         case Rpc::CONTROLLER_REQUEST_TYPE::RECOVERY:
             node.crash = false;
-            // FIXME : TODO
-            break;
+            return true;
 
         case Rpc::CONTROLLER_REQUEST_TYPE::PRINT_LOG:
             std::cout << "Node " << GlobalConfig::rank << " logs: \n" << node.logs;
@@ -97,5 +109,6 @@ namespace Node {
             std::cout << "Unknown controller request" << std::endl;
             break;
         }
+        return false;
     }
 }

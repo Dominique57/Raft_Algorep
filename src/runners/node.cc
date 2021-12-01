@@ -3,7 +3,6 @@
 #include <spdlog/spdlog.h>
 #include <config/globalConfig.hh>
 #include <rpc/requestVote.hh>
-#include <rpc/appendEntries.hh>
 
 namespace Node {
 
@@ -11,8 +10,7 @@ namespace Node {
         // Set timeout beginning
         auto start = std::chrono::steady_clock::now();
 
-        if (!this->crash)
-            cycle.pre_cycle();
+        cycle.pre_cycle();
 
         std::unique_ptr<Rpc::RpcResponse> rpcResponse = nullptr;
         bool leaveCycle = false;
@@ -28,10 +26,7 @@ namespace Node {
                 int senderId = rpcResponse->senderId;
                 auto type = rpcResponse->rpc->Type();
                 if (type == Rpc::TYPE::CONTROLLER_REQUEST)
-                    cycle.handle_controller_request(rpcResponse.get());
-
-                else if (this->crash)
-                    continue;
+                    leaveCycle = cycle.handle_controller_request(rpcResponse.get());
 
                 else if (GlobalConfig::is_node(senderId))
                     leaveCycle = cycle.handle_node_request(std::move(rpcResponse));
@@ -41,8 +36,7 @@ namespace Node {
             }
         } while (!hasTimedOut && !leaveCycle);
 
-        if (!this->crash)
-            cycle.post_cycle(hasTimedOut);
+        cycle.post_cycle(hasTimedOut);
 
         if (cycle.NextState().has_value())
             state = *cycle.NextState();
