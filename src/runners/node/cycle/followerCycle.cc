@@ -117,8 +117,6 @@ namespace Node {
     void FollowerCycle::handle_client_request(std::unique_ptr<Rpc::RpcResponse> message) {
         if (message->rpc->Type() == Rpc::TYPE::REQUEST_LEADER)
             client_request_leader_response(std::move(message));
-
-        // FIXME: return va te faire foutre
     }
 
     void FollowerCycle::post_cycle(bool hasTimedOut) {

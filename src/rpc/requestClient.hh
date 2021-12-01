@@ -2,7 +2,6 @@
 
 #include "rpc.hh"
 
-//TODO: change the message for a json or something that corespond to client requests
 namespace Rpc {
 
     /// Simple Rpc class that sends a string
