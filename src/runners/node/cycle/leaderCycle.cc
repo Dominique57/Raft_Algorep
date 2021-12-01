@@ -6,6 +6,18 @@
 
 namespace Node {
 
+    void LeaderCycle::send_update_to_follower(int dst) {
+        int prevLogTerm = 0;
+        int prevLogIndex = node.nextIndex[dst - GlobalConfig::nb_node_min] - 1;
+        if (0 <= prevLogIndex && prevLogIndex < (int) node.logs.size())
+            prevLogTerm = node.logs[prevLogIndex].term;
+
+        auto rpc = Rpc::AppendEntries(node.term, GlobalConfig::rank, prevLogTerm, prevLogIndex, node.commitIndex);
+        for (int i = prevLogIndex + 1; i < (int) node.logs.size(); i++)
+            rpc.entries.push_back(node.logs[i]);
+        MPI::Send_Rpc(rpc, dst);
+    }
+
     void LeaderCycle::pre_cycle() {
         node.leaderId = GlobalConfig::rank;
 
@@ -13,15 +25,7 @@ namespace Node {
             if (dst == GlobalConfig::rank)
                 continue;
 
-            int prevLogTerm = 0;
-            int prevLogIndex = node.nextIndex[dst - GlobalConfig::nb_node_min] - 1;
-            if (0 <= prevLogIndex && prevLogIndex < (int) node.logs.size())
-                prevLogTerm = node.logs[prevLogIndex].term;
-
-            auto rpc = Rpc::AppendEntries(node.term, GlobalConfig::rank, prevLogTerm, prevLogIndex, node.commitIndex);
-            for (int i = prevLogIndex + 1; i < (int) node.logs.size(); i++)
-                rpc.entries.push_back(node.logs[i]);
-            MPI::Send_Rpc(rpc, dst);
+            send_update_to_follower(dst);
         }
     }
 
@@ -59,7 +63,6 @@ namespace Node {
         if (check_always_should_stop(rpc))
             return true;
 
-        // FIXME: handle node request
         if (rpc->rpc->Type() == Rpc::TYPE::APPEND_ENTRIES_RESPONSE) {
             auto senderId = rpc->senderId;
             auto res = static_cast<Rpc::AppendEntriesResponse*>(rpc->rpc.get());
@@ -68,6 +71,7 @@ namespace Node {
                 node.matchIndex[senderId - GlobalConfig::nb_node_min] = res->newIndex - 1;
             } else {
                 node.nextIndex[senderId - GlobalConfig::nb_node_min] -= 1;
+                send_update_to_follower(rpc->senderId);
             }
         }
 

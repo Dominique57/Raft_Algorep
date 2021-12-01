@@ -18,10 +18,8 @@ namespace Node {
         void handle_client_request(std::unique_ptr<Rpc::RpcResponse> message) override;
 
         void post_cycle(bool hasTimedOut) override;
-        /**
-         * @brief send all elements from requests_client to the other nodes
-         */
-        bool share_client_request(std::unique_ptr<Rpc::RpcResponse> message);
+
+        void send_update_to_follower(int dst);
 
     private:
         bool update_commitIndex();
