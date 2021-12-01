@@ -71,6 +71,9 @@ namespace MPI {
             case Rpc::TYPE::REQUEST_CLIENT:
                 res = std::make_unique<Rpc::RequestClient>(recvJson["data"]);
                 break;
+            case Rpc::TYPE::REQUEST_CLIENT_RESPONSE:
+                res = std::make_unique<Rpc::RequestClientResponse>(recvJson["data"]);
+                break;
             case Rpc::TYPE::CONTROLLER_REQUEST:
                 res = std::make_unique<Rpc::ControllerRequest>(recvJson["data"]);
                 break;

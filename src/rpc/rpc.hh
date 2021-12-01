@@ -13,6 +13,7 @@ namespace Rpc {
         REQUEST_LEADER,
         REQUEST_LEADER_RESPONSE,
         REQUEST_CLIENT,
+        REQUEST_CLIENT_RESPONSE,
         CONTROLLER_REQUEST,
     };
 
@@ -25,6 +26,7 @@ namespace Rpc {
         "REQUEST_LEADER",
         "REQUEST_LEADER_RESPONSE",
         "REQUEST_CLIENT",
+        "REQUEST_CLIENT_RESPONSE",
         "CONTROLLER_REQUEST",
     };
 

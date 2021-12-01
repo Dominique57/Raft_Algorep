@@ -13,14 +13,13 @@ namespace Client {
     Client::Client(const int& timer_)
         : run(false),
         timer(timer_),
-        request(std::nullopt),
+        request{},
         clock(Clock::SPEED_TYPE::HIGH)
     {
-        this->request_leader_id();
     }
 
-    void Client::set_request(const json& request_) {
-        request = std::optional<Rpc::RequestClient>{request_};
+    void Client::add_request(const std::string request_) {
+        this->request.emplace_back(request_);
     }
 
     void Client::start() {
@@ -32,10 +31,9 @@ namespace Client {
             if (!this->run)
                 continue;
 
-            // TODO: always request leader id ? or only when leader dead ? When dead, leaderId value ?
             this->request_leader_id();
 
-            if (this->request)
+            if (!this->request.empty())
                 this->send_request();
         }
     }
@@ -49,7 +47,7 @@ namespace Client {
 
             MPI::Send_Rpc(Rpc::RequestLeader(), dst);
 
-            auto response = MPI::Recv_Rpc_Timeout(MPI_ANY_SOURCE, this->timer, 0, MPI_COMM_WORLD);
+            auto response = MPI::Recv_Rpc_Timeout(dst, this->timer, 0, MPI_COMM_WORLD);
 
             if (response && response->rpc.get()->Type() == Rpc::TYPE::REQUEST_LEADER_RESPONSE) {
                 auto resp = static_cast<Rpc::RequestLeaderResponse *>(response->rpc.get());
@@ -62,11 +60,14 @@ namespace Client {
         Log::recieve_leader_response(this->leaderId);
     }
 
-    //TODO: clean message notification
     void Client::send_request() {
-        MPI::Send_Rpc(this->request.value(), this->leaderId);
-        std::cout << "client " << GlobalConfig::rank << " has sent : \" " << this->request.value().message << " \"" << std::endl;
-        this->request = std::nullopt;
+
+        for (auto rqst : this->request)
+        {
+        MPI::Send_Rpc(rqst, this->leaderId);
+        std::cout << "client " << GlobalConfig::rank << " has sent : \" " << rqst.message << " \"" << std::endl;
+        }
+        this->request.clear();
     }
 
     void Client::handle_requests() {
@@ -74,7 +75,7 @@ namespace Client {
         auto start = std::chrono::steady_clock::now();
 
         std::unique_ptr<Rpc::RpcResponse> rpcResponse = nullptr;
-        bool hasTimedOut = false;
+        bool hasTimedOut;
         do {
             auto cur = std::chrono::steady_clock::now();
             long countTime = std::chrono::duration_cast<std::chrono::milliseconds>(cur - start).count();
@@ -86,6 +87,9 @@ namespace Client {
                 auto type = rpcResponse->rpc->Type();
                 if (type == Rpc::TYPE::CONTROLLER_REQUEST)
                     this->handle_controller_request(rpcResponse.get());
+                if (type == Rpc::TYPE::REQUEST_CLIENT_RESPONSE
+                        && rpcResponse->senderId == this->leaderId)
+                    std::cout << "Got answer form leader" << std::endl;
             }
         } while (!hasTimedOut);
     }
@@ -95,28 +99,46 @@ namespace Client {
     }
 
     void Client::handle_controller_request(const Rpc::RpcResponse *rpc) {
-        const auto request = static_cast<Rpc::ControllerRequest*>(rpc->rpc.get());
-        switch (request->type) {
+        const auto controllerRequest = static_cast<Rpc::ControllerRequest*>(rpc->rpc.get());
+        switch (controllerRequest->type) {
         case Rpc::CONTROLLER_REQUEST_TYPE::STATUS:
             std::cout << "Client | " << GlobalConfig::rank
                 << " | " << std::setw(11) << has_started(this->run)
                 << " | " << std::setw(6) << Clock::getSpeedTypeName(this->clock.speed) << " speed"
                 << std::endl;
             break;
+
         case Rpc::CONTROLLER_REQUEST_TYPE::CRASH:
-            std::cout << "Client " << GlobalConfig::rank << " crashed" << std::endl;
-            this->run = false;
+            if(this->run)
+            {
+                std::cout << "Client " << GlobalConfig::rank << " crashed" << std::endl;
+                this->run = false;
+            }
             break;
+
         case Rpc::CONTROLLER_REQUEST_TYPE::START:
-            std::cout << "Client " << GlobalConfig::rank << " started" << std::endl;
+            if (!this->run)
+            {
+                std::cout << "Client " << GlobalConfig::rank << " started" << std::endl;
+                this->run = true;
+            }
+            break;
+
+        case Rpc::CONTROLLER_REQUEST_TYPE::SPEED:
+            std::cout << "Client " << GlobalConfig::rank << " set speed to " << controllerRequest->message << std::endl;
+            clock.speed = Clock::getSpeedType(controllerRequest->message);
+            break;
+
+        case Rpc::CONTROLLER_REQUEST_TYPE::RECOVERY:
             this->run = true;
             break;
-        case Rpc::CONTROLLER_REQUEST_TYPE::SPEED:
-            std::cout << "Client " << GlobalConfig::rank << " set speed to " << request->message << std::endl;
-            clock.speed = Clock::getSpeedType(request->message);
+
+        case Rpc::CONTROLLER_REQUEST_TYPE::ENTRY:
+            std::cout << "Client " << GlobalConfig::rank << " received a command: " << controllerRequest->message << std::endl;
+            add_request(controllerRequest->message);
             break;
         default:
-            std::cout << "Unkown controller request" << std::endl;
+            std::cout << "Unknown controller request" << std::endl;
             break;
         }
     }

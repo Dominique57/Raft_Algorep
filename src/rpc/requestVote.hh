@@ -11,19 +11,28 @@ namespace Rpc {
          * @param term              The candidate's term.
          * @param candidateId       The candidate's ID.
          */
-        RequestVote(int term, int candidateId)
-            : Rpc(TYPE::REQUEST_VOTE), term(term), candidateId(candidateId) {}
+        RequestVote(int term, int candidateId, int lastLogIndex, int lastLogTerm)
+            : Rpc(TYPE::REQUEST_VOTE), term(term), candidateId(candidateId),
+              lastLogIndex(lastLogIndex), lastLogTerm(lastLogTerm)
+        {}
 
         /**
          * @brief Constructor
          * @param json              The JSON containing the term and the candidateId.
          */
         RequestVote(const json &json)
-            : RequestVote(json["term"].get<int>(), json["candidateId"].get<int>()) {}
+            : RequestVote(
+                  json["term"].get<int>(),
+                  json["candidateId"].get<int>(),
+                  json["lastLogIndex"].get<int>(),
+                  json["lastLogTerm"].get<int>()) {}
 
     protected:
         json serialize_self() const override {
-            return json::object({{"term", term}, {"candidateId", candidateId}});
+            return json::object({
+                {"term", term}, {"candidateId", candidateId},
+                {"lastLogIndex", lastLogIndex}, {"lastLogTerm", lastLogTerm},
+            });
         }
 
     public:
@@ -31,6 +40,10 @@ namespace Rpc {
         int term;
         /// Id of the candidate node for whom the request has been sent for.
         int candidateId;
+        /// Index of candidate’s last log entry
+        int lastLogIndex;
+        /// Term of candidate’s last log entry
+        int lastLogTerm;
     };
 
     /// Rpc response to Rpc::RequestVote

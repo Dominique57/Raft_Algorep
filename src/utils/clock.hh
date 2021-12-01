@@ -20,7 +20,7 @@ namespace Clock {
         auto typeIndex = static_cast<unsigned int>(type);
 
         if (typeIndex >= sizeof(speed_type_names) / sizeof(speed_type_names[0]))
-            return "Unkown Name";
+            return "Unknown Name";
 
         return speed_type_names[typeIndex];
     }

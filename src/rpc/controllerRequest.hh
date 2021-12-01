@@ -7,18 +7,22 @@ namespace Rpc {
     enum class CONTROLLER_REQUEST_TYPE {
         STATUS = 0,
         CRASH,
-        SLEEP,
         SPEED,
         START,
+        RECOVERY,
+        PRINT_LOG,
+        ENTRY,
     };
 
     /// Rpc message type names (used to convert enum to text).
     static const char *controller_request_type_names[] = {
         "STATUS",
         "CRASH",
-        "SLEEP",
         "SPEED",
         "START",
+        "RECOVERY",
+        "PRINT_LOG",
+        "ENTRY",
     };
 
     /**
@@ -29,12 +33,12 @@ namespace Rpc {
         auto typeIndex = static_cast<unsigned int>(type);
 
         if (typeIndex >= sizeof(controller_request_type_names) / sizeof(controller_request_type_names[0]))
-            return "Unkown Name";
+            return "Unknown Name";
 
         return controller_request_type_names[typeIndex];
     }
 
-    inline CONTROLLER_REQUEST_TYPE getControllerRequestType(const std::string type) {
+    inline CONTROLLER_REQUEST_TYPE getControllerRequestType(const std::string& type) {
         for (size_t i = 0; i < sizeof(controller_request_type_names) / sizeof(controller_request_type_names[0]); ++i)
             if (controller_request_type_names[i] == type)
                 return static_cast<CONTROLLER_REQUEST_TYPE>(i);
@@ -49,7 +53,7 @@ namespace Rpc {
          * @param
          * @param
          */
-        ControllerRequest(const CONTROLLER_REQUEST_TYPE& type, const std::string& message)
+        ControllerRequest(const CONTROLLER_REQUEST_TYPE& type, std::string  message)
                 : Rpc(TYPE::CONTROLLER_REQUEST), type(type), message(std::move(message)) {}
 
         /**

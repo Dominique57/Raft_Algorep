@@ -3,7 +3,6 @@
 #include <spdlog/spdlog.h>
 #include <config/globalConfig.hh>
 #include <rpc/requestVote.hh>
-#include <rpc/appendEntries.hh>
 
 namespace Node {
 
@@ -15,7 +14,7 @@ namespace Node {
 
         std::unique_ptr<Rpc::RpcResponse> rpcResponse = nullptr;
         bool leaveCycle = false;
-        bool hasTimedOut = false;
+        bool hasTimedOut;
         do {
             auto cur = std::chrono::steady_clock::now();
             long countTime = std::chrono::duration_cast<std::chrono::milliseconds>(cur - start).count();
@@ -27,21 +26,17 @@ namespace Node {
                 int senderId = rpcResponse->senderId;
                 auto type = rpcResponse->rpc->Type();
                 if (type == Rpc::TYPE::CONTROLLER_REQUEST)
-                    cycle.handle_controller_request(rpcResponse.get());
-
-                else if (this->crash)
-                    continue;
+                    leaveCycle = cycle.handle_controller_request(rpcResponse.get());
 
                 else if (GlobalConfig::is_node(senderId))
-                    leaveCycle = cycle.should_stop_cycle(std::move(rpcResponse));
+                    leaveCycle = cycle.handle_node_request(std::move(rpcResponse));
 
                 else if (GlobalConfig::is_client(senderId))
-                    cycle.client_response(std::move(rpcResponse));
+                    cycle.handle_client_request(std::move(rpcResponse));
             }
         } while (!hasTimedOut && !leaveCycle);
 
-        if (!this->crash)
-            cycle.post_cycle(hasTimedOut);
+        cycle.post_cycle(hasTimedOut);
 
         if (cycle.NextState().has_value())
             state = *cycle.NextState();
@@ -67,4 +62,8 @@ namespace Node {
         }
     }
 
+    void Node::initLeader() {
+        std::fill(matchIndex.begin(), matchIndex.end(), -1);
+        std::fill(nextIndex.begin(), nextIndex.end(), logs.size());
+    }
 }

@@ -1,16 +1,18 @@
 #pragma once
 
-#include <unistd.h>
-#include <iostream>
-#include <cstdlib>
-#include <sstream>
-#include <ctime>
 #include <chrono>
-#include <variant>
+#include <config/globalConfig.hh>
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
 #include <optional>
+#include <runners/node/entry.hh>
+#include <sstream>
+#include <unistd.h>
+#include <variant>
 
-#include "wrappers/mpi_include.hh"
 #include "wrappers/mpi/rpcRecieverReinjecter.hh"
+#include "wrappers/mpi_include.hh"
 
 #include "node/cycle/cycle.hh"
 #include "node/cycle/followerCycle.hh"
@@ -54,7 +56,15 @@ namespace Node {
          * @brief Node constructor.
          */
         Node()
-            : state(STATE::FOLLOWER), rpcReciever(), clock(Clock::SPEED_TYPE::HIGH) {}
+            : state(STATE::FOLLOWER),
+              logs{},
+              rpcReciever(),
+              matchIndex(GlobalConfig::nb_node(), -1),
+              nextIndex(GlobalConfig::nb_node(), 0),
+              commitIndex(-1),
+              crash(false),
+              clock(Clock::SPEED_TYPE::HIGH)
+        {}
 
         /**
          * @brief Updates the node depending on it's current cycle.
@@ -86,13 +96,39 @@ namespace Node {
 
     protected:
         STATE state;
+        std::vector<Entry> logs;
         Rpc::RpcRecieverReinjecter rpcReciever;
         int term = 0;
 
+        /** candidateId that received vote in current
+          * term (or null if none)
+          */
         std::optional<int> votedFor = std::nullopt;
+
+        /** leaderId for client to get
+          */
         std::optional<int> leaderId = std::nullopt;
 
-        bool crash = false;
+        /** for each server, index of highest log entry known
+          * to be replicated on server
+          * (initialized to -1, increases monotonically)
+          */
+        std::vector<int> matchIndex;
+
+        /** for each server, index of the next log entry
+          * to send to that server
+          * (initialized to leader last log index + 1)
+          */
+        std::vector<int> nextIndex;
+
+        /** index of highest log entry known to be committed
+          * (initialized to -1, increases monotonically)
+          */
+        int commitIndex;
+
+        bool crash;
         Clock::Clock clock;
+
+        void initLeader();
     };
 }

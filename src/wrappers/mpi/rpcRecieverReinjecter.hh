@@ -23,7 +23,16 @@ namespace Rpc {
         }
 
         /**
-         * @brief Around MPI::Recv_Rpc that sends cached message in priority
+         * @brief Around MPI::Recv_Rpc that sends cached message in priority and blocks until a message is available
+         * @param src       ID of the sender, can be set to -1
+         * @param tag       optional message tag
+         * @param comm      optional group to send the message to
+         * @return A unique smart pointer to the RPC message.
+         */
+        std::unique_ptr<RpcResponse> get_rpc_blocking(int src, int tag = 0, MPI_Comm comm = MPI_COMM_WORLD);
+
+        /**
+         * @brief Around MPI::Recv_Rpc that sends cached message in priority and returns null if no message is available
          * @param src       ID of the sender, can be set to -1
          * @param tag       optional message tag
          * @param comm      optional group to send the message to
@@ -32,9 +41,9 @@ namespace Rpc {
         std::unique_ptr<RpcResponse> get_rpc(int src, int tag = 0, MPI_Comm comm = MPI_COMM_WORLD);
 
         /**
-         * @brief Wrapper Around MPI::Recv_Rpc_Timeout that sends cached message in priority
+         * @brief Wrapper Around MPI::Recv_Rpc_Timeout that sends cached message in priority and returns null if no message is available until timeout ms
          * @param src       ID of the sender, can be set to -1
-         * @param timeout   timeout limit before receiving the message
+         * @param timeout   timeout limit before receiving the message (in milliseconds)
          * @param tag       optional message tag
          * @param comm      optional group to send the message to
          * @return A unique smart pointer to the RPC message if one was received from the cache before the timeout.
