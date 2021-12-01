@@ -66,6 +66,23 @@ namespace Node {
             MPI::Send_Rpc(Rpc::AppendEntriesResponse(node.term, true, (int) node.logs.size()), rpc->senderId);
     }
 
+    void FollowerCycle::handle_request_vote(std::unique_ptr<Rpc::RpcResponse>& rpc) {
+        auto reqVote = static_cast<Rpc::RequestVote*>(rpc->rpc.get());
+
+        if (reqVote->term < node.term) {
+            // If older request, reply false to force candidate detect newer term and convert to follower
+            MPI::Send_Rpc(Rpc::RequestVoteResponse(node.term, false), rpc->senderId);
+        } else if (node.votedFor.has_value() && node.votedFor.value() != rpc->senderId) {
+            // If follower has already voted for someone, cant revote for someone else
+            MPI::Send_Rpc(Rpc::RequestVoteResponse(node.term, false), rpc->senderId);
+        } else {
+            // FIXME: add check "and candidate's log is at least as up-to-date as receiver's log, grant vote"
+            // Register vote AND reply voteGranted: success
+            node.votedFor = rpc->senderId;
+            MPI::Send_Rpc(Rpc::RequestVoteResponse(node.term, true), rpc->senderId);
+        }
+    }
+
     bool FollowerCycle::handle_node_request(std::unique_ptr<Rpc::RpcResponse> rpc) {
         if (check_always_should_stop(rpc))
             return true;
@@ -73,7 +90,7 @@ namespace Node {
         Log::recieve(STATE::FOLLOWER, rpc->rpc->Type(), rpc->senderId);
         switch (rpc->rpc->Type()) {
             case Rpc::TYPE::REQUEST_VOTE:
-                MPI::Send_Rpc(Rpc::RequestVoteResponse(0, true), rpc->senderId);
+                handle_request_vote(rpc);
                 return true;
             case Rpc::TYPE::APPEND_ENTRIES:
                 handle_append_entries(rpc);
@@ -103,5 +120,4 @@ namespace Node {
             changeNextState(STATE::CANDIDATE);
         }
     }
-
 }

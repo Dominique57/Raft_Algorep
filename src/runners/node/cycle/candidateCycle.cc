@@ -38,9 +38,11 @@ namespace Node {
             }
         } else if(rpc->rpc->Type() == Rpc::TYPE::APPEND_ENTRIES) {
             // If appendEntry from a leader in same or higher term, accept it as our leader
+            // Re-inject rpc: don't loose appendEntries request and wait for the next heartbeat
             auto appendEntries = static_cast<Rpc::AppendEntries*>(rpc->rpc.get());
             if (appendEntries->term >= node.term) {
                 changeNextState(STATE::FOLLOWER);
+                node.rpcReciever.reinject_rpc(std::move(rpc));
                 return true;
             }
         }
