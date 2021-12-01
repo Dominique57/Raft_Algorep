@@ -56,8 +56,7 @@ namespace Node {
             return;
         }
 
-        if (!msg->entries.empty())
-            append_entries(*msg);
+        append_entries(*msg);
 
         assert(msg->leaderCommit < (int)node.logs.size() && "Attempted to commit non-existing log !");
         for (auto index = node.commitIndex + 1; index <= msg->leaderCommit; ++index) {
@@ -76,14 +75,18 @@ namespace Node {
         if (reqVote->term < node.term) {
             // If older request, reply false to force candidate detect newer term and convert to follower
             MPI::Send_Rpc(Rpc::RequestVoteResponse(node.term, false), rpc->senderId);
-        } else if (node.votedFor.has_value() && node.votedFor.value() != rpc->senderId) {
+        } else if (node.votedFor.has_value()) {
             // If follower has already voted for someone, cant revote for someone else
-            MPI::Send_Rpc(Rpc::RequestVoteResponse(node.term, false), rpc->senderId);
-        } else {
-            // FIXME: add check "and candidate's log is at least as up-to-date as receiver's log, grant vote"
+            MPI::Send_Rpc(Rpc::RequestVoteResponse(node.term,  node.votedFor.value() == rpc->senderId), rpc->senderId);
+        } else if (node.logs.empty()
+                   || node.logs.back().term < reqVote->lastLogTerm
+                   || (node.logs.back().term == reqVote->lastLogTerm && (int) node.logs.size() - 1 < reqVote->lastLogIndex)) {
+            // Add check that the candidate's log is at least as up-to-date as the receiver's log
             // Register vote AND reply voteGranted: success
             node.votedFor = rpc->senderId;
             MPI::Send_Rpc(Rpc::RequestVoteResponse(node.term, true), rpc->senderId);
+        } else {
+            MPI::Send_Rpc(Rpc::RequestVoteResponse(node.term, false), rpc->senderId);
         }
     }
 
