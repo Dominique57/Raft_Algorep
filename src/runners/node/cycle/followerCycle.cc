@@ -35,28 +35,31 @@ namespace Node {
         // after prevLogIndex to sync with leader
         node.logs.resize(appendEntries.prevLogIndex + 1);
 
-        assert(node.logs.size() == appendEntries.prevLogIndex + 1);
-
         for (const auto &entry : appendEntries.entries) {
-            //auto idx = appendEntries.prevLogIndex
-            assert(entry.index == node.logs.size() && "Attempted to add log with inconsistent index");
+            assert(entry.index == (int) node.logs.size() && "Attempted to add log with inconsistent index");
             node.logs.emplace_back(entry);
         }
     }
 
     void FollowerCycle::handle_append_entries(std::unique_ptr<Rpc::RpcResponse>& rpc) {
+        const auto msg = static_cast<Rpc::AppendEntries *>(rpc->rpc.get());
+
+        if (msg->term < node.term) {
+            MPI::Send_Rpc(Rpc::AppendEntriesResponse(node.term, false, (int) node.logs.size()), rpc->senderId);
+            return;
+        }
+
         node.leaderId = rpc->senderId;
 
-        const auto msg = static_cast<Rpc::AppendEntries *>(rpc->rpc.get());
         if (!check_entry_consistency(*msg)) {
-            MPI::Send_Rpc(Rpc::AppendEntriesResponse(node.term, false, -1), rpc->senderId);
+            MPI::Send_Rpc(Rpc::AppendEntriesResponse(node.term, false, (int) node.logs.size()), rpc->senderId);
             return;
         }
 
         if (!msg->entries.empty())
             append_entries(*msg);
 
-        assert(msg->leaderCommit < node.logs.size() && "Attempted to commit non-existing log !");
+        assert(msg->leaderCommit < (int)node.logs.size() && "Attempted to commit non-existing log !");
         for (auto index = node.commitIndex + 1; index <= msg->leaderCommit; ++index) {
             spdlog::info("Committed {} (cmd: {})", index, node.logs[index].cmd);
         }

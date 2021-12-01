@@ -18,7 +18,6 @@ namespace Node {
             if (0 <= prevLogIndex && prevLogIndex < (int) node.logs.size())
                 prevLogTerm = node.logs[prevLogIndex].term;
 
-            // FIXME: TODO: add leader commit to rpc
             auto rpc = Rpc::AppendEntries(node.term, GlobalConfig::rank, prevLogTerm, prevLogIndex, node.commitIndex);
             for (int i = prevLogIndex + 1; i < (int) node.logs.size(); i++)
                 rpc.entries.push_back(node.logs[i]);
@@ -28,7 +27,7 @@ namespace Node {
 
     bool LeaderCycle::update_commitIndex()
     {
-        assert(node.commitIndex >= (int)node.logs.size());
+        assert(node.commitIndex < (int) node.logs.size() && "Commit index cannot be greater than last index in log size !");
 
         int majority = 0;
         for (auto dst = GlobalConfig::nb_node_min; dst <= GlobalConfig::nb_node_max; ++dst) {
@@ -41,7 +40,6 @@ namespace Node {
         }
 
 
-        assert(node.logs[node.commitIndex + 1].term == node.term);
         if (majority > GlobalConfig::nb_node() / 2) {
             node.commitIndex += 1;
             spdlog::info("Log index {} committed", node.commitIndex);
