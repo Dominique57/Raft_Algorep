@@ -66,9 +66,9 @@ namespace Node {
 
     void Cycle::crash_loop() {
         while (node.crash) {
-            std::unique_ptr<Rpc::RpcResponse> rpcResponse = node.rpcReciever.get_rpc(MPI_ANY_SOURCE);
+            std::unique_ptr<Rpc::RpcResponse> rpcResponse = node.rpcReciever.get_rpc_blocking(MPI_ANY_SOURCE);
             if (rpcResponse->rpc->Type() != Rpc::TYPE::CONTROLLER_REQUEST)
-                return;
+                continue;
 
             handle_controller_request(rpcResponse.get());
         }

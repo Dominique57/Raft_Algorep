@@ -14,7 +14,9 @@ namespace Node {
         voteCount += 1;
 
         // Broadcast request vote
-        auto rpc = Rpc::RequestVote(node.term, GlobalConfig::rank);
+        int lastLogIndex = node.logs.size() - 1;
+        int lastLogTerm = node.logs.empty()? -1: node.logs.back().term;
+        auto rpc = Rpc::RequestVote(node.term, GlobalConfig::rank, lastLogIndex, lastLogTerm);
         for (auto dst = GlobalConfig::nb_node_min; dst <= GlobalConfig::nb_node_max; ++dst)
             if (dst != GlobalConfig::rank)
                 MPI::Send_Rpc(rpc, dst);

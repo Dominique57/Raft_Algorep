@@ -75,9 +75,12 @@ namespace Controller
             << "* `HELP`: display help message" << std::endl
             << "* `STATUS [rank]`: display information for the given process or for all processes" << std::endl
             << "* `CRASH [rank]`: crash the given process" << std::endl
+            << "* `RECOVERY [rank]`: un-crashes the given process" << std::endl
             << "* `SPEED [rank] [speed]`: set speed for the given process, available speed: low, medium, high" << std::endl
             << "* `START [client_rank]`: start the given client" << std::endl
-            << "* `PRINT_LOG [node_rank]`: prints the log of a given node or all nodes" << std::endl;
+            << "* `PRINT_LOG [node_rank]`: prints the log of a given node or all nodes" << std::endl
+            << "* `ENTRY [client_rank] [cmd]`: add given cmd to log of a given client" << std::endl
+            ;
     }
 
     static void print_log_command(const std::string& arg) {

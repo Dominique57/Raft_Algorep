@@ -72,6 +72,7 @@ namespace Node {
     void FollowerCycle::handle_request_vote(std::unique_ptr<Rpc::RpcResponse>& rpc) {
         auto reqVote = static_cast<Rpc::RequestVote*>(rpc->rpc.get());
 
+        spdlog::warn("Received reqVote (id: {}, term: {}, lastLogIndex: {}, lastLogTerm: {})", reqVote->candidateId, reqVote->term, reqVote->lastLogIndex, reqVote->lastLogTerm);
         if (reqVote->term < node.term) {
             // If older request, reply false to force candidate detect newer term and convert to follower
             MPI::Send_Rpc(Rpc::RequestVoteResponse(node.term, false), rpc->senderId);
