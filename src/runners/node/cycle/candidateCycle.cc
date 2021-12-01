@@ -25,11 +25,24 @@ namespace Node {
         if (check_always_should_stop(rpc))
             return true;
 
-        voteCount += 1;
-        if (voteCount > (GlobalConfig::nb_node_max - GlobalConfig::nb_node_min + 1) / 2) {
-            spdlog::info("Candidate has been elected leader !");
-            changeNextState(STATE::LEADER);
-            return true;
+        if (rpc->rpc->Type() == Rpc::TYPE::REQUEST_VOTE_RESPONSE) {
+            auto voteRes = static_cast<Rpc::RequestVoteResponse*>(rpc->rpc.get());
+            if (voteRes->voteGranted && !hasVotedForMe[rpc->senderId - GlobalConfig::nb_node_min]) {
+                hasVotedForMe[rpc->senderId - GlobalConfig::nb_node_min] = true;
+                voteCount += 1;
+                if (voteCount > (GlobalConfig::nb_node_max - GlobalConfig::nb_node_min + 1) / 2) {
+                    spdlog::info("Candidate has been elected leader !");
+                    changeNextState(STATE::LEADER);
+                    return true;
+                }
+            }
+        } else if(rpc->rpc->Type() == Rpc::TYPE::APPEND_ENTRIES) {
+            // If appendEntry from a leader in same or higher term, accept it as our leader
+            auto appendEntries = static_cast<Rpc::AppendEntries*>(rpc->rpc.get());
+            if (appendEntries->term >= node.term) {
+                changeNextState(STATE::FOLLOWER);
+                return true;
+            }
         }
         return false;
     }

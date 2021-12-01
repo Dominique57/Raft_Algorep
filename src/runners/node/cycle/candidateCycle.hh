@@ -1,16 +1,20 @@
 #pragma once
 
+#include "cycle.hh"
+
+#include <config/globalConfig.hh>
 #include <rpc/requestVote.hh>
 
 #include "fwd.hh"
-#include "cycle.hh"
 
 namespace Node {
 
     class CandidateCycle : public Cycle {
     public:
         CandidateCycle(Node &node)
-            : Cycle((std::rand() % 150) + 150, node), voteCount(0) {}
+            : Cycle((std::rand() % 150) + 150, node),
+              voteCount(0), hasVotedForMe(GlobalConfig::nb_node(), false)
+        {}
 
         void pre_cycle() override;
 
@@ -21,6 +25,7 @@ namespace Node {
 
     protected:
         int voteCount;
+        std::vector<bool> hasVotedForMe;
     };
 
 }
