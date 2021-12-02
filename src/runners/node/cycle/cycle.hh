@@ -7,7 +7,7 @@
 
 namespace Node {
 
-    // Forward declaration
+    /// Abstract class to derive every node's cycle from (LeaderCycle, CandidateCycle and FollowerCycle).
     class Cycle {
     protected:
         Cycle(int timer, Node &node)
@@ -73,10 +73,18 @@ namespace Node {
          */
         void changeNextState(STATE newState);
 
+        /**
+         * @brief Function to call while a process is crashed.
+         */
         void crash_loop();
 
+        /// The current timeout value.
         int timer;
+
+        /// The next state to enter into.
         std::optional<STATE> nextState;
+
+        /// The node which cycle we are handling.
         Node &node;
     };
 

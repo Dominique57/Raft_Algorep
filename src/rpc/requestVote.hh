@@ -10,6 +10,8 @@ namespace Rpc {
          * @brief Constructor
          * @param term              The candidate's term.
          * @param candidateId       The candidate's ID.
+         * @param lastLogIndex      The candidate's last log index.
+         * @param lastLogTerm       The candidate's last log term.
          */
         RequestVote(int term, int candidateId, int lastLogIndex, int lastLogTerm)
             : Rpc(TYPE::REQUEST_VOTE), term(term), candidateId(candidateId),
@@ -28,6 +30,10 @@ namespace Rpc {
                   json["lastLogTerm"].get<int>()) {}
 
     protected:
+        /**
+         * @brief Serialize the entries' data into json form.
+         * @return The JSON object containing the data.
+         */
         json serialize_self() const override {
             return json::object({
                 {"term", term}, {"candidateId", candidateId},
@@ -65,6 +71,10 @@ namespace Rpc {
             : RequestVoteResponse(json["term"].get<int>(), json["voteGranted"].get<bool>()) {}
 
     protected:
+        /**
+         * @brief Serialize the entries' data into json form.
+         * @return The JSON object containing the data.
+         */
         json serialize_self() const override {
             return json::object({{"term", term}, {"voteGranted", voteGranted}});
         }

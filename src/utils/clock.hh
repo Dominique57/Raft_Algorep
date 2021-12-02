@@ -5,7 +5,7 @@
 namespace Clock {
 
     /**
-     * Enum for the type of speed
+     * Enum for the type of speed.
      */
     enum SPEED_TYPE : unsigned int {
         HIGH = 0,
@@ -14,7 +14,7 @@ namespace Clock {
     };
 
     /**
-     * To get the corresponding SPEED name in string form
+     * To get the corresponding SPEED name in string form.
      */
     static const char *speed_type_names[] = {
         "high",
@@ -23,9 +23,9 @@ namespace Clock {
     };
 
     /**
-     * @brief Get the SPEED_TYPE in string format
+     * @brief Get the SPEED_TYPE in string format.
      * @param type              The type of the SPEED in SPEED_TYPE enum
-     * @return A char buffer containing the SPEED type
+     * @return A char buffer containing the SPEED type.
      */
     inline const char *getSpeedTypeName(const SPEED_TYPE& type) {
         auto typeIndex = static_cast<unsigned int>(type);
@@ -39,7 +39,7 @@ namespace Clock {
     /**
      * @brief Get the SPEED_TYPE in enum format
      * @param type              The name of the SPEED_TYPE
-     * @return The ENUM value of the SPEED_TYPE
+     * @return The SPEED_TYPE enum value of the SPEED_TYPE.
      */
     inline SPEED_TYPE getSpeedType(const std::string& type) {
         for (size_t i = 0; i < sizeof(speed_type_names) / sizeof(speed_type_names[0]); ++i)
@@ -48,6 +48,7 @@ namespace Clock {
         return SPEED_TYPE::HIGH;
     }
 
+    /// Class to handle different speeds of our processes.
     class Clock {
     public:
         /**
@@ -61,6 +62,7 @@ namespace Clock {
          */
         void wait() const;
 
+        /// Our current speed type
         SPEED_TYPE speed;
     };
 

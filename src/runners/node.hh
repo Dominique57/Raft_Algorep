@@ -50,6 +50,7 @@ namespace Node {
     }
 
 
+    /// Node class to handle our system's servers.
     class Node {
     public:
         /**
@@ -126,7 +127,10 @@ namespace Node {
           */
         int commitIndex;
 
+        /// To tell if the current node is crashed.
         bool crash;
+
+        /// The current node's clock with speed and wait() function.
         Clock::Clock clock;
 
         void initLeader();

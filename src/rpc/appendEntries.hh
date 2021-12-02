@@ -13,10 +13,10 @@ namespace Rpc {
         /**
          * @brief constructor appendEntries command
          * @param term          the current term.
-         * @param leaderid      the current leader's id.
-         * @param prevlogTerm   the term of prevlogindex entry
-         * @param prevlogindex  the index of the log entry immediately precceding new ones
-         * @param leadercommit  the leader´s commitindex
+         * @param leaderId      the current leader's id.
+         * @param prevLogTerm   the term of prevlogindex entry.
+         * @param prevLogIndex  the index of the log entry immediately precceding new ones.
+         * @param leaderCommit  the leader´s commitindex.
          * @param entries       The log entries to store (empty for heartbeat: may send more than one for efficiency)
          */
         AppendEntries(int term, int leaderId, int prevLogTerm, int prevLogIndex, int leaderCommit, std::vector<Entry> entries)
@@ -27,10 +27,10 @@ namespace Rpc {
         /**
          * @brief constructor appendEntries heartbeat
          * @param term          the current term.
-         * @param leaderid      the current leader's id.
-         * @param prevlogTerm   the term of prevlogindex entry
-         * @param prevlogindex  the index of the log entry immediately precceding new ones
-         * @param leadercommit  the leader´s commitindex
+         * @param leaderId      the current leader's id.
+         * @param prevLogTerm   the term of prevlogindex entry
+         * @param prevLogIndex  the index of the log entry immediately precceding new ones
+         * @param leaderCommit  the leader´s commitindex
          */
         AppendEntries(int term, int leaderId, int prevLogTerm, int prevLogIndex, int leaderCommit)
             : AppendEntries(term, leaderId, prevLogTerm, prevLogIndex, leaderCommit, {})
@@ -88,6 +88,7 @@ namespace Rpc {
          * @brief Constructor
          * @param term          The current term.
          * @param success       If the entry appended was successful.
+         * @param newIndex      The new index after appending the entries to the system's logs.
          */
         AppendEntriesResponse(int term, bool success, int newIndex)
             : Rpc(TYPE::APPEND_ENTRIES_RESPONSE), term(term),

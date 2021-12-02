@@ -4,7 +4,7 @@
 
 namespace Rpc {
 
-    /// Simple Rpc class that sends a string
+    /// RPC class te recieve's clients messages and commands.
     class RequestClient : public Rpc {
     public:
         /**
@@ -28,6 +28,10 @@ namespace Rpc {
         RequestClient(const json &json)
                 : RequestClient(json["value"].get<std::string>()) {}
 
+        /**
+         * @brief Serialize the entries' data into json form.
+         * @return The JSON object containing the data.
+         */
         json serialize_self() const override {
             return json::object({{"value", message}});
         }
@@ -35,6 +39,8 @@ namespace Rpc {
         /// RequestClient: content of rpc
         std::string message;
     };
+
+    /// RPC class to respond to client's requests.
     class RequestClientResponse : public Rpc {
         public:
             /**

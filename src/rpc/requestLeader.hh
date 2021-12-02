@@ -3,6 +3,7 @@
 #include "rpc.hh"
 
 namespace Rpc {
+    ///RPC class to request the leader's id.
     class RequestLeader : public Rpc {
     public:
         /**
@@ -27,6 +28,7 @@ namespace Rpc {
         }
     };
 
+    /// RPC response for when asking the leader's ID.
     class RequestLeaderResponse : public Rpc {
     public:
         /**

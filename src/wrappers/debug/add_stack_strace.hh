@@ -11,6 +11,9 @@
 #include <cstdlib>
 
 #ifndef NDEBUG
+/**
+ * Try to recover stack trace.
+ */
 namespace DEBUG {
     /*
      * FOR DEBUGGING PURPOSES *ONLY*: DO NOT USE IN PRODUCTION
