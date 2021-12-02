@@ -87,7 +87,7 @@ namespace Node {
 
         case Rpc::CONTROLLER_REQUEST_TYPE::CRASH:
             if (!node.crash) {
-                std::cout << "Node " << GlobalConfig::rank << " crashed" << std::endl;
+                spdlog::info("Node crashed");
                 node.crash = true;
                 crash_loop();
                 return true;
@@ -95,22 +95,22 @@ namespace Node {
             break;
 
         case Rpc::CONTROLLER_REQUEST_TYPE::SPEED:
-            std::cout << "Node " << GlobalConfig::rank << " set speed to " << request->message << std::endl;
+            spdlog::info("Node set speed to : {}", request->message);
             node.clock.speed = Clock::getSpeedType(request->message);
             break;
 
         case Rpc::CONTROLLER_REQUEST_TYPE::RECOVERY:
             if (node.crash) {
-                std::cout << "Node " << GlobalConfig::rank << " recovered" << std::endl;
+                spdlog::info("Node recovered");
                 node.crash = false;
             }
             break;
 
         case Rpc::CONTROLLER_REQUEST_TYPE::PRINT_LOG:
-            std::cout << "Node " << GlobalConfig::rank << " logs: \n" << node.logs;
+            spdlog::info("Node logs : {}", to_string(node.logs));
             break;
         default:
-            std::cout << "Unknown controller request" << std::endl;
+            spdlog::error("Unknown controller request");
             break;
         }
         return false;

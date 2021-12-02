@@ -18,11 +18,11 @@ namespace Client {
     {
     }
 
-    void Client::add_request(const std::string request_) {
+    void Client::add_request(const std::string &request_) {
         this->request.emplace_back(request_);
     }
 
-    void Client::start() {
+    [[noreturn]] void Client::start() {
         while (true) {
             this->clock.wait();
 
@@ -61,11 +61,9 @@ namespace Client {
     }
 
     void Client::send_request() {
-
-        for (auto rqst : this->request)
-        {
-        MPI::Send_Rpc(rqst, this->leaderId);
-        std::cout << "client " << GlobalConfig::rank << " has sent : \" " << rqst.message << " \"" << std::endl;
+        for (const auto& rqst : this->request) {
+            MPI::Send_Rpc(rqst, this->leaderId);
+            spdlog::info("Client has sent {}", rqst.message);
         }
         this->request.clear();
     }
@@ -109,23 +107,21 @@ namespace Client {
             break;
 
         case Rpc::CONTROLLER_REQUEST_TYPE::CRASH:
-            if(this->run)
-            {
-                std::cout << "Client " << GlobalConfig::rank << " crashed" << std::endl;
+            if(this->run) {
+                spdlog::info("Client crashed");
                 this->run = false;
             }
             break;
 
         case Rpc::CONTROLLER_REQUEST_TYPE::START:
-            if (!this->run)
-            {
-                std::cout << "Client " << GlobalConfig::rank << " started" << std::endl;
+            if (!this->run) {
+                spdlog::info("Client started");
                 this->run = true;
             }
             break;
 
         case Rpc::CONTROLLER_REQUEST_TYPE::SPEED:
-            std::cout << "Client " << GlobalConfig::rank << " set speed to " << controllerRequest->message << std::endl;
+            spdlog::info("Client set speed to {}", controllerRequest->message);
             clock.speed = Clock::getSpeedType(controllerRequest->message);
             break;
 
@@ -134,11 +130,11 @@ namespace Client {
             break;
 
         case Rpc::CONTROLLER_REQUEST_TYPE::ENTRY:
-            std::cout << "Client " << GlobalConfig::rank << " received a command: " << controllerRequest->message << std::endl;
+            spdlog::info("Client received command : {}", controllerRequest->message);
             add_request(controllerRequest->message);
             break;
         default:
-            std::cout << "Unknown controller request" << std::endl;
+            spdlog::warn("Unkown controller request");
             break;
         }
     }

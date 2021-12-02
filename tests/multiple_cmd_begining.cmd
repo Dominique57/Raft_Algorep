@@ -1,0 +1,7 @@
+3
+1
+ENTRY 4 cmd1
+ENTRY 4 cmd2
+ENTRY 4 cmd3
+ENTRY 4 cmd4
+START

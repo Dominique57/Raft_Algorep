@@ -31,3 +31,9 @@ std::ostream &operator<<(std::ostream &os, const std::vector<Entry> &entries) {
         os << entry << '\n';
     return os << std::endl;
 }
+
+std::string to_string(const std::vector<Entry> &entries) {
+    std::stringstream ss;
+    ss << entries;
+    return ss.str();
+}

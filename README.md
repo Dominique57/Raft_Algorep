@@ -7,15 +7,27 @@ valeurs/commandes aux serveurs.
 
 # Usage
 ```sh
-make [slots=${nb_slots}] [nodes=${nb_nodes}] [clients=${nb_clients}]
+42sh$ make [slots=${nb_slots}] [nodes=${nb_nodes}] [clients=${nb_clients}]
 ```
 
 The default number of slots is 8 with 4 nodes and 3 clients.
 
+The default test_file is "tests/simple\_1\_entry.cmd".
+
+To launch a test and still have an interactive session:
 ```sh
-make test [TEST_FILE=${test_file}]
+42sh$ make test [TEST_FILE=${test_file}]
 ```
-The default test is tests/multiple\_entries.cmd with its hostfile tests/multiple\_entries.hostfile
+
+To launch a test and check if entries are update to date. 
+```sh
+42sh$ ./tests/test.sh [test_file]
+```
+
+To launch all tests:
+```sh
+42sh$ ./tests/test_all.sh [test_directory]
+```
 
 # REPL: controller commands
 

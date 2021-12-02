@@ -3,6 +3,7 @@
 #pragma once
 
 #include <string>
+#include <sstream>
 #include <wrappers/nlhomann_include.hh>
 
 /// Struct containing the useful informations to handle a new entry.
@@ -46,3 +47,10 @@ std::ostream& operator<<(std::ostream& os, const Entry &entry);
  * @return The output stream with the entries' values.
  */
 std::ostream& operator<<(std::ostream& os, const std::vector<Entry> &entries);
+
+/**
+ * @brief Overload of the to_string function to convert multiples entries as a string.
+ * @param entries   the entries to convert as string.
+ * @return The output string with the entries' values.
+ */
+std::string to_string(const std::vector<Entry> &entries);

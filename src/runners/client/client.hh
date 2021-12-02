@@ -20,7 +20,7 @@ namespace Client {
         /**
          * @brief Launches the client run the main client's loop.
          */
-        void start();
+        [[noreturn]] void start();
 
         /**
          * @brief Send a request to the system.
@@ -64,7 +64,7 @@ namespace Client {
          * @brief controller set request client
          * @param request_   Request set by controller to be sent by client
          */
-        void add_request(const std::string request_);
+        void add_request(const std::string &request_);
 
         /// The current client's clock containing the speed and wait() function.
         Clock::Clock clock;
