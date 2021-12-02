@@ -31,7 +31,6 @@ make test TEST_FILE="$1" 2> /dev/null &
 child_pid=$!
 
 clean_exit() {
-  echo "Killing $child_pid" > exit_log.txt
   kill $child_pid
   exit "$1"
 }
