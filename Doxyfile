@@ -19,7 +19,9 @@ RECURSIVE              = YES
 GENERATE_HTML          = YES
 HTML_OUTPUT            = html
 HTML_FILE_EXTENSION    = .html
-HTML_EXTRA_STYLESHEET  = res/docs/style.css
+HTML_EXTRA_STYLESHEET  = "res/docs/custom.css"
+HTML_HEADER            = "res/docs/html_header.html"
+HTML_FOOTER            = "res/docs/html_footer.html"
 EXTRACT_ALL            = YES
 GENERATE_LATEX         = NO
 
