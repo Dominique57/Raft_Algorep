@@ -107,8 +107,9 @@ namespace Node {
             break;
 
         case Rpc::CONTROLLER_REQUEST_TYPE::PRINT_LOG:
-            spdlog::info("Node logs : {}", to_string(node.logs));
+            std::cout << "Node logs : \n" << node.logs;
             break;
+
         default:
             spdlog::error("Unknown controller request");
             break;

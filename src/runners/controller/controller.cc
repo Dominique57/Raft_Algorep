@@ -210,7 +210,7 @@ namespace Controller
             if (!line.empty())
                 parse_input_command(line);
 
-            usleep(1000);
+            usleep(100 * 1000);
             std::cout << "[CONTROLLER] ";
 
         } while (std::getline(std::cin, line));
