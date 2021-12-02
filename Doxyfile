@@ -21,6 +21,7 @@ USE_MDFILE_AS_MAINPAGE = README.md
 GENERATE_HTML          = YES
 HTML_OUTPUT            = html
 HTML_FILE_EXTENSION    = .html
+GENERATE_TREEVIEW      = YES
 HTML_EXTRA_STYLESHEET  = "res/docs/custom.css"
 HTML_HEADER            = "res/docs/html_header.html"
 HTML_FOOTER            = "res/docs/html_footer.html"
