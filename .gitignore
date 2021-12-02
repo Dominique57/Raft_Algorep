@@ -3,3 +3,6 @@
 docs
 cmake-build-release
 cmake-build-debug
+build
+*.log
+hostfile
