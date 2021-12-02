@@ -60,6 +60,7 @@ namespace Node {
 
         assert(msg->leaderCommit < (int)node.logs.size() && "Attempted to commit non-existing log !");
         for (auto index = node.commitIndex + 1; index <= msg->leaderCommit; ++index) {
+            node.save_commit(node.logs[index]);
             spdlog::info("Committed {} (cmd: {})", index, node.logs[index].cmd);
         }
         node.commitIndex = msg->leaderCommit;

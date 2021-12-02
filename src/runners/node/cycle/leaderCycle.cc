@@ -76,6 +76,7 @@ namespace Node {
 
         while (update_commitIndex()) {
             respond_client();
+            node.save_commit(node.logs[node.commitIndex]);
             spdlog::info("Log index {} committed", node.commitIndex);
         }
         return false;

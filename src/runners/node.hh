@@ -10,6 +10,7 @@
 #include <sstream>
 #include <unistd.h>
 #include <variant>
+#include <stdio.h>
 
 #include "wrappers/mpi/rpcRecieverReinjecter.hh"
 #include "wrappers/mpi_include.hh"
@@ -65,7 +66,9 @@ namespace Node {
               commitIndex(-1),
               crash(false),
               clock(Clock::SPEED_TYPE::HIGH)
-        {}
+        {
+            remove(("node_" + std::to_string(GlobalConfig::rank) + ".log").c_str());
+        }
 
         /**
          * @brief Updates the node depending on it's current cycle.
@@ -133,6 +136,7 @@ namespace Node {
         /// The current node's clock with speed and wait() function.
         Clock::Clock clock;
 
+        static void save_commit(Entry &entry);
         void initLeader();
     };
 }

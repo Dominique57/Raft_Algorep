@@ -89,7 +89,7 @@ namespace Client {
                     this->handle_controller_request(rpcResponse.get());
                 if (type == Rpc::TYPE::REQUEST_CLIENT_RESPONSE
                         && rpcResponse->senderId == this->leaderId)
-                    std::cout << "Got answer form leader" << std::endl;
+                    Log::log("Got answer form leader");
             }
         } while (!hasTimedOut);
     }

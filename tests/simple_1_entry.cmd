@@ -1,0 +1,5 @@
+3
+2
+ENTRY 4 cmd1
+ENTRY 5 cmd2
+START

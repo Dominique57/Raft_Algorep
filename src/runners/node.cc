@@ -1,5 +1,8 @@
 #include "node.hh"
 
+#include <iostream>
+#include <fstream>
+
 #include <spdlog/spdlog.h>
 #include <config/globalConfig.hh>
 #include <rpc/requestVote.hh>
@@ -60,6 +63,14 @@ namespace Node {
                 throw std::logic_error("NODE>UPDATE> invalid state !");
             }
         }
+    }
+
+    void Node::save_commit(Entry &entry) {
+        std::ofstream file;
+        auto file_name = "node_" + std::to_string(GlobalConfig::rank) + ".log";
+        file.open (file_name, std::fstream::app);
+        file << entry << std::endl;
+        file.close();
     }
 
     void Node::initLeader() {
