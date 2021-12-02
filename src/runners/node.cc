@@ -48,7 +48,17 @@ namespace Node {
     void Node::start() {
         while (true) {
 
-            this->clock.wait();
+            // HOTFIX: Sometimes MPI_Iprobe fails and return MPI_ERROR but with incorrect code
+            // We saw that rpcReciever.get_rpc_timeout (SOMEHOW) manages to avoid that bug
+            auto msg = rpcReciever.get_rpc_timeout(MPI_ANY_SOURCE, 0);
+            if (msg == nullptr) {
+                // If no message awaiting, wait the clock time (LOW/MEDIUM/HIGH)
+                this->clock.wait();
+            } else {
+                // else keep processing messages (because it is a priority to flush before
+                // running a local event
+                rpcReciever.reinject_rpc(std::move(msg));
+            }
 
             if (state == STATE::FOLLOWER) {
                 auto cycle = FollowerCycle(*this);
