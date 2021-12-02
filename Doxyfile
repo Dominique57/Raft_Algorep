@@ -22,9 +22,7 @@ GENERATE_HTML          = YES
 HTML_OUTPUT            = html
 HTML_FILE_EXTENSION    = .html
 GENERATE_TREEVIEW      = YES
-HTML_EXTRA_STYLESHEET  = "res/docs/custom.css"
-HTML_HEADER            = "res/docs/html_header.html"
-HTML_FOOTER            = "res/docs/html_footer.html"
+HTML_EXTRA_STYLESHEET  = res/docs/doxygen-awesome-css/doxygen-awesome.css
 EXTRACT_ALL            = YES
 GENERATE_LATEX         = NO
 
