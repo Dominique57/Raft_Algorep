@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <unistd.h>
+#include <fstream>
 
 #include "config/globalConfig.hh"
 #include "rpc/controllerRequest.hh"
@@ -19,6 +20,7 @@ namespace Controller
     static void recovery_command(const std::string& arg);
     static void print_log_command(const std::string& arg);
     static void entry_command(const std::string& arg);
+    static void sleep_command(const std::string& arg);
 
     const std::pair<const char*, void (*)(const std::string&)> commands[] = {
         std::make_pair("CRASH", crash_command),
@@ -29,6 +31,7 @@ namespace Controller
         std::make_pair("RECOVERY", recovery_command),
         std::make_pair("PRINT_LOG", print_log_command),
         std::make_pair("ENTRY", entry_command),
+        std::make_pair("SLEEP", sleep_command),
     };
 
     static void parse_input_command(const std::string& line) {
@@ -43,7 +46,7 @@ namespace Controller
             }
         }
 
-        std::cout << "Invalid command" << std::endl;
+        std::cout << "Invalid command: '" << line << "'"<< std::endl;
     }
 
     static void speed_command(const std::string& arg) {
@@ -73,13 +76,14 @@ namespace Controller
     static void help_command(const std::string&) {
         std::cout << "Commands: " << std::endl
             << "* `HELP`: display help message" << std::endl
-            << "* `STATUS [rank]`: display information for the given process or for all processes" << std::endl
             << "* `CRASH [rank]`: crash the given process" << std::endl
+            << "* `ENTRY [client_rank] [cmd]`: add given cmd to log of a given client" << std::endl
+            << "* `PRINT_LOG [node_rank]`: prints the log of a given node or all nodes" << std::endl
             << "* `RECOVERY [rank]`: un-crashes the given process" << std::endl
+            << "* `SLEEP [milliseconds]`: sleep the controller for milliseconds" << std::endl
             << "* `SPEED [rank] [speed]`: set speed for the given process, available speed: low, medium, high" << std::endl
             << "* `START [client_rank]`: start the given client" << std::endl
-            << "* `PRINT_LOG [node_rank]`: prints the log of a given node or all nodes" << std::endl
-            << "* `ENTRY [client_rank] [cmd]`: add given cmd to log of a given client" << std::endl
+            << "* `STATUS [rank]`: display information for the given process or for all processes" << std::endl
             ;
     }
 
@@ -193,6 +197,11 @@ namespace Controller
         MPI::Send_Rpc(Rpc::ControllerRequest(Rpc::CONTROLLER_REQUEST_TYPE::ENTRY, cmd), dst);
     }
 
+    static void sleep_command(const std::string& arg) {
+        //std::cout << "Sleep controller for " << arg << " milliseconds" << std::endl;
+        usleep(1000 * std::atoi(arg.c_str()));
+    }
+
     void Controller::start() const {
         std::string line;
 
@@ -205,5 +214,21 @@ namespace Controller
             std::cout << "[CONTROLLER] ";
 
         } while (std::getline(std::cin, line));
+    }
+
+    void Controller::start_command_list(const char* file) const {
+
+        std::ifstream ifs(file);
+        std::string line;
+
+        // Skip nb clients and nb nodes
+        ifs >> line;
+        ifs >> line;
+
+        while (std::getline(ifs, line))
+            if (!line.empty())
+                parse_input_command(line);
+
+        ifs.close();
     }
 }

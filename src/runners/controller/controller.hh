@@ -10,5 +10,6 @@ namespace Controller
 
         /* Methods */
         void start() const;
+        void start_command_list(const char* file) const;
     };
 }

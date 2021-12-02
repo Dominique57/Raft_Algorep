@@ -19,13 +19,6 @@ endif()
 add_definitions(-DOMPI_SKIP_MPICXX)
 find_package(MPI REQUIRED)
 
-
-add_custom_target(
-    run.sh
-    COMMAND sh ${CMAKE_SOURCE_DIR}/res/run.sh ${CMAKE_SOURCE_DIR}/res
-    DEPENDS ${PROJECT_NAME}
-)
-
 add_executable(${PROJECT_NAME}
     src/main.cc
     src/runners/node.cc src/runners/node.hh
