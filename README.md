@@ -35,7 +35,7 @@ and navigate "res/docs/html/index.html" with your favorite browser.
 
 - The default number of slots is 8 with 4 nodes and 3 clients (there is always
   a controller).
-- The default test_file is "tests/simple\_1\_entry.cmd".
+- The default test\_file is "tests/simple\_1\_entry.cmd".
 
 > To launch an interactive session :
 ```sh
