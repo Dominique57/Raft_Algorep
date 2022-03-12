@@ -74,6 +74,14 @@ real-case behaviours.
 * `START [client_rank]`: start the given client
 * `STATUS [rank]`: display information for the given process or for all processes
 
+## Known issues
+- The system can fail if there are too many messages to be sent from the leader
+  to a follower. This issue is related to the fact that there are too much data
+  and the json isn't fully sent and thus doesn't get parsed correctly.
+> A possible fix would be to limit the maximum ammount of message to be sent
+> from a leader during synchronisation
+- The command parsing is very manual and could use streaming operators ">>".
+
 ## Contributions
 - Dominique MICHEL <dominique.michel@epita.fr>
 - Léa MASSELLES <lea.masselles@epita.fr>
