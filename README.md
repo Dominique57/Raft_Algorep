@@ -8,6 +8,9 @@ This is a group project where we implemented the basics of the
 [RAFT](https://raft.github.io/) paper. This implementation is able to achieve
 consensus for leader election and log replication.
 
+
+![Demo](res/demonstration.gif)
+
 ## Setup
 
 To be able to compile and run the program you need :
